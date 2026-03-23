@@ -1,5 +1,5 @@
 
-XCODE ?= 26.2
+XCODE ?= 26.3
 
 export XCBEAUTIFY_RENDERER ?= github-actions
 export TEST_DESTINATION ?= platform=iOS Simulator,OS=latest,name=iPhone 17 Pro Max
@@ -60,11 +60,15 @@ build-xcframeworks-no-sign: setup clean-xcframeworks
 	bash ./scripts/build_xcframeworks.sh "${xcframeworks_path}" "${derived_data_path}" "${archive_path}" "true"
 
 .PHONY: build-samples
-build-samples: build-sample-ios
+build-samples: build-sample-ios build-sample-macos
 
 .PHONY: build-sample-ios
 build-sample-ios: setup
 	bash ./scripts/build_sample.sh "DevApp" "${derived_data_path}"
+	
+.PHONY: build-sample-macos
+build-sample-macos: setup
+	bash ./scripts/build_sample.sh "DevApp" "${derived_data_path}" "macOS"
 	
 .PHONY: build-sample-watchos
 build-sample-watchos: setup
@@ -113,6 +117,10 @@ pod-lint: pod-lint-tvos pod-lint-ios pod-lint-extensions
 pod-lint-tvos: setup
 	bundle exec pod lib lint Airship.podspec --verbose --platforms=tvos --fail-fast --skip-tests --no-subspecs --allow-warnings
 
+.PHONY: pod-lint-macos
+pod-lint-macos: setup
+	bundle exec pod lib lint Airship.podspec --verbose --platforms=macos --fail-fast --skip-tests --no-subspecs --allow-warnings
+	
 .PHONY: pod-lint-watchos
 pod-lint-watchos: setup
 	bundle exec pod lib lint Airship.podspec --verbose --platforms=watchos --subspec=Core --fail-fast --skip-tests --no-clean --allow-warnings
