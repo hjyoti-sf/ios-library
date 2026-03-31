@@ -21,7 +21,7 @@ struct MessageCenterThomasView: View {
         layoutRequest: @escaping () async throws -> URLRequest,
         analytics: ThomasDisplayListener,
         dismissHandle: ThomasDismissHandle,
-        stateStorage: (any LayoutDataStorage)? = nil
+        stateStorage: @escaping () -> any LayoutDataStorage
     ) {
         self._phase = phase
         self._viewModel = StateObject(
@@ -35,10 +35,10 @@ struct MessageCenterThomasView: View {
     }
     
     var body: some View {
-        if let layout = viewModel.layout {
+        if let (layout, model) = viewModel.layout {
             AirshipSimpleLayoutView(
                 layout: layout,
-                viewModel: viewModel.layoutViewModel
+                viewModel: model
             )
         } else {
             Color.clear.task {
@@ -54,35 +54,28 @@ struct MessageCenterThomasView: View {
 @MainActor
 private final class ViewModel: ObservableObject {
     private let layoutRequest: () async throws -> URLRequest
-    private let stateStorage: (any LayoutDataStorage)?
+    private let stateStorageBuilder: () -> any LayoutDataStorage
 
     @Published
-    private(set) var layout: AirshipLayout? = nil
+    private(set) var layout: (AirshipLayout, AirshipSimpleLayoutViewModel)? = nil
 
     let analyticsRecorder: any ThomasDelegate
     let dismissHandle: ThomasDismissHandle
-    let layoutViewModel: AirshipSimpleLayoutViewModel
 
     init(
         request: @escaping () async throws -> URLRequest,
         analytics: ThomasDisplayListener,
         dismissHandle: ThomasDismissHandle,
-        stateStorage: (any LayoutDataStorage)? = nil
+        stateStorage: @escaping () -> any LayoutDataStorage
     ) {
         self.layoutRequest = request
         self.analyticsRecorder = analytics
         self.dismissHandle = dismissHandle
-        self.stateStorage = stateStorage
-        self.layoutViewModel = AirshipSimpleLayoutViewModel(
-            delegate: analytics,
-            dismissHandle: dismissHandle,
-            stateStorage: stateStorage
-        )
+        self.stateStorageBuilder = stateStorage
     }
     
     func loadLayout() async -> MessageCenterMessageView.DisplayPhase {
-        if let layout {
-            await preloadData(for: layout)
+        guard self.layout == nil else {
             return .loaded
         }
         
@@ -90,8 +83,8 @@ private final class ViewModel: ObservableObject {
             let request = try await self.layoutRequest()
             let (data, _) = try await URLSession.airshipSecureSession.data(for: request)
             let downloaded = try JSONDecoder().decode(AirshipLayout.self, from: data)
-            await preloadData(for: downloaded)
-            self.layout = downloaded
+            let storage = await preloadData(for: downloaded)
+            self.layout = (downloaded, makeSimpleLayoutViewModel(with: storage))
         } catch {
             return .error(error)
         }
@@ -103,8 +96,24 @@ private final class ViewModel: ObservableObject {
         self.dismissHandle.dismiss()
     }
     
-    private func preloadData(for layout: AirshipLayout) async {
-        await self.stateStorage?.prepare(restoreID: "static") //TODO: replace with the actual
+    private func preloadData(for layout: AirshipLayout) async -> (any LayoutDataStorage)? {
+        let storage = self.stateStorageBuilder()
+        
+        guard let options = layout.options?.stateRestoration else {
+            storage.clear()
+            return nil
+        }
+        
+        await storage.prepare(restoreID: options.restoreID)
+        return storage
+    }
+    
+    private func makeSimpleLayoutViewModel(with storage: (any LayoutDataStorage)?) -> AirshipSimpleLayoutViewModel {
+        AirshipSimpleLayoutViewModel(
+            delegate: analyticsRecorder,
+            dismissHandle: dismissHandle,
+            stateStorage: storage
+        )
     }
 }
 

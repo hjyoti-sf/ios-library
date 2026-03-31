@@ -318,7 +318,7 @@ private struct MessageCenterMessageContentView: View {
                 layoutRequest: { try await Self.makeRequest(viewModel: viewModel) },
                 analytics: analytics,
                 dismissHandle: self.viewModel.thomasDismissHandle,
-//                stateStorage: viewModel.getOrCreateNativeStateStorage() //disables state restoring for all message center views
+                stateStorage: { viewModel.getOrCreateNativeStateStorage() }
             )
         } else {
             EmptyView()

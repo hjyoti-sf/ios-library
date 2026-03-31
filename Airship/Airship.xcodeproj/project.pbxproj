@@ -48,6 +48,7 @@
 		27264FB32E81B064000B6FA3 /* AirshipSceneController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27264FB22E81B064000B6FA3 /* AirshipSceneController.swift */; };
 		2726505B2E81B80E000B6FA3 /* PagerControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2726505A2E81B80E000B6FA3 /* PagerControllerTest.swift */; };
 		2753F6422F6C5BB50073882C /* MessageCenterMessageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2753F6412F6C5BB50073882C /* MessageCenterMessageError.swift */; };
+		2753F6FA2F71507E0073882C /* NativeLayoutControlOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2753F6F92F71507E0073882C /* NativeLayoutControlOptions.swift */; };
 		275D32AC2EF957F200B75760 /* AirshipSimpleLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275D32AA2EF955AD00B75760 /* AirshipSimpleLayoutView.swift */; };
 		275D32AD2EF957F200B75761 /* AirshipSimpleLayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275D32AB2EF955AD00B75761 /* AirshipSimpleLayoutViewModel.swift */; };
 		2797B4192F47687800A7F848 /* NativeLayoutPersistentDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2797B4182F47687800A7F848 /* NativeLayoutPersistentDataStore.swift */; };
@@ -1051,6 +1052,7 @@
 		99F662B22B60425E00696098 /* InAppMessageModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F662B12B60425E00696098 /* InAppMessageModalView.swift */; };
 		99F662D22B63047300696098 /* InAppMessageBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F662D12B63047300696098 /* InAppMessageBannerView.swift */; };
 		99FD20A52DEFC35900242551 /* MessageCenterUIKitAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FD20A42DEFC35900242551 /* MessageCenterUIKitAppearance.swift */; };
+		A08F10022F9000010099AA01 /* AirshipLayoutTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08F10012F9000010099AA01 /* AirshipLayoutTest.swift */; };
 		A1B2C3D4E5F60002VIDEOST /* VideoState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001VIDEOST /* VideoState.swift */; };
 		A1B2C3D4E5F60004VIDEOCR /* VideoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60003VIDEOCR /* VideoController.swift */; };
 		A61517B226A9C4C3008A41C4 /* SubscriptionListEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A61517B126A9C4C3008A41C4 /* SubscriptionListEditor.swift */; };
@@ -1380,6 +1382,7 @@
 		27264FB22E81B064000B6FA3 /* AirshipSceneController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipSceneController.swift; sourceTree = "<group>"; };
 		2726505A2E81B80E000B6FA3 /* PagerControllerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerControllerTest.swift; sourceTree = "<group>"; };
 		2753F6412F6C5BB50073882C /* MessageCenterMessageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterMessageError.swift; sourceTree = "<group>"; };
+		2753F6F92F71507E0073882C /* NativeLayoutControlOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeLayoutControlOptions.swift; sourceTree = "<group>"; };
 		275D32AA2EF955AD00B75760 /* AirshipSimpleLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipSimpleLayoutView.swift; sourceTree = "<group>"; };
 		275D32AB2EF955AD00B75761 /* AirshipSimpleLayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipSimpleLayoutViewModel.swift; sourceTree = "<group>"; };
 		2797B4182F47687800A7F848 /* NativeLayoutPersistentDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeLayoutPersistentDataStore.swift; sourceTree = "<group>"; };
@@ -2396,6 +2399,7 @@
 		99F662B12B60425E00696098 /* InAppMessageModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessageModalView.swift; sourceTree = "<group>"; };
 		99F662D12B63047300696098 /* InAppMessageBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessageBannerView.swift; sourceTree = "<group>"; };
 		99FD20A42DEFC35900242551 /* MessageCenterUIKitAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterUIKitAppearance.swift; sourceTree = "<group>"; };
+		A08F10012F9000010099AA01 /* AirshipLayoutTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipLayoutTest.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60001VIDEOST /* VideoState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoState.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60003VIDEOCR /* VideoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoController.swift; sourceTree = "<group>"; };
 		A61517B126A9C4C3008A41C4 /* SubscriptionListEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SubscriptionListEditor.swift; path = AirshipCore/Source/SubscriptionListEditor.swift; sourceTree = SOURCE_ROOT; };
@@ -3194,6 +3198,7 @@
 				6E1A1BB12D6F9D020056418B /* Environment */,
 				6E2FA28A2D515C56005893E2 /* Types */,
 				6E1C9C39271E90EB009EF9EF /* LayoutModelsTest.swift */,
+				A08F10012F9000010099AA01 /* AirshipLayoutTest.swift */,
 				6E382C20276D3E990091A351 /* ThomasValidationTests.swift */,
 				605073892B32F85100209B51 /* ThomasViewModelTest.swift */,
 				6050738F2B347B6400209B51 /* ThomasPresentationModelCodingTest.swift */,
@@ -4529,6 +4534,7 @@
 				6EED67742CDEE8460087CDCB /* ThomasWindowSize.swift */,
 				60CE9BDD2D0B6A0900A8B625 /* ThomasPagerControllerBranching.swift */,
 				602AD0D42D7242B300C7D566 /* ThomasSmsLocale.swift */,
+				2753F6F92F71507E0073882C /* NativeLayoutControlOptions.swift */,
 			);
 			name = Types;
 			sourceTree = "<group>";
@@ -6170,6 +6176,7 @@
 				6E739D6B26B9DFFB00BC6F6D /* AttributePendingMutations.swift in Sources */,
 				A67F87D2268DECCE00EF5F43 /* ContactAPIClient.swift in Sources */,
 				6EFD6D5C27273257005B26F1 /* Shapes.swift in Sources */,
+				2753F6FA2F71507E0073882C /* NativeLayoutControlOptions.swift in Sources */,
 				6E1C9C4B271F7878009EF9EF /* BackgroundColorViewModifier.swift in Sources */,
 				6E6ED13B2683A58D00A2CBD0 /* Dispatcher.swift in Sources */,
 				6EED67C82CE1B6020087CDCB /* ThomasMediaFit.swift in Sources */,
@@ -6636,6 +6643,7 @@
 				6EC7E46E269E2A4C0038CFDD /* AttributeEditorTest.swift in Sources */,
 				6EF140212A269074009A125D /* AirshipDeviceIDTest.swift in Sources */,
 				6E1C9C3A271E90EB009EF9EF /* LayoutModelsTest.swift in Sources */,
+				A08F10022F9000010099AA01 /* AirshipLayoutTest.swift in Sources */,
 				6EC7E470269E33290038CFDD /* TagGroupsEditorTest.swift in Sources */,
 				60A5CC102B29B4100017EDB2 /* RegionEventTest.swift in Sources */,
 				6E7DB39228ED0D7C002725F6 /* LiveActivityRegistryTest.swift in Sources */,
