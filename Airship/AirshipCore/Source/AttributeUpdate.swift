@@ -85,7 +85,7 @@ struct AttributeUpdate: Codable, Sendable, Equatable {
 
 extension AttributeUpdate {
     var operation: AttributeOperation {
-        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter)
+        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
         switch self.type {
         case .set:
             return AttributeOperation(
@@ -106,7 +106,7 @@ extension AttributeUpdate {
 }
 
 /// NOTE: For internal use only. :nodoc:
-// Used by ChannelBulkAPIClient and DeferredAPIClient
+// Used by ChannelBulkUpdateAPIClient, DeferredAPIClient, and ContactAPIClient
 
 struct AttributeOperation: Encodable {
     enum AttributeAction: String, Encodable {

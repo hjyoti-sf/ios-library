@@ -150,7 +150,7 @@ final class MeteredUsageApiClientTest: XCTestCase {
 
         let decodedBody = try JSONSerialization.jsonObject(with: body!) as! [String : [[String: String]]]
 
-        let timestampString = AirshipDateFormatter.string(fromDate: timestamp, format: .isoDelimitter)
+        let timestampString = AirshipDateFormatter.string(fromDate: timestamp, format: .iso8601)
 
         XCTAssertEqual([
             [

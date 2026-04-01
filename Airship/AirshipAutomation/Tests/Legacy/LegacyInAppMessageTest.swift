@@ -46,7 +46,7 @@ final class LegacyInAppMessageTest: XCTestCase {
                 "duration": 100.0,
             ],
             "extra": ["extra_value": "some text"],
-            "expiry": AirshipDateFormatter.string(fromDate: date.now, format: .isoDelimitter),
+            "expiry": AirshipDateFormatter.string(fromDate: date.now, format: .iso8601),
             "actions": [
                 "on_click": ["onclick": "action"],
                 "button_group": "button group",
@@ -61,8 +61,8 @@ final class LegacyInAppMessageTest: XCTestCase {
         XCTAssertEqual(try! AirshipJSON.wrap(["test-campaing": "json"]), message.campaigns)
         XCTAssertEqual("test-message", message.messageType)
         XCTAssertEqual(
-            AirshipDateFormatter.string(fromDate: date.now, format: .isoDelimitter),
-            AirshipDateFormatter.string(fromDate: message.expiry, format: .isoDelimitter)
+            AirshipDateFormatter.string(fromDate: date.now, format: .iso8601),
+            AirshipDateFormatter.string(fromDate: message.expiry, format: .iso8601)
         )
         XCTAssertEqual(100, message.duration)
         XCTAssertEqual(try! AirshipJSON.wrap(["extra_value": "some text"]), message.extra)

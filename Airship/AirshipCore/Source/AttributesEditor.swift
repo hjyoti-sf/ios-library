@@ -45,7 +45,7 @@ public final class AttributesEditor {
         trySetAttribute(
             attribute,
             value: .string(
-                AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter)
+                AirshipDateFormatter.string(fromDate: date, format: .iso8601)
             )
         )
     }

@@ -205,6 +205,6 @@ extension AirshipHTTPResponse {
             return seconds
         }
 
-        return AirshipDateFormatter.date(fromISOString: retryAfter)?.timeIntervalSince1970
+        return AirshipDateFormatter.date(from: retryAfter)?.timeIntervalSince1970
     }
 }

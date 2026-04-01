@@ -74,26 +74,13 @@ final class ContactAPIClient: ContactsAPIClientProtocol {
 
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
-            let container = try decoder.singleValueContainer()
-            let dateStr = try container.decode(String.self)
-
-            guard let date = AirshipDateFormatter.date(fromISOString: dateStr) else {
-                throw AirshipErrors.error("Invalid date \(dateStr)")
-            }
-            return date
-        })
+        decoder.dateDecodingStrategy = .airshipISO8601
         return decoder
     }
 
     private var encoder: JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .custom({ date, encoder in
-            var container = encoder.singleValueContainer()
-            try container.encode(
-                AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter)
-            )
-        })
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         return encoder
     }
 
@@ -142,7 +129,7 @@ final class ContactAPIClient: ContactsAPIClientProtocol {
         subscriptionListUpdates: [ScopedSubscriptionListUpdate]?
     ) async throws ->  AirshipHTTPResponse<Void> {
         let requestBody = ContactUpdateRequestBody(
-            attributes: try attributeUpdates?.toRequestBody(),
+            attributes: attributeUpdates?.toRequestBody(),
             tags: tagGroupUpdates?.toRequestBody(),
             subscriptionLists: subscriptionListUpdates?.toRequestBody(),
             associate: nil
@@ -632,18 +619,6 @@ fileprivate struct ContactUpdateRequestBody: Encodable {
         case associate = "associate"
     }
 
-    enum AttributeOperationAction: String, Encodable {
-        case set
-        case remove
-    }
-
-    struct AttributeOperation: Encodable {
-        let action: AttributeOperationAction
-        let key: String
-        let value: AirshipJSON?
-        let timestamp: Date
-    }
-
     struct TagUpdates: Encodable {
         let adds: [String: [String]]?
         let removes: [String: [String]]?
@@ -980,30 +955,9 @@ fileprivate extension Array where Element == ScopedSubscriptionListUpdate {
 }
 
 fileprivate extension Array where Element == AttributeUpdate {
-    func toRequestBody() throws -> [ContactUpdateRequestBody.AttributeOperation]? {
-        let mapped = self.map { update in
-            switch(update.type) {
-            case .set:
-                return ContactUpdateRequestBody.AttributeOperation(
-                    action: .set,
-                    key: update.attribute,
-                    value: update.jsonValue,
-                    timestamp: update.date
-                )
-            case .remove:
-                return ContactUpdateRequestBody.AttributeOperation(
-                    action: .remove,
-                    key: update.attribute,
-                    value: nil,
-                    timestamp: update.date
-                )
-            }
-        }
-
-        guard !mapped.isEmpty else {
-            return nil
-        }
-
+    func toRequestBody() -> [AttributeOperation]? {
+        let mapped = self.map { $0.operation }
+        guard !mapped.isEmpty else { return nil }
         return mapped
     }
 }

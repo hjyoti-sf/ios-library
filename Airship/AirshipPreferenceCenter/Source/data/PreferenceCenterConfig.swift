@@ -693,7 +693,7 @@ extension PreferenceCenterConfig {
 extension PreferenceCenterConfig {
     func prettyPrintedJSON() throws -> String {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         encoder.outputFormatting = .prettyPrinted
         let jsonData = try encoder.encode(self)
 

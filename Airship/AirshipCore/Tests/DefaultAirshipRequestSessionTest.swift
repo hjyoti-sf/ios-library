@@ -151,7 +151,7 @@ final class DefaultAirshipRequestSessionTest: AirshipBaseTest {
         )
 
         let _ = try? await self.airshipSession.performHTTPRequest(request)
-        let timeStamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso)
+        let timeStamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601)
 
         let token = try AirshipUtils.generateSignedToken(
             secret: "testAppSecret",
@@ -179,7 +179,7 @@ final class DefaultAirshipRequestSessionTest: AirshipBaseTest {
         )
 
         let _ = try? await self.airshipSession.performHTTPRequest(request)
-        let timeStamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso)
+        let timeStamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601)
 
         let token = try AirshipUtils.generateSignedToken(
             secret: "testAppSecret",

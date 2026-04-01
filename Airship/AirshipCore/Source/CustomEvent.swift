@@ -37,7 +37,7 @@ public struct CustomEvent: Sendable {
     /// Default encoder. Uses `iso8601` date encoding strategy.
     public static func defaultEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         return encoder
     }
 

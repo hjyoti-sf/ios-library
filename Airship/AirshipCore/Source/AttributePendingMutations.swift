@@ -26,7 +26,7 @@ class AttributePendingMutations: NSObject, NSSecureCoding {
                 return nil
             }
 
-            guard let date = AirshipDateFormatter.date(fromISOString:  dateString) else {
+            guard let date = AirshipDateFormatter.date(from:  dateString) else {
                 AirshipLogger.error("Unexpected date \(dateString)")
                 return nil
             }

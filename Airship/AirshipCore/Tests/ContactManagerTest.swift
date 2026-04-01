@@ -42,7 +42,7 @@ struct ContactManagerTest {
 
         self.anonIdentifyResponse = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "some contact",
                 isAnonymous: true
             ),
@@ -52,7 +52,7 @@ struct ContactManagerTest {
 
         self.nonAnonIdentifyResponse = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "some other contact",
                 isAnonymous: false
             ),

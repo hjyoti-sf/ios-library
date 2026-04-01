@@ -1,157 +1,114 @@
 /* Copyright Airship and Contributors */
 
-import XCTest
+import Testing
+import Foundation
 @testable import AirshipCore
 
-class AirshipDateFormatterTest: XCTestCase {
+struct AirshipDateFormatterTest {
 
     private var gregorianUTC: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
         return calendar
     }()
-    
-    func components(for date: Date) -> DateComponents {
-        return gregorianUTC.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+
+    private func components(for date: Date) -> DateComponents {
+        gregorianUTC.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
     }
 
-    func validateDateFormatter(_ format: AirshipDateFormatter.Format, withFormatString formatString: String) {
-        guard let date = AirshipDateFormatter.date(fromISOString: formatString) else {
-            XCTFail("Failed to parse date from format string")
-            return
-        }
+    // MARK: - Encoding
 
-        let components = self.components(for: date)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 22)
-
-        XCTAssertEqual(formatString, AirshipDateFormatter.string(fromDate: date, format: format))
+    @Test
+    func encodeISO8601WithMilliseconds() {
+        let date = AirshipDateFormatter.date(from: "2020-12-15T11:45:22.000Z")!
+        #expect(AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds) == "2020-12-15T11:45:22.000Z")
     }
 
-    func testISODateFormatterUTC() {
-        validateDateFormatter(.iso, withFormatString: "2020-12-15 11:45:22")
+    @Test
+    func encodeISO8601WithMillisecondsPreservesSubseconds() {
+        let date = AirshipDateFormatter.date(from: "2020-12-15T11:45:22.123")!
+        #expect(AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds) == "2020-12-15T11:45:22.123Z")
     }
 
-    func testISODateFormatterUTCWithDelimiter() {
-        validateDateFormatter(.isoDelimitter, withFormatString: "2020-12-15T11:45:22")
+    @Test
+    func encodeISO8601() {
+        let date = AirshipDateFormatter.date(from: "2020-12-15T11:45:22Z")!
+        #expect(AirshipDateFormatter.string(fromDate: date, format: .iso8601) == "2020-12-15T11:45:22Z")
     }
 
-    func testParseISO8601FromTimeStamp() {
-        // yyyy
-        var date = AirshipDateFormatter.date(fromISOString: "2020")!
-        var components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 1)
-        XCTAssertEqual(components.day, 1)
-        XCTAssertEqual(components.hour, 0)
-        XCTAssertEqual(components.minute, 0)
-        XCTAssertEqual(components.second, 0)
+    // MARK: - Parsing: UTC variants
 
-        // yyyy-MM
-        date = AirshipDateFormatter.date(fromISOString: "2020-12")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 1)
-        XCTAssertEqual(components.hour, 0)
-        XCTAssertEqual(components.minute, 0)
-        XCTAssertEqual(components.second, 0)
+    @Test(arguments: [
+        ("2020-12-15T11:45:22.000Z",       "millis with Z"),
+        ("2020-12-15T11:45:22.000+00:00",  "millis with +00:00"),
+        ("2020-12-15T11:45:22.000-00:00",  "millis with -00:00"),
+        ("2020-12-15T11:45:22+00:00",      "no millis with +00:00"),
+        ("2020-12-15T11:45:22-00:00",      "no millis with -00:00"),
+        ("2020-12-15T11:45:22Z",           "no millis with Z"),
+        ("2020-12-15T11:45:22",            "no millis no Z"),
+        ("2020-12-15 11:45:22",            "space delimiter"),
+    ])
+    func parseUTCVariants(string: String, label: String) throws {
+        let date = try #require(AirshipDateFormatter.date(from: string), "Failed to parse \(label): \(string)")
+        let c = components(for: date)
+        #expect(c.year == 2020, "\(label)")
+        #expect(c.month == 12, "\(label)")
+        #expect(c.day == 15, "\(label)")
+        #expect(c.hour == 11, "\(label)")
+        #expect(c.minute == 45, "\(label)")
+        #expect(c.second == 22, "\(label)")
+    }
 
-        // yyyy-MM-dd
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 0)
-        XCTAssertEqual(components.minute, 0)
-        XCTAssertEqual(components.second, 0)
+    @Test
+    func parseNonZeroOffset() throws {
+        // 2020-12-15T13:45:22+02:00 == 2020-12-15T11:45:22Z
+        let date = try #require(AirshipDateFormatter.date(from: "2020-12-15T13:45:22.000+02:00"))
+        let c = components(for: date)
+        #expect(c.hour == 11)
+        #expect(c.minute == 45)
+        #expect(c.second == 22)
+    }
 
-        // yyyy-MM-dd'T'hh
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15T11")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 0)
-        XCTAssertEqual(components.second, 0)
+    @Test
+    func parseSubseconds() throws {
+        let withoutMillis = try #require(AirshipDateFormatter.date(from: "2020-12-15T11:45:22"))
+        let withMillis = try #require(AirshipDateFormatter.date(from: "2020-12-15T11:45:22.123"))
+        #expect(abs(withMillis.timeIntervalSince(withoutMillis) - 0.123) < 0.0001)
+    }
 
-        // yyyy-MM-dd hh
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15 11")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 0)
-        XCTAssertEqual(components.second, 0)
+    // MARK: - Parsing: partial formats
 
-        // yyyy-MM-dd'T'hh:mm
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15T11:45")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 0)
+    @Test(arguments: [
+        ("2020",             2020, 1,  1,  0,  0,  0),
+        ("2020-12",          2020, 12, 1,  0,  0,  0),
+        ("2020-12-15",       2020, 12, 15, 0,  0,  0),
+        ("2020-12-15T11",    2020, 12, 15, 11, 0,  0),
+        ("2020-12-15 11",    2020, 12, 15, 11, 0,  0),
+        ("2020-12-15T11:45", 2020, 12, 15, 11, 45, 0),
+        ("2020-12-15 11:45", 2020, 12, 15, 11, 45, 0),
+        ("2020-12-15T11:45:22", 2020, 12, 15, 11, 45, 22),
+        ("2020-12-15 11:45:22", 2020, 12, 15, 11, 45, 22),
+    ])
+    func parsePartialFormats(
+        string: String,
+        year: Int, month: Int, day: Int,
+        hour: Int, minute: Int, second: Int
+    ) throws {
+        let date = try #require(AirshipDateFormatter.date(from: string), "Failed to parse: \(string)")
+        let c = components(for: date)
+        #expect(c.year == year, "year for \(string)")
+        #expect(c.month == month, "month for \(string)")
+        #expect(c.day == day, "day for \(string)")
+        #expect(c.hour == hour, "hour for \(string)")
+        #expect(c.minute == minute, "minute for \(string)")
+        #expect(c.second == second, "second for \(string)")
+    }
 
-        // yyyy-MM-dd hh:mm
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15 11:45")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 0)
+    // MARK: - Parsing: invalid
 
-        // yyyy-MM-dd'T'hh:mm:ss
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15T11:45:22")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 22)
-
-        // yyyy-MM-dd hh:mm:ss
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15T11:45:22")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 22)
-        let dateWithoutSubseconds = date
-
-        // yyyy-MM-ddThh:mm:ss.SSS
-        date = AirshipDateFormatter.date(fromISOString: "2020-12-15T11:45:22.123")!
-        components = self.components(for: date)
-        XCTAssertNotNil(components)
-        XCTAssertEqual(components.year, 2020)
-        XCTAssertEqual(components.month, 12)
-        XCTAssertEqual(components.day, 15)
-        XCTAssertEqual(components.hour, 11)
-        XCTAssertEqual(components.minute, 45)
-        XCTAssertEqual(components.second, 22)
-        let seconds = date.timeIntervalSince(dateWithoutSubseconds)
-        XCTAssertEqual(seconds, 0.123, accuracy: 0.0001)
+    @Test
+    func parseInvalidReturnsNil() {
+        #expect(AirshipDateFormatter.date(from: "not-a-date") == nil)
+        #expect(AirshipDateFormatter.date(from: "") == nil)
     }
 }

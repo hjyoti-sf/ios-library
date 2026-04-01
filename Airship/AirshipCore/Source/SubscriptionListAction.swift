@@ -25,7 +25,7 @@ public final class SubscriptionListAction: AirshipAction {
   
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .airshipISO8601
         return decoder
     }
     

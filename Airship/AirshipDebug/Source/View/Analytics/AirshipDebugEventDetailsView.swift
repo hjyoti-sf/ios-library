@@ -25,7 +25,7 @@ struct AirshipDebugEventDetailsView: View {
                     makeInfoItem("ID", event.identifier)
                     makeInfoItem(
                         "Date",
-                        AirshipDateFormatter.string(fromDate: event.date, format: .iso)
+                        AirshipDateFormatter.string(fromDate: event.date, format: .iso8601)
                     )
                 }
 

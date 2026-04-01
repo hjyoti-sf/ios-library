@@ -17,15 +17,7 @@ final class RemoteDataAPIClient: RemoteDataAPIClientProtocol {
 
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
-            let container = try decoder.singleValueContainer()
-            let dateStr = try container.decode(String.self)
-
-            guard let date = AirshipDateFormatter.date(fromISOString: dateStr) else {
-                throw AirshipErrors.error("Invalid date \(dateStr)")
-            }
-            return date
-        })
+        decoder.dateDecodingStrategy = .airshipISO8601
         return decoder
     }
 

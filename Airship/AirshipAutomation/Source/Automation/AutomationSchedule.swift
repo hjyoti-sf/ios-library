@@ -328,13 +328,13 @@ public struct AutomationSchedule: Sendable, Codable, Equatable {
 
 fileprivate extension String {
     func toDate() -> Date? {
-        return AirshipDateFormatter.date(fromISOString: self)
+        return AirshipDateFormatter.date(from: self)
     }
 }
 
 fileprivate extension Date {
     func toISOString() -> String {
-        return AirshipDateFormatter.string(fromDate: self, format: .iso)
+        return AirshipDateFormatter.string(fromDate: self, format: .iso8601)
     }
 }
 

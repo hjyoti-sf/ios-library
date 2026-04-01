@@ -62,8 +62,8 @@ final class ScheduleActionTest: XCTestCase {
             "group": "test-group",
             "limit": 1,
             "actions": ["action-name": "action-value"],
-            "end": .string(AirshipDateFormatter.string(fromDate: end, format: .iso)),
-            "start": .string(AirshipDateFormatter.string(fromDate: start, format: .iso)),
+            "end": .string(AirshipDateFormatter.string(fromDate: end, format: .iso8601)),
+            "start": .string(AirshipDateFormatter.string(fromDate: start, format: .iso8601)),
             "triggers": [
                 [
                     "type": "foreground",

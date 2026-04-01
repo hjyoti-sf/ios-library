@@ -61,7 +61,7 @@ public struct MessageCenterListView: View {
         let accessibilityLabel = String(
             format: item.message.unread ? "ua_message_unread_description".messageCenterLocalizedString : "ua_message_description".messageCenterLocalizedString,
             item.message.title,
-            AirshipDateFormatter.string(fromDate: item.message.sentDate, format: .relativeShortDate)
+            AirshipDateFormatter.string(fromDate: item.message.sentDate, relativeFormat: .shortDate)
         )
 
         let cell = makeCellContent(item: item, messageID: messageID)
