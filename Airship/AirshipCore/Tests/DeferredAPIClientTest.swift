@@ -2,6 +2,8 @@
 
 import XCTest
 
+@_spi(AirshipInternal) import AirshipBasement
+
 @testable
 import AirshipCore
 

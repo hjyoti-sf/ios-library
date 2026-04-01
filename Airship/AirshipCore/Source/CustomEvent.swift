@@ -2,6 +2,10 @@
 
 public import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 /// CustomEvent captures information regarding a custom event for
 /// Analytics.
 public struct CustomEvent: Sendable {

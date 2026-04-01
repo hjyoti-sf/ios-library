@@ -2,7 +2,7 @@
 
 import Testing
 import Foundation
-@testable import AirshipCore
+@_spi(AirshipInternal) @testable import AirshipBasement
 
 struct AirshipDateFormatterTest {
 

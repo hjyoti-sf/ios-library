@@ -2,8 +2,11 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
 
+/// NOTE: For internal use only. :nodoc:
 enum AttributeUpdateType: Int, Codable, Sendable, Equatable {
     case remove
     case set

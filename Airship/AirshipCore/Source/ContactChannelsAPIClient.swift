@@ -2,6 +2,10 @@
 
 import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 // NOTE: For internal use only. :nodoc:
 public protocol ContactChannelsAPIClientProtocol: Sendable {
     func fetchAssociatedChannelsList(

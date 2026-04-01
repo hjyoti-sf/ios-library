@@ -3,6 +3,10 @@
 import Foundation
 public import UserNotifications
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 #if canImport(AirshipCore)
 public import AirshipCore
 #endif

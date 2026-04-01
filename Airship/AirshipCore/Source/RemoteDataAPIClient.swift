@@ -2,6 +2,10 @@
 
 import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 protocol RemoteDataAPIClientProtocol: Sendable {
     func fetchRemoteData(
         url: URL,

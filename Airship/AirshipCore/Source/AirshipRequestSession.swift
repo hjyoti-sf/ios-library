@@ -3,6 +3,9 @@
 import CommonCrypto
 public import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
 
 public protocol AirshipRequestSession: Sendable {
 

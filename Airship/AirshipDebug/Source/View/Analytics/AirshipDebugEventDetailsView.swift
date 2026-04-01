@@ -3,6 +3,7 @@
 import Combine
 import SwiftUI
 import AirshipCore
+@_spi(AirshipInternal) import AirshipBasement
 
 struct AirshipDebugEventDetailsView: View {
 

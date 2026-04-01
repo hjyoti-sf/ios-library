@@ -3,6 +3,10 @@
 import Foundation
 import Combine
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 #if canImport(AirshipCore)
 import AirshipCore
 #endif

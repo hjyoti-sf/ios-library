@@ -3,6 +3,7 @@
 public import Foundation
 
 /// - Note: for internal use only.  :nodoc:
+@_spi(AirshipInternal)
 public struct AirshipDateFormatter: Sendable {
     private init() {}
 
@@ -147,6 +148,7 @@ public struct AirshipDateFormatter: Sendable {
 
 extension JSONDecoder.DateDecodingStrategy {
     /// Decodes dates using the flexible Airship date string parser.
+    @_spi(AirshipInternal)
     public static var airshipISO8601: JSONDecoder.DateDecodingStrategy {
         return .custom({ decoder in
             let container = try decoder.singleValueContainer()
@@ -163,6 +165,7 @@ extension JSONDecoder.DateDecodingStrategy {
 }
 
 extension JSONEncoder.DateEncodingStrategy {
+    @_spi(AirshipInternal)
     public static func airship(format: AirshipDateFormatter.Format) -> JSONEncoder.DateEncodingStrategy {
         return .custom({ date, encoder in
             var container = encoder.singleValueContainer()

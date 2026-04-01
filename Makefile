@@ -79,7 +79,11 @@ build-airship-objectiveC: setup
 	bash ./scripts/run_xcodebuild.sh "AirshipObjectiveC" "${derived_data_path}" build
 
 .PHONY: test
-test: setup test-core test-preference-center test-message-center test-automation test-feature-flags test-service-extension
+test: setup test-basement test-core test-preference-center test-message-center test-automation test-feature-flags test-service-extension
+
+.PHONY: test-basement
+test-basement: setup
+	bash ./scripts/run_xcodebuild.sh AirshipBasement "${derived_data_path}" test
 
 .PHONY: test-core
 test-core: setup

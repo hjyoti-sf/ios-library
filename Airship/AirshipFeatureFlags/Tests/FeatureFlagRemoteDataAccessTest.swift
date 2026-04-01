@@ -8,6 +8,8 @@ import AirshipCore
 @testable
 import AirshipFeatureFlags
 
+@_spi(AirshipInternal) import AirshipBasement
+
 final class FeatureFlagRemoteDataAccessTest: XCTestCase {
 
     private let remoteData: TestRemoteData = TestRemoteData()

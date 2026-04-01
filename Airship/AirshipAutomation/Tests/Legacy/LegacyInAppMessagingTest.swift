@@ -3,6 +3,7 @@
 import XCTest
 @testable import AirshipAutomation
 @testable import AirshipCore
+@_spi(AirshipInternal) import AirshipBasement
 
 final class LegacyInAppMessagingTest: XCTestCase {
     
