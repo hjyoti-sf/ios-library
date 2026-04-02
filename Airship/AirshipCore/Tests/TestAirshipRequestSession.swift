@@ -13,6 +13,16 @@ public final class TestAirshipRequestSession: AirshipRequestSession, @unchecked 
     public var error: (any Error)?
     public var data: Data?
 
+    /// When non-empty, each `performHTTPRequest` consumes the next `(HTTPURLResponse, body)` and ignores
+    /// `response`, `data`, and `error` until the script is exhausted; then behavior falls back to those properties.
+    public var responseScript: [(response: HTTPURLResponse, data: Data?)] = []
+
+    private let lock = NSLock()
+    private var scriptIndex = 0
+
+    /// Increments on every `performHTTPRequest` invocation.
+    public private(set) var requestInvocationCount = 0
+
     
     public func performHTTPRequest(
         _ request: AirshipRequest
@@ -55,16 +65,38 @@ public final class TestAirshipRequestSession: AirshipRequestSession, @unchecked 
         self.previousRequest = self.lastRequest
         self.lastRequest = request
 
-        if let error = self.error {
-            throw error
+        let scriptEntry: (HTTPURLResponse, Data?)? = lock.withLock {
+            self.requestInvocationCount += 1
+            if scriptIndex < responseScript.count {
+                let step = responseScript[scriptIndex]
+                scriptIndex += 1
+                return (step.response, step.data)
+            } else {
+                return nil
+            }
         }
 
-        guard let response else {
-            throw AirshipErrors.error("No response")
+        let response: HTTPURLResponse
+        let body: Data?
+
+        if let entry = scriptEntry {
+            response = entry.0
+            body = entry.1
+        } else {
+            if let error = self.error {
+                throw error
+            }
+
+            guard let fallback = self.response else {
+                throw AirshipErrors.error("No response")
+            }
+
+            response = fallback
+            body = self.data
         }
 
         let result = AirshipHTTPResponse(
-            result: try responseParser?(data, response),
+            result: try responseParser?(body, response),
             statusCode: response.statusCode,
             headers: response.allHeaderFields as? [String: String] ?? [:]
         )

@@ -12,6 +12,7 @@ struct ButtonLayout : View {
     @EnvironmentObject private var videoState: VideoState
     @EnvironmentObject private var thomasState: ThomasState
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var asyncViewState: ThomasAsyncViewState
 
     @State private var actionTask: Task<Void, Never>?
 
@@ -178,6 +179,9 @@ struct ButtonLayout : View {
                 } catch {
                     AirshipLogger.error("Failed to submit \(error)")
                 }
+
+            case .asyncViewRetry:
+                asyncViewState.retry()
 
             case .videoPlay:
                 videoState.play()

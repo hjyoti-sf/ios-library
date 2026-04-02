@@ -38,6 +38,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
     case iconView(IconView)
     case scoreController(ScoreController)
     case scoreToggleLayout(ScoreToggleLayout)
+    case asyncViewController(AsyncViewController)
     case videoController(VideoController)
 
     enum ViewType: String, Codable {
@@ -73,8 +74,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         case iconView = "icon_view"
         case scoreController = "score_controller"
         case scoreToggleLayout = "score_toggle_layout"
+        case asyncViewController = "async_view_controller"
         case videoController = "video_controller"
-
     }
 
     protocol BaseInfo: ThomasSerializable {
@@ -136,6 +137,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         case .iconView: .iconView(try IconView(from: decoder))
         case .scoreController: .scoreController(try ScoreController(from: decoder))
         case .scoreToggleLayout: .scoreToggleLayout(try ScoreToggleLayout(from: decoder))
+        case .asyncViewController: .asyncViewController(try AsyncViewController(from: decoder))
         case .videoController: .videoController(try VideoController(from: decoder))
         }
     }
@@ -182,6 +184,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         case .iconView(let info): try info.encode(to: encoder)
         case .scoreController(let info): try info.encode(to: encoder)
         case .scoreToggleLayout(let info): try info.encode(to: encoder)
+        case .asyncViewController(let info): try info.encode(to: encoder)
         case .videoController(let info): try info.encode(to: encoder)
         }
     }
@@ -2075,6 +2078,174 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 }
             }
 
+        }
+    }
+
+    struct AsyncViewController: BaseInfo {
+        var properties: Properties
+        var accessible: ThomasAccessibleInfo
+        var commonProperties: ThomasViewInfo.CommonViewProperties
+        var commonOverrides: ThomasViewInfo.CommonViewOverrides?
+
+        init(from decoder: any Decoder) throws {
+            self.commonProperties = try decoder.decodeProperties()
+            self.properties = try decoder.decodeProperties()
+            self.accessible = try decoder.decodeProperties()
+            self.commonOverrides = try decoder.decodeOverrides()
+        }
+
+        func encode(to encoder: any Encoder) throws {
+            try encoder.encode(
+                properties: commonProperties, properties, accessible,
+                overrides: commonOverrides
+            )
+        }
+
+        struct RetryingConfig: ThomasSerializable {
+            /// Max retries after failures; if the key is omitted, defaults to `Defaults.maxRetries`. If set to `<= 0`, no retries.
+            var maxRetries: Int
+            /// First backoff delay; `Defaults.initialBackoffSeconds` if omitted.
+            var initialBackoff: TimeInterval
+            /// Upper bound for backoff; `Defaults.maxBackoffSeconds` if omitted.
+            var maxBackoff: TimeInterval
+
+            private enum CodingKeys: String, CodingKey {
+                case maxRetries = "max_retries"
+                case initialBackoff = "initial_backoff_seconds"
+                case maxBackoff = "max_backoff_seconds"
+            }
+
+            private enum Defaults {
+                static let maxRetries = 3
+                static let initialBackoffSeconds: TimeInterval = 1.0
+                static let maxBackoffSeconds: TimeInterval = 10.0
+            }
+
+            /// Defaults when the `retry` object or individual fields are omitted from JSON.
+            static let defaultRetryConfiguration = RetryingConfig(
+                maxRetries: Defaults.maxRetries,
+                initialBackoff: Defaults.initialBackoffSeconds,
+                maxBackoff: Defaults.maxBackoffSeconds
+            )
+
+            init(
+                maxRetries: Int,
+                initialBackoff: TimeInterval,
+                maxBackoff: TimeInterval
+            ) {
+                self.maxRetries = maxRetries
+                self.initialBackoff = initialBackoff
+                self.maxBackoff = maxBackoff
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.maxRetries = try container.decodeIfPresent(Int.self, forKey: .maxRetries) ?? Defaults.maxRetries
+                self.initialBackoff = try container.decodeIfPresent(TimeInterval.self, forKey: .initialBackoff)
+                    ?? Defaults.initialBackoffSeconds
+                self.maxBackoff = try container.decodeIfPresent(TimeInterval.self, forKey: .maxBackoff)
+                    ?? Defaults.maxBackoffSeconds
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encode(maxRetries, forKey: .maxRetries)
+                try container.encode(initialBackoff, forKey: .initialBackoff)
+                try container.encode(maxBackoff, forKey: .maxBackoff)
+            }
+        }
+
+        struct Properties: ThomasSerializable {
+            let type: ViewType = .asyncViewController
+            var retry: RetryingConfig
+            var request: Request
+            var placeholder: ThomasViewInfo
+            var identifier: String
+
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case retry
+                case request
+                case placeholder
+                case identifier
+            }
+
+            init(
+                retry: RetryingConfig = .defaultRetryConfiguration,
+                request: Request,
+                placeholder: ThomasViewInfo,
+                identifier: String
+            ) {
+                self.retry = retry
+                self.request = request
+                self.placeholder = placeholder
+                self.identifier = identifier
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                _ = try container.decode(ViewType.self, forKey: .type)
+                self.retry = try container.decodeIfPresent(RetryingConfig.self, forKey: .retry)
+                    ?? .defaultRetryConfiguration
+                self.request = try container.decode(Request.self, forKey: .request)
+                self.placeholder = try container.decode(ThomasViewInfo.self, forKey: .placeholder)
+                self.identifier = try container.decode(String.self, forKey: .identifier)
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encode(type, forKey: .type)
+                try container.encode(retry, forKey: .retry)
+                try container.encode(request, forKey: .request)
+                try container.encode(placeholder, forKey: .placeholder)
+                try container.encode(identifier, forKey: .identifier)
+            }
+        }
+
+
+        enum RequestType: String, ThomasSerializable {
+            case content
+        }
+
+        enum Request: ThomasSerializable {
+            case content(ContentRequest)
+
+            enum Auth: ThomasSerializable {
+                case app
+                case contact
+                case channel
+            }
+
+            private enum CodingKeys: String, CodingKey {
+                case type
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let type = try container.decode(RequestType.self, forKey: .type)
+
+                self = switch type {
+                case .content: .content(try ContentRequest(from: decoder))
+                }
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                switch self {
+                case .content(let info): try info.encode(to: encoder)
+                }
+            }
+
+            struct ContentRequest: ThomasSerializable {
+                let type: RequestType = .content
+                var url: URL
+                var auth: Auth?
+
+                private enum CodingKeys: String, CodingKey {
+                    case type
+                    case url
+                    case auth
+                }
+            }
         }
     }
 

@@ -19,12 +19,4 @@ public final class AirshipLock: Sendable {
             return closure()
         }
     }
-
-    public func lock() {
-        self._lock.lock()
-    }
-
-    public func unlock() {
-        self._lock.unlock()
-    }
 }

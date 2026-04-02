@@ -10,6 +10,8 @@ struct AirshipButton<Label> : View  where Label : View {
     @EnvironmentObject private var videoState: VideoState
     @EnvironmentObject private var thomasState: ThomasState
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var asyncViewState: ThomasAsyncViewState
+
     @Environment(\.layoutState) private var layoutState
     @Environment(\.isButtonActionsEnabled) private var isButtonActionsEnabled
 
@@ -154,29 +156,31 @@ struct AirshipButton<Label> : View  where Label : View {
             case .formValidate:
                 // Already handled above
                 break
-
+                
             case .formSubmit:
                 do {
                     try await formState.submit(layoutState: layoutState)
                 } catch {
                     AirshipLogger.error("Failed to submit \(error)")
                 }
-
+            case .asyncViewRetry:
+                asyncViewState.retry()
+                
             case .videoPlay:
                 videoState.play()
-
+                
             case .videoPause:
                 videoState.pause()
-
+                
             case .videoTogglePlay:
                 videoState.togglePlay()
-
+                
             case .videoMute:
                 videoState.mute()
-
+                
             case .videoUnmute:
                 videoState.unmute()
-
+                
             case .videoToggleMute:
                 videoState.toggleMute()
             }

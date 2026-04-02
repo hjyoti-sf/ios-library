@@ -285,7 +285,7 @@ final class AssetCacheManagerTest: XCTestCase {
 
         let fileManager = TestAssetFileManager()
         var moveAttempts = 0
-        let moveAttemptsSemaphore = AirshipLock()
+        let moveAttemptsLock = NSRecursiveLock()
 
         fileManager.rootDirectory = URL(fileURLWithPath: "/test-cache")
 
@@ -306,19 +306,18 @@ final class AssetCacheManagerTest: XCTestCase {
 
         var firstMoveCompleted = false
         fileManager.onMoveAsset = { tempURL, cachedURL in
-            moveAttemptsSemaphore.lock()
-            defer { moveAttemptsSemaphore.unlock() }
+            try moveAttemptsLock.withLock {
+                moveAttempts += 1
 
-            moveAttempts += 1
+                // Simulate the race condition - second attempt fails with "file exists"
+                if moveAttempts == 2 && firstMoveCompleted {
+                    throw NSError(domain: NSCocoaErrorDomain, code: NSFileWriteFileExistsError, userInfo: nil)
+                }
 
-            // Simulate the race condition - second attempt fails with "file exists"
-            if moveAttempts == 2 && firstMoveCompleted {
-                throw NSError(domain: NSCocoaErrorDomain, code: NSFileWriteFileExistsError, userInfo: nil)
-            }
-
-            if moveAttempts == 1 {
-                firstMoveCompleted = true
-                cachedFiles.insert(cachedURL.path)
+                if moveAttempts == 1 {
+                    firstMoveCompleted = true
+                    cachedFiles.insert(cachedURL.path)
+                }
             }
         }
 
@@ -340,9 +339,7 @@ final class AssetCacheManagerTest: XCTestCase {
             XCTAssertNotNil(result2)
 
             // At least 2 move attempts should have been made
-            moveAttemptsSemaphore.lock()
-            let finalMoveAttempts = moveAttempts
-            moveAttemptsSemaphore.unlock()
+            let finalMoveAttempts = moveAttemptsLock.withLock { moveAttempts }
 
             XCTAssertGreaterThanOrEqual(finalMoveAttempts, 1, "Should have attempted to move at least once")
         } catch {

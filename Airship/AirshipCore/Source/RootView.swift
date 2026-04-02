@@ -43,6 +43,10 @@ struct RootView<Content: View>: View {
         identifier: ""
     )
 
+    // Default async view state so @EnvironmentObject does not crash
+    @StateObject
+    private var defaultAsyncViewState: ThomasAsyncViewState = ThomasAsyncViewState()
+    
     let layout: AirshipLayout
     let content: (ThomasOrientation, ThomasWindowSize) -> Content
 
@@ -75,6 +79,7 @@ struct RootView<Content: View>: View {
             .environmentObject(self.defaultPagerState)
             .environmentObject(self.defaultFormState)
             .environmentObject(self.defaultVideoState)
+            .environmentObject(self.defaultAsyncViewState)
             .environment(\.orientation, currentOrientation)
             .environment(\.windowSize, resolveWindowSize())
             .environment(\.isVisible, isVisible)

@@ -33,6 +33,7 @@ struct Pager: View {
     @EnvironmentObject private var pagerState: PagerState
     @EnvironmentObject private var thomasState: ThomasState
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var asyncViewState: ThomasAsyncViewState
 
     @Environment(\.isVisible) private var isVisible
     @Environment(\.layoutState) private var layoutState
@@ -602,6 +603,9 @@ struct Pager: View {
 
                 case .pagerPauseToggle:
                     pagerState.togglePause()
+
+                case .asyncViewRetry:
+                    asyncViewState.retry()
 
                 case .formSubmit, .formValidate:
                     // not supported

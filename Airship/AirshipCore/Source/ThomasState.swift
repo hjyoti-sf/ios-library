@@ -14,6 +14,7 @@ class ThomasState: ObservableObject {
     private let pagerState: PagerState?
     private let videoState: VideoState?
     private let mutableState: MutableState?
+    private let asyncViewState: ThomasAsyncViewState?
 
     private let onStateChange: @Sendable @MainActor (AirshipJSON) -> Void
 
@@ -27,6 +28,7 @@ class ThomasState: ObservableObject {
         var videoPlaying: Bool?
         var videoMuted: Bool?
         var mutableStateValue: AirshipJSON?
+        var asyncViewStatus: ThomasAsyncViewState.Status?
 
         /// Generates the final AirshipJSON based strictly on this snapshot data
         func toAirshipJSON() -> AirshipJSON {
@@ -62,6 +64,17 @@ class ThomasState: ObservableObject {
                 ]
             }
 
+            // Add $asyncView
+            if let asyncViewStatus {
+                do {
+                    result["$asyncView"] = .object([
+                        "current": try AirshipJSON.wrap(asyncViewStatus)
+                    ])
+                } catch {
+                    AirshipLogger.error("Failed to encode asyncViewStatus: \(error)")
+                }
+            }
+
             return .object(result)
         }
     }
@@ -74,12 +87,14 @@ class ThomasState: ObservableObject {
         pagerState: PagerState? = nil,
         videoState: VideoState? = nil,
         mutableState: MutableState? = nil,
+        asyncViewState: ThomasAsyncViewState? = nil,
         onStateChange: @escaping @Sendable @MainActor (AirshipJSON) -> Void
     ) {
         self.formState = formState
         self.pagerState = pagerState
         self.videoState = videoState
         self.mutableState = mutableState
+        self.asyncViewState = asyncViewState
         self.onStateChange = onStateChange
 
         setupSubscriptions()
@@ -93,6 +108,7 @@ class ThomasState: ObservableObject {
             videoPlaying: videoState?.isPlaying,
             videoMuted: videoState?.isMuted,
             mutableStateValue: mutableState?.state,
+            asyncViewStatus: asyncViewState?.status
         )
     }
 
@@ -103,6 +119,7 @@ class ThomasState: ObservableObject {
         videoState?.isPlayingPublisher.sink { [weak self] in self?.updateSnapshot(videoPlaying: $0) }.store(in: &subscriptions)
         videoState?.isMutedPublisher.sink { [weak self] in self?.updateSnapshot(videoMuted: $0) }.store(in: &subscriptions)
         mutableState?.$state.sink { [weak self] in self?.updateSnapshot(mutableStateValue: $0) }.store(in: &subscriptions)
+        asyncViewState?.$status.sink { [weak self] in self?.updateSnapshot(asyncViewStatus: $0) }.store(in: &subscriptions)
     }
 
     private func updateSnapshot(
@@ -113,6 +130,7 @@ class ThomasState: ObservableObject {
         videoPlaying: Bool? = nil,
         videoMuted: Bool? = nil,
         mutableStateValue: AirshipJSON? = nil,
+        asyncViewStatus: ThomasAsyncViewState.Status? = nil
     ) {
         // Update the snapshot with provided values
         if let val = formStatus { stateSnapshot.formStatus = val }
@@ -122,6 +140,7 @@ class ThomasState: ObservableObject {
         if let val = videoPlaying { stateSnapshot.videoPlaying = val }
         if let val = videoMuted { stateSnapshot.videoMuted = val }
         if let val = mutableStateValue { stateSnapshot.mutableStateValue = val }
+        if let val = asyncViewStatus { stateSnapshot.asyncViewStatus = val }
 
         // Compute new output directly from the snapshot
         let newOutput = stateSnapshot.toAirshipJSON()
@@ -140,17 +159,20 @@ class ThomasState: ObservableObject {
         pagerState: PagerState? = nil,
         videoState: VideoState? = nil,
         mutableState: MutableState? = nil,
+        asyncViewState: ThomasAsyncViewState? = nil
     ) -> ThomasState {
         let newFormState = formState ?? self.formState
         let newPagerState = pagerState ?? self.pagerState
         let newVideoState = videoState ?? self.videoState
         let newMutableState = mutableState ?? self.mutableState
+        let newAsyncViewState = asyncViewState ?? self.asyncViewState
 
         // Return self if nothing changed to avoid redundant copies
         if newFormState === self.formState,
            newPagerState === self.pagerState,
            newVideoState === self.videoState,
-           newMutableState === self.mutableState {
+           newMutableState === self.mutableState,
+           newAsyncViewState === self.asyncViewState {
             return self
         }
 
@@ -159,6 +181,7 @@ class ThomasState: ObservableObject {
             pagerState: newPagerState,
             videoState: newVideoState,
             mutableState: newMutableState,
+            asyncViewState: newAsyncViewState,
             onStateChange: self.onStateChange
         )
     }
