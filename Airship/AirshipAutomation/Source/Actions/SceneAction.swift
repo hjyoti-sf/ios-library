@@ -14,7 +14,7 @@ import AirshipCore
 final class SceneAction: AirshipAction {
 
     private static let productID: String = "scene_page"
-    private static let queue: String = "scene_page"
+    private static let queue: String = "landing_page"
 
     /// Scene action names.
     public static let defaultNames: [String] = ["scene_action", "^sla"]

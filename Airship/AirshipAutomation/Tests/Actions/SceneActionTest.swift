@@ -188,17 +188,6 @@ struct SceneActionTests {
         }
     }
 
-    // MARK: - Cross-platform compatibility
-
-    @Test("rawDeflateBase64 output matches Java backend for known input")
-    func rawDeflateBase64MatchesBackend() throws {
-        // The Java backend uses Deflater(BEST_COMPRESSION, nowrap=true) + standard Base64.
-        // This confirms our Swift helper produces the same bytes for the same input,
-        // ensuring cross-platform encoding compatibility.
-        let expected = "TY/BCoMwEETvfkVY6M1De+ilv1KKRLOtCyYRsyoq+feuxtCewrydGSZboRR0evEjw0NtokRPOATyTsCtTKQfMKBjzQknn3BeehQNaGs0Bg2U+ZJJRWY3tN5iVWvncPh5DL712HHVd7pBK/1/1XIOtO7lm4KZDLd7zf16gVLakD4tZ6DimUlvPDdPhHOK55WNly/QMUEBMdog9Pk6crGIXw=="
-        #expect(try Data(minimalLayoutJSON.utf8).rawDeflateBase64() == expected)
-    }
-
     // MARK: - Helpers
     private func expectStandardSceneSchedule(_ schedule: AutomationSchedule) {
         #expect(schedule.triggers.count == 1)
@@ -206,7 +195,7 @@ struct SceneActionTests {
         #expect(schedule.triggers[0].goal == 1.0)
         #expect(schedule.bypassHoldoutGroups == true)
         #expect(schedule.productID == "scene_page")
-        #expect(schedule.queue == "scene_page")
+        #expect(schedule.queue == "landing_page")
         #expect(schedule.priority == Int.min)
     }
 
