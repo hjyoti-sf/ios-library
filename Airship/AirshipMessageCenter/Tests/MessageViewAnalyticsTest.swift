@@ -295,9 +295,9 @@ final class MockThomasLayoutEventRecorder: ThomasLayoutEventRecorderProtocol, @u
     
     private(set) var lastCapturedData: ThomasLayoutEventData? = nil
     private(set) var events: [ThomasLayoutEventData] = []
-    func recordEvent(inAppEventData: ThomasLayoutEventData) {
-        lastCapturedData = inAppEventData
-        events.append(inAppEventData)
+    func recordEvent(thomasLayoutEventData: ThomasLayoutEventData) {
+        lastCapturedData = thomasLayoutEventData
+        events.append(thomasLayoutEventData)
     }
 }
 

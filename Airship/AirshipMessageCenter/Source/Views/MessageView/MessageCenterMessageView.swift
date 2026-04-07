@@ -312,11 +312,11 @@ private struct MessageCenterMessageContentView: View {
     
     @ViewBuilder
     private func thomasMessageView() -> some View {
-        if let analytics = viewModel.makeAnalytics(onDismiss: { [action = dismissAction] in action?() } ) {
+        if let displayListener = viewModel.makeAnalytics(onDismiss: { [action = dismissAction] in action?() } ) {
             MessageCenterThomasView(
                 phase: self.$messageLoadingPhase,
                 layoutRequest: { try await Self.makeRequest(viewModel: viewModel) },
-                analytics: analytics,
+                displayListener: displayListener,
                 dismissHandle: self.viewModel.thomasDismissHandle,
                 stateStorage: { viewModel.getOrCreateNativeStateStorage() }
             )
