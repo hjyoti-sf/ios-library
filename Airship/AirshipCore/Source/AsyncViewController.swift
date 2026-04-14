@@ -7,17 +7,21 @@ import Combine
 @MainActor
 struct AsyncViewController: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.thomasAssociatedLabelResolver) var associatedLabelResolver
     @EnvironmentObject var thomasState: ThomasState
-    
+
     let info: ThomasViewInfo.AsyncViewController
     let constraints: ViewConstraints
-    
+
     @StateObject
     private var state: ThomasAsyncViewState
-    
+
     @StateObject
     private var scopedStateCache: ScopedStateCache = ScopedStateCache()
-    
+
+    @State
+    private var resolverForResponse: ThomasAssociatedLabelResolver?
+
     init(
         info: ThomasViewInfo.AsyncViewController,
         constraints: ViewConstraints
@@ -28,11 +32,12 @@ struct AsyncViewController: View {
             wrappedValue: ThomasAsyncViewState(properties: info.properties)
         )
     }
-    
+
     var body: some View {
         Group {
             if let response = state.response {
                 ViewFactory.createView(response, constraints: constraints)
+                    .environment(\.thomasAssociatedLabelResolver, resolverForResponse)
             } else {
                 ViewFactory.createView(info.properties.placeholder, constraints: constraints)
                     .constraints(constraints)
@@ -49,5 +54,9 @@ struct AsyncViewController: View {
             }
         )
         .id(info.properties.identifier)
+        .airshipOnChangeOf(state.status) { status in
+            guard case .loaded = status, let response = state.response else { return }
+            resolverForResponse = associatedLabelResolver?.merging(viewInfo: response)
+        }
     }
 }
