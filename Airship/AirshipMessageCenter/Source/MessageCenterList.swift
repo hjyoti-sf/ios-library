@@ -97,7 +97,8 @@ public protocol MessageCenterInbox: AnyObject, Sendable {
 protocol InternalMessageCenterInbox: MessageCenterInbox {
     func saveDisplayHistory(for messageID: String, history: MessageDisplayHistory) async
     func saveLayoutState(for messageID: String, state: MessageCenterMessage.AssociatedData.ViewState?) async
-    
+    func associatedData(forID messageID: String) async -> MessageCenterMessage.AssociatedData
+
     @MainActor
     func getNativeStateStorage(for messageID: String) -> any LayoutDataStorage
 }
@@ -239,8 +240,7 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
                 } onFetch: {
                     await Airship.internalMessageCenter
                         .internalInbox
-                        .message(forID: messageID)?
-                        .associatedData.viewState
+                        .associatedData(forID: messageID).viewState
                 }
         }
 
@@ -493,6 +493,10 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
     
     func saveLayoutState(for messageID: String, state: MessageCenterMessage.AssociatedData.ViewState?) async {
         await updateAssociatedData(for: messageID) { $0.viewState = state }
+    }
+
+    func associatedData(forID messageID: String) async -> MessageCenterMessage.AssociatedData {
+        return await self.store.associatedData(for: messageID)
     }
     
     private func updateAssociatedData(

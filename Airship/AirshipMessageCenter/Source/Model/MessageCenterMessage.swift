@@ -51,9 +51,6 @@ public struct MessageCenterMessage: Sendable, Equatable, Identifiable, Hashable 
     /// It can contain more values than the message.
     let rawMessageObject: AirshipJSON
     
-    /// The message associated data
-    var associatedData: AssociatedData
-    
     public enum ContentType: Sendable, Hashable, Codable {
         case html
         case plain
@@ -113,8 +110,7 @@ public struct MessageCenterMessage: Sendable, Equatable, Identifiable, Hashable 
         unread: Bool,
         sentDate: Date,
         messageURL: URL,
-        rawMessageObject: AirshipJSON,
-        associatedData: Data? = nil
+        rawMessageObject: AirshipJSON
     ) {
         self.title = title
         self.id = id
@@ -127,9 +123,6 @@ public struct MessageCenterMessage: Sendable, Equatable, Identifiable, Hashable 
         self.sentDate = sentDate
         self.messageURL = messageURL
         self.rawMessageObject = rawMessageObject
-        self.associatedData = associatedData
-            .flatMap { try? JSONDecoder().decode(MessageCenterMessage.AssociatedData.self, from: $0) }
-            ?? AssociatedData()
     }
     
     public static func == (lhs: MessageCenterMessage, rhs: MessageCenterMessage) -> Bool {

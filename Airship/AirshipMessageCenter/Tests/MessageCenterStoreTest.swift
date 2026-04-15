@@ -91,8 +91,8 @@ final class MessageCenterStoreTest: XCTestCase {
         )
         try await store.updateAssociatedData(for: messages[0].id) { $0.viewState = viewState }
 
-        let fetched = try await store.message(forID: messages[0].id)
-        XCTAssertEqual(fetched?.associatedData.viewState, viewState)
+        let fetched = await store.associatedData(for: messages[0].id)
+        XCTAssertEqual(fetched.viewState, viewState)
     }
 
     func testUpdateAssociatedDataDoesNotAffectOtherMessages() async throws {
@@ -103,10 +103,10 @@ final class MessageCenterStoreTest: XCTestCase {
             $0.viewState = .init(restoreID: "only-first", state: nil)
         }
 
-        let second = try await store.message(forID: messages[1].id)
-        let third = try await store.message(forID: messages[2].id)
-        XCTAssertNil(second?.associatedData.viewState)
-        XCTAssertNil(third?.associatedData.viewState)
+        let second = await store.associatedData(for: messages[1].id)
+        let third = await store.associatedData(for: messages[2].id)
+        XCTAssertNil(second.viewState)
+        XCTAssertNil(third.viewState)
     }
 
     func testUpdateAssociatedDataThrowsForMissingMessage() async throws {
