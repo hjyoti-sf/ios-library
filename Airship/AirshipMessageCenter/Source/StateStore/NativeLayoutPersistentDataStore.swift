@@ -9,13 +9,13 @@ import AirshipCore
 @MainActor
 final class NativeLayoutPersistentDataStore: LayoutDataStorage {
     let messageID: String
-    
+
     private var restoreID: String? = nil
     private var storage: [String: Data] = [:]
-    
+
     private let save: @Sendable (MessageCenterMessage.AssociatedData.ViewState?) -> Void
     private let fetch: @Sendable () async -> MessageCenterMessage.AssociatedData.ViewState?
-    
+
     init(
         messageID: String,
         onSave: @Sendable @escaping (MessageCenterMessage.AssociatedData.ViewState?) -> Void,
@@ -25,10 +25,10 @@ final class NativeLayoutPersistentDataStore: LayoutDataStorage {
         self.save = onSave
         self.fetch = onFetch
     }
-    
+
     func prepare(restoreID: String) async {
         self.restoreID = restoreID
-        
+
         guard
             let saved = await fetch(),
             saved.restoreID == restoreID
@@ -36,48 +36,35 @@ final class NativeLayoutPersistentDataStore: LayoutDataStorage {
             self.clear()
             return
         }
-        
+
         if
             let data = saved.state,
             let decoded = try? JSONDecoder().decode([String: Data].self, from: data) {
             self.storage = decoded
         }
     }
-    
+
     func store(_ state: Data?, key: String) {
         guard let restoreID else { return }
-        
-        self.storage[key] = state
-        
-        let state = makeViewState(restoreID: restoreID)
-        storeState(state)
+        storage[key] = state
+        save(makeViewState(restoreID: restoreID))
     }
-    
+
     func retrieve(_ key: String) -> Data? {
-        //assume storage is preloaded
-        return self.storage[key]
+        return storage[key]
     }
-    
+
     func clear() {
-        self.storage.removeAll()
-        
+        storage.removeAll()
         if let restoreID {
-            storeState(.init(restoreID: restoreID))
+            save(.init(restoreID: restoreID))
         } else {
-            storeState(nil)
+            save(nil)
         }
     }
-    
-    private func storeState(_ state: MessageCenterMessage.AssociatedData.ViewState?) {
-        save(state)
-    }
-    
+
     private func makeViewState(restoreID: String) -> MessageCenterMessage.AssociatedData.ViewState? {
-        let data = try? JSONEncoder().encode(self.storage)
-        
-        return .init(
-            restoreID: restoreID,
-            state: data
-        )
+        let data = try? JSONEncoder().encode(storage)
+        return .init(restoreID: restoreID, state: data)
     }
 }

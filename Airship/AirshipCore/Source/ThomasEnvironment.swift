@@ -366,6 +366,7 @@ class ThomasEnvironment: ObservableObject {
             pagerTracker.stopAll(currentDisplayTime: timer.time)
             emitPagerSummaryEvents(layoutState: layoutState)
 
+            stateStorage?.flush()
             callback(timer.time)
             onDismiss?()
             self.onDismiss = nil
