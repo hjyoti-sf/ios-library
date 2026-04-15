@@ -62,3 +62,9 @@ enum ThomasStateAction: ThomasSerializable {
         }
     }
 }
+
+extension ThomasStateAction {
+    var asOutcome: ThomasOutcome {
+        return .stateAction(.init(action: self))
+    }
+}

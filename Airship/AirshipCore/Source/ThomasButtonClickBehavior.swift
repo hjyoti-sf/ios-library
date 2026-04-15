@@ -71,3 +71,42 @@ extension Array where Element == ThomasButtonClickBehavior {
         return self.sorted { $0.sortOrder < $1.sortOrder }
     }
 }
+
+extension ThomasButtonClickBehavior {
+    var asOutcome: ThomasOutcome {
+        switch self {
+        case .pagerNext: return .pagerStepNavigation(
+            ThomasOutcome.PagerStepNavigationOutcome(direction: .next)
+        )
+        case .pagerPrevious: return .pagerStepNavigation(
+            ThomasOutcome.PagerStepNavigationOutcome(direction: .previous)
+        )
+        case .pagerNextOrDismiss: return .pagerStepNavigation(
+            ThomasOutcome.PagerStepNavigationOutcome(
+                direction: .next,
+                boundaryBehavior: .dismiss
+            )
+        )
+        case .pagerNextOrFirst: return .pagerStepNavigation(
+            ThomasOutcome.PagerStepNavigationOutcome(
+                direction: .next,
+                boundaryBehavior: .wrap
+            )
+        )
+        case .pagerPause: return .pagerPlayback(.init(command: .pause))
+        case .pagerResume: return .pagerPlayback(.init(command: .resume))
+        case .pagerPauseToggle: return .pagerPlayback(.init(command: .toggle))
+        case .videoPlay: return .mediaPlayback(.init(command: .play))
+        case .videoPause: return .mediaPlayback(.init(command: .pause))
+        case .videoTogglePlay: return .mediaPlayback(.init(command: .toggle))
+        case .videoMute: return .mediaAudio(.init(command: .mute))
+        case .videoUnmute: return .mediaAudio(.init(command: .unmute))
+        case .videoToggleMute: return .mediaAudio(.init(command: .toggle))
+        case .formSubmit: return .form(.init(command: .submit))
+        case .formValidate: return .form(.init(command: .validate))
+        case .dismiss: return .dismiss(.init(cancel: false))
+        case .cancel: return .dismiss(.init(cancel: true))
+        case .asyncViewRetry: return .asyncView(.init(command: .retry))
+        }
+    }
+}

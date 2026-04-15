@@ -8,6 +8,9 @@ struct ThomasAutomatedAction: Codable, Equatable, Sendable {
     var actions: [ThomasActionsPayload]?
     var behaviors: [ThomasButtonClickBehavior]?
     var reportingMetadata: AirshipJSON?
+    /// If defined, `behaviors` and `actions` will be ignored.
+    var outcomes: [ThomasOutcome]?
+
 
     enum CodingKeys: String, CodingKey {
         case identifier
@@ -15,5 +18,6 @@ struct ThomasAutomatedAction: Codable, Equatable, Sendable {
         case actions
         case behaviors
         case reportingMetadata = "reporting_metadata"
+        case outcomes
     }
 }

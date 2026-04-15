@@ -30,15 +30,22 @@ struct ThomasPageControllerCompletion: ThomasSerializable {
       * implicit match.
       */
     let predicate: JSONPredicate?
-    
+
     /**
       * State actions to run when the pager completes.
       */
     let stateActions: [ThomasStateAction]?
-    
+
+    /**
+      * Outcomes to process when the pager completes.
+      * If defined, `stateActions` will be ignored.
+      */
+    let outcomes: [ThomasOutcome]?
+
     enum CodingKeys: String, CodingKey {
         case predicate = "when_state_matches"
         case stateActions = "state_actions"
+        case outcomes
     }
 }
 

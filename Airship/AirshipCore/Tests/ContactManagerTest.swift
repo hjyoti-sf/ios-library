@@ -697,7 +697,7 @@ struct ContactManagerTest {
 
     @Test("Auth token resolve mismatch")
     func authTokenResolveMismatch() async {
-        try await confirmation { confirm in
+        await confirmation { confirm in
             self.apiClient.resolveCallback = { channelID, contactID, possiblyOrphanedContactID in
                 #expect(self.channel.identifier == channelID)
                 confirm()
@@ -749,7 +749,7 @@ struct ContactManagerTest {
 
     @Test("Auth token failed")
     func authTokenFailed() async  {
-        try await confirmation { confirm in
+        await confirmation { confirm in
             self.apiClient.resolveCallback = { channelID, contactID, possiblyOrphanedContactID in
                 #expect(self.channel.identifier == channelID)
                 confirm()

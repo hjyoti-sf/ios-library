@@ -586,6 +586,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             var identifier: String
             var clickBehaviors: [ThomasButtonClickBehavior]?
             var actions: ThomasActionsPayload?
+            /// If defined, `clickBehaviors` and `actions` will be ignored.
+            var outcomes: [ThomasOutcome]?
             var label: ThomasViewInfo.Label
             var reportingMetadata: AirshipJSON?
             var tapEffect: ThomasButtonTapEffect?
@@ -594,6 +596,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 case identifier
                 case clickBehaviors = "button_click"
                 case actions
+                case outcomes
                 case label
                 case type
                 case tapEffect = "tap_effect"
@@ -627,6 +630,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             var identifier: String
             var clickBehaviors: [ThomasButtonClickBehavior]?
             var actions: ThomasActionsPayload?
+            /// If defined, `clickBehaviors` and `actions` will be ignored.
+            var outcomes: [ThomasOutcome]?
             var reportingMetadata: AirshipJSON?
             var tapEffect: ThomasButtonTapEffect?
             var accessibilityRole: AccessibilityRole?
@@ -636,6 +641,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 case identifier
                 case clickBehaviors = "button_click"
                 case actions
+                case outcomes
                 case type
                 case tapEffect = "tap_effect"
                 case view
@@ -705,6 +711,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             var identifier: String
             var clickBehaviors: [ThomasButtonClickBehavior]?
             var actions: ThomasActionsPayload?
+            /// If defined, `clickBehaviors` and `actions` will be ignored.
+            var outcomes: [ThomasOutcome]?
             var reportingMetadata: AirshipJSON?
             var tapEffect: ThomasButtonTapEffect?
             var items: [Item]
@@ -713,6 +721,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 case identifier
                 case clickBehaviors = "button_click"
                 case actions
+                case outcomes
                 case type
                 case tapEffect = "tap_effect"
                 case items
@@ -827,6 +836,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             var identifier: String
             var clickBehaviors: [ThomasButtonClickBehavior]?
             var actions: ThomasActionsPayload?
+            /// If defined, `clickBehaviors` and `actions` will be ignored.
+            var outcomes: [ThomasOutcome]?
             var reportingMetadata: AirshipJSON?
             var tapEffect: ThomasButtonTapEffect?
             var image: ButtonImage
@@ -835,6 +846,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 case identifier
                 case clickBehaviors = "button_click"
                 case actions
+                case outcomes
                 case type
                 case tapEffect = "tap_effect"
                 case image
@@ -984,6 +996,8 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             let automatedActions: [ThomasAutomatedAction]?
             let accessibilityActions: [ThomasAccessibilityAction]?
             let stateActions: [ThomasStateAction]?
+            /// If defined, `displayActions` and `stateActions` will be ignored.
+            let displayOutcomes: [ThomasOutcome]?
             let branching: ThomasPageBranching?
 
             enum CodingKeys: String, CodingKey {
@@ -993,9 +1007,10 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 case automatedActions = "automated_actions"
                 case accessibilityActions = "accessibility_actions"
                 case stateActions = "state_actions"
+                case displayOutcomes = "display_outcomes"
                 case branching
             }
-            
+
             var id: String { return identifier }
         }
         
@@ -1098,13 +1113,16 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 var identifier: String
                 var reportingMetadata: AirshipJSON?
                 var direction: GestureDirection
-                var behavior: GestureBehavior
+                var behavior: GestureBehavior?
+                /// If defined, `behavior` will be ignored.
+                var outcomes: [ThomasOutcome]?
 
                 enum CodingKeys: String, CodingKey {
                     case identifier
                     case reportingMetadata = "reporting_metadata"
                     case direction
                     case behavior
+                    case outcomes
                     case type
                 }
             }
@@ -1114,12 +1132,15 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 var identifier: String
                 var reportingMetadata: AirshipJSON?
                 var location: GestureLocation
-                var behavior: GestureBehavior
+                var behavior: GestureBehavior?
+                /// If defined, `behavior` will be ignored.
+                var outcomes: [ThomasOutcome]?
 
                 enum CodingKeys: String, CodingKey {
                     case identifier
                     case location
                     case behavior
+                    case outcomes
                     case type
                 }
             }
@@ -1128,13 +1149,19 @@ indirect enum ThomasViewInfo: ThomasSerializable {
                 let type: GestureType = .hold
                 var identifier: String
                 var reportingMetadata: AirshipJSON?
-                var pressBehavior: GestureBehavior
-                var releaseBehavior: GestureBehavior
+                var pressBehavior: GestureBehavior?
+                var releaseBehavior: GestureBehavior?
+                /// If defined, `pressBehavior` will be ignored.
+                var pressOutcomes: [ThomasOutcome]?
+                /// If defined, `releaseBehavior` will be ignored.
+                var releaseOutcomes: [ThomasOutcome]?
 
                 enum CodingKeys: String, CodingKey {
                     case identifier = "identifier"
                     case pressBehavior = "press_behavior"
                     case releaseBehavior = "release_behavior"
+                    case pressOutcomes = "press_outcomes"
+                    case releaseOutcomes = "release_outcomes"
                     case type
                 }
             }
@@ -1767,6 +1794,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
 
     struct ToggleActions: ThomasSerializable {
         var stateActions: [ThomasStateAction]?
+        //TODO: add outcome?
 
         enum CodingKeys: String, CodingKey {
             case stateActions = "state_actions"

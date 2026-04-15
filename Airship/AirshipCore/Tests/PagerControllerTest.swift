@@ -5,6 +5,7 @@ import Foundation
 
 @testable import AirshipCore
 
+@Suite(.timeLimit(.minutes(1)))
 struct PagerControllerTest {
     
     @MainActor
@@ -82,6 +83,7 @@ struct PagerControllerTest {
             automatedActions: nil,
             accessibilityActions: nil,
             stateActions: nil,
+            displayOutcomes: nil,
             branching: nil
         )
     }

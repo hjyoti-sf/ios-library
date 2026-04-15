@@ -28,16 +28,16 @@ struct ToggleLayout<Content> : View  where Content : View {
             content().background(Color.airshipTappableClear)
         }
         .airshipOnChangeOf(self.isOn) { isOn in
-            self.handleStateActions(isOn)
+            self.handleOutcomes(isOn)
         }
         .toggleStyle(PlainButtonToggleStyle())
         .accessibilityRemoveTraits(.isSelected)
     }
 
-    private func handleStateActions(_ isOn: Bool) {
+    private func handleOutcomes(_ isOn: Bool) {
         let actions: ThomasViewInfo.ToggleActions = isOn ? onToggleOn : onToggleOff
-        guard let stateActions = actions.stateActions else { return }
-        thomasState.processStateActions(stateActions)
+        guard let outcomes = actions.stateActions?.compactMap(\.asOutcome) else { return }
+        thomasState.processSync(outcomes: outcomes)
     }
 }
 

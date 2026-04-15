@@ -38,9 +38,8 @@ struct ImageButton : View {
             identifier: self.info.properties.identifier,
             reportingMetadata: self.info.properties.reportingMetadata,
             description: self.info.accessible.resolveContentDescription,
-            clickBehaviors: self.info.properties.clickBehaviors,
+            outcomes: makeOutcomes(),
             eventHandlers: self.info.commonProperties.eventHandlers,
-            actions: self.info.properties.actions,
             tapEffect: self.info.properties.tapEffect
         ) {
             makeInnerButton()
@@ -85,5 +84,18 @@ struct ImageButton : View {
         case .icon(let info):
             Icons.icon(info: info, colorScheme: colorScheme)
         }
+    }
+    
+    private func makeOutcomes() -> [ThomasOutcome] {
+        if let outcomes = info.properties.outcomes {
+            return outcomes
+        }
+        
+        var result = info.properties.clickBehaviors?.map(\.asOutcome) ?? []
+        if let action = info.properties.actions?.asOutcome {
+            result += [action]
+        }
+        
+        return result
     }
 }

@@ -52,9 +52,8 @@ struct LabelButton : View {
             identifier: self.info.properties.identifier,
             reportingMetadata: self.info.properties.reportingMetadata,
             description: self.info.accessible.contentDescription ?? self.info.properties.label.properties.text,
-            clickBehaviors: self.info.properties.clickBehaviors,
+            outcomes: makeOutcomes(),
             eventHandlers: self.info.commonProperties.eventHandlers,
-            actions: self.info.properties.actions,
             tapEffect: self.info.properties.tapEffect
         ) {
             labelContent
@@ -67,5 +66,18 @@ struct LabelButton : View {
              )
         )
         .accessibilityHidden(info.accessible.accessibilityHidden ?? false)
+    }
+    
+    private func makeOutcomes() -> [ThomasOutcome] {
+        if let outcomes = self.info.properties.outcomes {
+            return outcomes
+        }
+        
+        var result = self.info.properties.clickBehaviors?.map(\.asOutcome) ?? []
+        if let action = self.info.properties.actions?.asOutcome {
+            result.append(action)
+        }
+        
+        return result
     }
 }

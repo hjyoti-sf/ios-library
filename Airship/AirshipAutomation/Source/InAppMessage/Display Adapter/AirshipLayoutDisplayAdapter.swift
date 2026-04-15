@@ -2,7 +2,6 @@
 
 import Foundation
 import SwiftUI
-
 #if canImport(AirshipCore)
 import AirshipCore
 #endif

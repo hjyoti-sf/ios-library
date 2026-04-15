@@ -17,6 +17,7 @@ class ThomasState: ObservableObject {
     private let asyncViewState: ThomasAsyncViewState?
 
     private let onStateChange: @Sendable @MainActor (AirshipJSON) -> Void
+    private let outcomesProcessor: any ThomasOutcomeProcessor
 
     // Internal state snapshot that tracks current values
     @MainActor
@@ -96,6 +97,15 @@ class ThomasState: ObservableObject {
         self.mutableState = mutableState
         self.asyncViewState = asyncViewState
         self.onStateChange = onStateChange
+        
+        self.outcomesProcessor = DefaultThomasOutcomeProcessor(
+            pagerState: pagerState,
+            videoState: videoState,
+            asyncViewState: asyncViewState,
+            onStateAction: { @MainActor [weak mutableState] action, formFieldValue in
+                action.performOn(mutableState, fieldValue: formFieldValue)
+            }
+        )
 
         setupSubscriptions()
 
@@ -185,21 +195,27 @@ class ThomasState: ObservableObject {
             onStateChange: self.onStateChange
         )
     }
-
-    func processStateActions(
-        _ stateActions: [ThomasStateAction],
-        formFieldValue: ThomasFormField.Value? = nil
+    
+    func process(
+        outcomes: [ThomasOutcome],
+        formFieldValue: ThomasFormField.Value? = nil,
+        actionsDelegate: @Sendable @escaping @MainActor (DelegatedOutcome) -> Void = { _ in }
+    ) async {
+        await outcomesProcessor.process(
+            outcomes: outcomes,
+            formFieldValue: formFieldValue,
+            delegated: actionsDelegate)
+    }
+    
+    func processSync(
+        outcomes: [ThomasOutcome],
+        formFieldValue: ThomasFormField.Value? = nil,
+        actionsDelegate: @Sendable @escaping @MainActor (DelegatedOutcome) -> Void = { _ in }
     ) {
-        stateActions.forEach { action in
-            switch action {
-            case .setState(let details):
-                self.mutableState?.set(key: details.key, value: details.value, ttl: details.ttl)
-            case .clearState:
-                self.mutableState?.clearState()
-            case .formValue(let details):
-                self.mutableState?.set(key: details.key, value: formFieldValue?.stateFormValue)
-            }
-        }
+        outcomesProcessor.processSync(
+            outcomes: outcomes,
+            formFieldValue: formFieldValue,
+            delegated: actionsDelegate)
     }
 
     @MainActor
@@ -276,6 +292,25 @@ fileprivate extension ThomasFormField.Value {
             return .string(value)
         case .score(let value): return value
         case .form, .npsForm: return nil
+        }
+    }
+}
+
+fileprivate extension ThomasStateAction {
+    @MainActor
+    func performOn(
+        _ state: ThomasState.MutableState?,
+        fieldValue: ThomasFormField.Value?
+    ) {
+        guard let state else { return }
+        
+        switch self {
+        case .setState(let details):
+            state.set(key: details.key, value: details.value, ttl: details.ttl)
+        case .clearState:
+            state.clearState()
+        case .formValue(let details):
+            state.set(key: details.key, value: fieldValue?.stateFormValue)
         }
     }
 }

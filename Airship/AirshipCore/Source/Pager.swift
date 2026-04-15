@@ -263,10 +263,7 @@ struct Pager: View {
                 let action = actions[i]
                 Button {
                     handleEvents(.accessibilityAction(action))
-                    self.process(
-                        behaviors: action.properties.behaviors,
-                        actions: action.properties.actions
-                    )
+                    self.process(action.preparedOutcomes())
                 } label: {
                     Text(
                         action.accessible.resolveContentDescription ?? "unknown"
@@ -410,11 +407,8 @@ struct Pager: View {
                             reportingMetadata: gesture.reportingMetadata
                         )
                     )
-
-                    self.process(
-                        behaviors: gesture.behavior.behaviors,
-                        actions: gesture.behavior.actions
-                    )
+                
+                    self.process(gesture.outcomes ?? gesture.behavior?.makeOutcomes())
                 }
         }
     }
@@ -457,10 +451,8 @@ struct Pager: View {
                             reportingMetadata: gesture.reportingMetadata
                         )
                     )
-                    self.process(
-                        behaviors: gesture.behavior.behaviors,
-                        actions: gesture.behavior.actions
-                    )
+                    
+                    self.process(gesture.outcomes ?? gesture.behavior?.makeOutcomes())
                 }
         case .start:
             guard
@@ -491,7 +483,6 @@ struct Pager: View {
 
     private func handleTouch(isPressed: Bool) {
         self.info.retrieveGestures(type: ThomasViewInfo.Pager.Gesture.Hold.self).forEach { gesture in
-            let behavior = isPressed ? gesture.pressBehavior : gesture.releaseBehavior
             if !isPressed {
                 handleEvents(
                     .gesture(
@@ -500,11 +491,14 @@ struct Pager: View {
                     )
                 )
             }
-
-            self.process(
-                behaviors: behavior.behaviors,
-                actions: behavior.actions
-            )
+            
+            let outcomes = if isPressed {
+                gesture.pressOutcomes ?? gesture.pressBehavior?.makeOutcomes()
+            } else {
+                gesture.releaseOutcomes ?? gesture.releaseBehavior?.makeOutcomes()
+            }
+            
+            self.process(outcomes)
         }
     }
 
@@ -542,88 +536,27 @@ struct Pager: View {
             )
         )
 
-        self.process(
-            behaviors: automatedAction.behaviors,
-            actions: automatedAction.actions
-        )
+        self.process(automatedAction.preparedOutcomes())
 
         self.pagerState.markAutomatedActionExecuted(automatedAction.identifier)
     }
 
-    private func process(
-        stateActions: [ThomasStateAction]? = nil,
-        behaviors: [ThomasButtonClickBehavior]? = nil,
-        actions: [ThomasActionsPayload]? = nil
-    ) {
-        Task { @MainActor in
-            // Handle state first
-            if let stateActions {
-                thomasState.processStateActions(stateActions)
-
-                // WORKAROUND: SwiftUI state updates are not immediately available to child views.
-                // Yielding allows the state changes to propagate through the view hierarchy
-                // before executing behaviors that may depend on the updated state.
-                await Task.yield()
-            }
-
-            // Behaviors
-            behaviors?.sortedBehaviors.forEach { behavior in
-                switch(behavior) {
-                case .dismiss:
-                    self.thomasEnvironment.dismiss(layoutState: layoutState)
-
-                case .cancel:
-                    self.thomasEnvironment.dismiss(cancel: true, layoutState: layoutState)
-
-                case .pagerNext:
-                    self.pagerState.process(request: .next)
-
-                case .pagerPrevious:
-                    self.pagerState.process(request: .back)
-
-                case .pagerNextOrDismiss:
-                    if pagerState.isLastPage {
-                        self.thomasEnvironment.dismiss()
-                    } else {
-                        self.pagerState.process(request: .next)
+    private func process(_ outcomes: [ThomasOutcome]?) {
+        guard let outcomes else { return }
+        
+        Task {
+            await thomasState.process(
+                outcomes: outcomes,
+                actionsDelegate: { [weak thomasEnvironment, layoutState] outcome in
+                    switch outcome {
+                    case .formAction: break
+                    case .dismiss(let outcome):
+                        thomasEnvironment?.dismiss(cancel: outcome.cancel ?? false, layoutState: layoutState)
+                    case .runAction(let outcome):
+                        thomasEnvironment?.runActions(outcome.actions, layoutState: layoutState)
                     }
-
-                case .pagerNextOrFirst:
-                    if self.pagerState.isLastPage {
-                        self.pagerState.process(request: .first)
-                    } else {
-                        self.pagerState.process(request: .next)
-                    }
-
-                case .pagerPause:
-                    self.pagerState.pause()
-
-                case .pagerResume:
-                    self.pagerState.resume()
-
-                case .pagerPauseToggle:
-                    pagerState.togglePause()
-
-                case .asyncViewRetry:
-                    asyncViewState.retry()
-
-                case .formSubmit, .formValidate:
-                    // not supported
-                    break
-
-                case .videoPlay, .videoPause, .videoTogglePlay,
-                     .videoMute, .videoUnmute, .videoToggleMute:
-                    // Video behaviors handled by VideoController, not Pager
-                    break
                 }
-            }
-
-            // Actions
-            if let actions = actions {
-                actions.forEach { action in
-                    self.thomasEnvironment.runActions(action, layoutState: layoutState)
-                }
-            }
+            )
         }
     }
 
@@ -703,16 +636,7 @@ struct Pager: View {
         }
 
         // Run any actions set on the current page
-        let displayActions: [ThomasActionsPayload]? = if let actions = page.displayActions {
-            [actions]
-        } else {
-            nil
-        }
-
-        self.process(
-            stateActions: page.stateActions,
-            actions: displayActions
-        )
+        self.process(page.preparedOutcomes())
 
         // Process any automated navigation actions
         onTimer()
@@ -727,6 +651,51 @@ struct Pager: View {
         }
 
         return dragOffSet
+    }
+}
+
+extension ThomasAccessibilityAction {
+    func preparedOutcomes() -> [ThomasOutcome] {
+        if let outcomes = properties.outcomes { return outcomes }
+        
+        var result = properties.behaviors?.map(\.asOutcome) ?? []
+        if let actions = properties.actions {
+            result.append(contentsOf: actions.map(\.asOutcome))
+        }
+        
+        return result
+    }
+}
+
+extension ThomasViewInfo.Pager.Gesture.GestureBehavior {
+    func makeOutcomes() -> [ThomasOutcome] {
+        let behaviors = behaviors?.map(\.asOutcome) ?? []
+        let actions = actions?.map(\.asOutcome) ?? []
+        return behaviors + actions
+    }
+}
+
+extension ThomasAutomatedAction {
+    func preparedOutcomes() -> [ThomasOutcome] {
+        if let outcomes = outcomes { return outcomes }
+        
+        let behaviors = behaviors?.map(\.asOutcome) ?? []
+        let actions = actions?.map(\.asOutcome) ?? []
+        return behaviors + actions
+    }
+}
+
+extension ThomasViewInfo.Pager.Item {
+    func preparedOutcomes() -> [ThomasOutcome] {
+        if let outcomes = displayOutcomes { return outcomes }
+        
+        var result: [ThomasOutcome] = stateActions?.map(\.asOutcome) ?? []
+        
+        if let actions = displayActions {
+            result.append(actions.asOutcome)
+        }
+        
+        return result
     }
 }
 

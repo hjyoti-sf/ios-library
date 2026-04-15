@@ -35,7 +35,7 @@ final class ValidatableHelper : ObservableObject {
         initialValue: T?,
         valueUpdates: Published<T>.Publisher,
         validatables: ThomasValidationInfo,
-        onStateActions: @escaping @MainActor ([ThomasStateAction]) -> Void
+        onStateActions: @escaping @MainActor ([ThomasOutcome]) -> Void
     ) {
         let state: State = subscriptionState[identifier] ?? State(
             isInitialValue: true,
@@ -89,13 +89,13 @@ final class ValidatableHelper : ObservableObject {
         .sink { action in
             state.lastAction = action
 
-            let actions: [ThomasStateAction]? = switch(action) {
+            let actions: [ThomasOutcome]? = switch(action) {
             case .edit:
-                validatables.onEdit?.stateActions
+                validatables.onEdit?.getOutcomes()
             case .error:
-                validatables.onError?.stateActions
+                validatables.onError?.getOutcomes()
             case .valid:
-                validatables.onValid?.stateActions
+                validatables.onValid?.getOutcomes()
             case .none:
                 nil
             }
@@ -105,3 +105,24 @@ final class ValidatableHelper : ObservableObject {
         }
     }
 }
+
+extension ThomasValidationInfo.EditInfo {
+    func getOutcomes() -> [ThomasOutcome]? {
+        return outcomes ?? stateActions?.map(\.asOutcome)
+    }
+}
+
+extension ThomasValidationInfo.ErrorInfo {
+    func getOutcomes() -> [ThomasOutcome]? {
+        return outcomes ?? stateActions?.map(\.asOutcome)
+    }
+}
+
+extension ThomasValidationInfo.ValidInfo {
+    func getOutcomes() -> [ThomasOutcome]? {
+        return outcomes ?? stateActions?.map(\.asOutcome)
+    }
+}
+
+
+

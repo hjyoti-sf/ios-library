@@ -49,3 +49,9 @@ struct ThomasActionsPayload: ThomasSerializable, Hashable {
         return .object(actions)
     }
 }
+
+extension ThomasActionsPayload {
+    var asOutcome: ThomasOutcome {
+        return .airshipAction(.init(actions: self))
+    }
+}

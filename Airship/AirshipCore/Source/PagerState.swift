@@ -43,6 +43,7 @@ enum PageRequest {
     case next
     case back
     case first
+    case last
 }
 
 struct ThomasPageInfo: Sendable {
@@ -263,6 +264,7 @@ class PagerState: ObservableObject {
 
     @discardableResult
     func process(request: PageRequest) -> NavigationResult? {
+        guard !pageItems.isEmpty else { return nil }
         let id = pageItems[nextIndexNoBranching(request: request)].identifier
         guard
             let result = self.navigateToPage(id: id)
@@ -315,12 +317,10 @@ class PagerState: ObservableObject {
     
     private func nextIndexNoBranching(request: PageRequest) -> Int {
         return switch request {
-        case .next:
-            min(pageIndex + 1, pageItems.count - 1)
-        case .back:
-            max(pageIndex - 1, 0)
-        case .first:
-            0
+        case .next: min(pageIndex + 1, pageItems.count - 1)
+        case .back: max(pageIndex - 1, 0)
+        case .first: 0
+        case .last: max(pageItems.count - 1, 0)
         }
     }
     
@@ -422,7 +422,7 @@ private class BranchControl: Sendable {
         self.updateState()
         
         switch request {
-        case .next, .back: break
+        case .next, .back, .last: break
         case .first: history.removeAll()
         }
     }
@@ -496,30 +496,29 @@ private class BranchControl: Sendable {
     
     private func evaluateCompletion() {
         guard !isComplete else { return }
-        
-        var result = false
-        for indicator in completionChecker.completions {
-            if indicator.predicate?.evaluate(json: payload) != false {
-                result = true
-                break
-            }
+
+        let result = completionChecker.completions.contains {
+            $0.predicate?.evaluate(json: payload) != false
         }
-        
+
         if result, result != isComplete {
-            performCompletionStateActions()
+            performCompletionOutcomes()
         }
-        
+
         self.isComplete = result
     }
-    
-    private func performCompletionStateActions() {
-        guard let thomasState else { return }
-        let actions = completionChecker.completions
-            .filter { $0.predicate?.evaluate(json: payload) != false }
-            .compactMap { $0.stateActions }
-            .flatMap { $0 }
 
-        thomasState.processStateActions(actions)
+    private func performCompletionOutcomes() {
+        guard let thomasState else { return }
+        
+        let outcomes = completionChecker.completions
+            .filter { $0.predicate?.evaluate(json: payload) != false }
+            .compactMap { $0.outcomes ?? $0.stateActions?.map(\.asOutcome) }
+            .flatMap { $0 }
+        
+        Task {
+            await thomasState.process(outcomes: outcomes)
+        }
     }
 }
 
