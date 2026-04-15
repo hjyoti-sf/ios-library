@@ -81,6 +81,43 @@ final class MessageCenterStoreTest: XCTestCase {
         )
     }
 
+    func testUpdateAssociatedDataPersistsMutation() async throws {
+        let messages = MessageCenterMessage.generateMessages(1)
+        try await store.updateMessages(messages: messages, lastModifiedTime: "")
+
+        let viewState = MessageCenterMessage.AssociatedData.ViewState(
+            restoreID: "restore-1",
+            state: Data("state".utf8)
+        )
+        try await store.updateAssociatedData(for: messages[0].id) { $0.viewState = viewState }
+
+        let fetched = try await store.message(forID: messages[0].id)
+        XCTAssertEqual(fetched?.associatedData.viewState, viewState)
+    }
+
+    func testUpdateAssociatedDataDoesNotAffectOtherMessages() async throws {
+        let messages = MessageCenterMessage.generateMessages(3)
+        try await store.updateMessages(messages: messages, lastModifiedTime: "")
+
+        try await store.updateAssociatedData(for: messages[0].id) {
+            $0.viewState = .init(restoreID: "only-first", state: nil)
+        }
+
+        let second = try await store.message(forID: messages[1].id)
+        let third = try await store.message(forID: messages[2].id)
+        XCTAssertNil(second?.associatedData.viewState)
+        XCTAssertNil(third?.associatedData.viewState)
+    }
+
+    func testUpdateAssociatedDataThrowsForMissingMessage() async throws {
+        do {
+            try await store.updateAssociatedData(for: "nonexistent-id") { $0.viewState = nil }
+            XCTFail("Expected an error to be thrown")
+        } catch MessageCenterStoreError.coreDataError {
+            // expected
+        }
+    }
+
     func testSyncMessages() async throws {
         let generated = MessageCenterMessage.generateMessages(5)
         var messages = Array(generated[0...2])

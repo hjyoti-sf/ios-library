@@ -495,21 +495,12 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
         await updateAssociatedData(for: messageID) { $0.viewState = state }
     }
     
-    private func updateAssociatedData(for messageID: String, block: (inout MessageCenterMessage.AssociatedData) throws -> Void) async {
+    private func updateAssociatedData(
+        for messageID: String,
+        block: @escaping @Sendable (inout MessageCenterMessage.AssociatedData) throws -> Void
+    ) async {
         do {
-            guard var message = try await self.store.message(forID: messageID) else {
-                AirshipLogger.error("Failed to find message to update")
-                return
-            }
-            
-            try block(&message.associatedData)
-            
-            try await self.store.updateMessages(
-                messages: [message],
-                lastModifiedTime: nil,
-                updateLastModifiedTime: false,
-                overwriteAssociatedData: true
-            )
+            try await self.store.updateAssociatedData(for: messageID, block: block)
         } catch {
             AirshipLogger.error("Failed to save history data message: \(error)")
         }

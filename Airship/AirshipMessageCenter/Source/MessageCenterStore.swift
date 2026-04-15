@@ -407,6 +407,30 @@ actor MessageCenterStore {
         return data
     }
 
+    func updateAssociatedData(
+        for messageID: String,
+        block: @escaping @Sendable (inout MessageCenterMessage.AssociatedData) throws -> Void
+    ) async throws {
+        guard let coreData = self.coreData else {
+            throw MessageCenterStoreError.coreDataUnavailble
+        }
+
+        try await coreData.perform { context in
+            let request: NSFetchRequest<InboxMessageData> = InboxMessageData.fetchRequest()
+            request.predicate = NSPredicate(format: "messageID == %@", messageID)
+            request.fetchLimit = 1
+            guard let data = try context.fetch(request).first else {
+                throw MessageCenterStoreError.coreDataError
+            }
+
+            var associatedData = data.associatedData
+                .flatMap { try? JSONDecoder().decode(MessageCenterMessage.AssociatedData.self, from: $0) }
+                ?? MessageCenterMessage.AssociatedData()
+            try block(&associatedData)
+            data.associatedData = associatedData.encoded()
+        }
+    }
+
     func updateMessages(
         messages: [MessageCenterMessage],
         lastModifiedTime: String?,
