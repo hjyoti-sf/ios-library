@@ -73,40 +73,56 @@ extension Array where Element == ThomasButtonClickBehavior {
 }
 
 extension ThomasButtonClickBehavior {
+    var outcomeIdentifier: String {
+        return "behavior_\(self.rawValue)"
+    }
+    
     var asOutcome: ThomasOutcome {
+        return asOutcome(with: outcomeIdentifier)
+    }
+    
+    func asOutcome(with identifier: String) -> ThomasOutcome {
         switch self {
         case .pagerNext: return .pagerStepNavigation(
-            ThomasOutcome.PagerStepNavigationOutcome(direction: .next)
+            ThomasOutcome.PagerStepNavigationOutcome(
+                direction: .next,
+                identifier: identifier
+            )
         )
         case .pagerPrevious: return .pagerStepNavigation(
-            ThomasOutcome.PagerStepNavigationOutcome(direction: .previous)
+            ThomasOutcome.PagerStepNavigationOutcome(
+                direction: .previous,
+                identifier: identifier
+            )
         )
         case .pagerNextOrDismiss: return .pagerStepNavigation(
             ThomasOutcome.PagerStepNavigationOutcome(
                 direction: .next,
-                boundaryBehavior: .dismiss
+                boundaryBehavior: .dismiss,
+                identifier: identifier
             )
         )
         case .pagerNextOrFirst: return .pagerStepNavigation(
             ThomasOutcome.PagerStepNavigationOutcome(
                 direction: .next,
-                boundaryBehavior: .wrap
+                boundaryBehavior: .wrap,
+                identifier: identifier
             )
         )
-        case .pagerPause: return .pagerPlayback(.init(command: .pause))
-        case .pagerResume: return .pagerPlayback(.init(command: .resume))
-        case .pagerPauseToggle: return .pagerPlayback(.init(command: .toggle))
-        case .videoPlay: return .mediaPlayback(.init(command: .play))
-        case .videoPause: return .mediaPlayback(.init(command: .pause))
-        case .videoTogglePlay: return .mediaPlayback(.init(command: .toggle))
-        case .videoMute: return .mediaAudio(.init(command: .mute))
-        case .videoUnmute: return .mediaAudio(.init(command: .unmute))
-        case .videoToggleMute: return .mediaAudio(.init(command: .toggle))
-        case .formSubmit: return .form(.init(command: .submit))
-        case .formValidate: return .form(.init(command: .validate))
-        case .dismiss: return .dismiss(.init(cancel: false))
-        case .cancel: return .dismiss(.init(cancel: true))
-        case .asyncViewRetry: return .asyncView(.init(command: .retry))
+        case .pagerPause: return .pagerPlayback(.init(command: .pause, identifier: identifier))
+        case .pagerResume: return .pagerPlayback(.init(command: .resume, identifier: identifier))
+        case .pagerPauseToggle: return .pagerPlayback(.init(command: .toggle, identifier: identifier))
+        case .videoPlay: return .mediaPlayback(.init(command: .play, identifier: identifier))
+        case .videoPause: return .mediaPlayback(.init(command: .pause, identifier: identifier))
+        case .videoTogglePlay: return .mediaPlayback(.init(command: .toggle, identifier: identifier))
+        case .videoMute: return .mediaAudio(.init(command: .mute, identifier: identifier))
+        case .videoUnmute: return .mediaAudio(.init(command: .unmute, identifier: identifier))
+        case .videoToggleMute: return .mediaAudio(.init(command: .toggle, identifier: identifier))
+        case .formSubmit: return .form(.init(command: .submit, identifier: identifier))
+        case .formValidate: return .form(.init(command: .validate, identifier: identifier))
+        case .dismiss: return .dismiss(.init(cancel: false, identifier: identifier))
+        case .cancel: return .dismiss(.init(cancel: true, identifier: identifier))
+        case .asyncViewRetry: return .asyncView(.init(command: .retry, identifier: identifier))
         }
     }
 }

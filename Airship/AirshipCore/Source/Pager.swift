@@ -660,7 +660,10 @@ extension ThomasAccessibilityAction {
         
         var result = properties.behaviors?.map(\.asOutcome) ?? []
         if let actions = properties.actions {
-            result.append(contentsOf: actions.map(\.asOutcome))
+            let actionOutcomes = actions.enumerated().map { index, action in
+                action.asOutcome(index: index)
+            }
+            result.append(contentsOf: actionOutcomes)
         }
         
         return result
@@ -670,7 +673,10 @@ extension ThomasAccessibilityAction {
 extension ThomasViewInfo.Pager.Gesture.GestureBehavior {
     func makeOutcomes() -> [ThomasOutcome] {
         let behaviors = behaviors?.map(\.asOutcome) ?? []
-        let actions = actions?.map(\.asOutcome) ?? []
+        let actions = actions?.enumerated().map { index, action in
+            action.asOutcome(index: index)
+        } ?? []
+        
         return behaviors + actions
     }
 }
@@ -680,7 +686,9 @@ extension ThomasAutomatedAction {
         if let outcomes = outcomes { return outcomes }
         
         let behaviors = behaviors?.map(\.asOutcome) ?? []
-        let actions = actions?.map(\.asOutcome) ?? []
+        let actions = actions?.enumerated().map { index, action in
+            action.asOutcome(index: index)
+        } ?? []
         return behaviors + actions
     }
 }
@@ -692,7 +700,7 @@ extension ThomasViewInfo.Pager.Item {
         var result: [ThomasOutcome] = stateActions?.map(\.asOutcome) ?? []
         
         if let actions = displayActions {
-            result.append(actions.asOutcome)
+            result.append(actions.asOutcome())
         }
         
         return result

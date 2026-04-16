@@ -9,7 +9,7 @@ import Testing
 struct ThomasValidationInfoOutcomeTest {
 
     private let decoder = JSONDecoder()
-    private let dismissOutcome = ThomasOutcome.dismiss(.init(cancel: false))
+    private let dismissOutcome = ThomasOutcome.dismiss(.init(cancel: false, identifier: "validation.dismiss"))
 
     // MARK: - EditInfo
 
@@ -97,7 +97,7 @@ struct ThomasValidationInfoOutcomeTest {
         {
           "on_edit": {
             "outcomes": [
-              { "type": "dismiss", "cancel": false }
+              { "type": "dismiss", "cancel": false, "identifier": "validation.json.dismiss" }
             ]
           }
         }
@@ -132,7 +132,7 @@ struct ThomasValidationInfoOutcomeTest {
         {
           "on_valid": {
             "outcomes": [
-              { "type": "dismiss", "cancel": true }
+              { "type": "dismiss", "cancel": true, "identifier": "validation.json.dismiss.true" }
             ],
             "state_actions": [
               { "type": "clear" }

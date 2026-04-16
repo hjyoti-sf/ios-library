@@ -33,7 +33,7 @@ struct ThomasEventHandlerTest {
         {
           "type": "tap",
           "outcomes": [
-            { "type": "dismiss", "cancel": true }
+            { "type": "dismiss", "cancel": true, "identifier": "handler.dismiss" }
           ],
           "state_actions": [
             { "type": "clear" }
@@ -50,7 +50,7 @@ struct ThomasEventHandlerTest {
         let original = ThomasEventHandler(
             type: .formInput,
             stateActions: [],
-            outcomes: [.pagerPlayback(.init(command: .pause))]
+            outcomes: [.pagerPlayback(.init(command: .pause, identifier: "handler.pb"))]
         )
         let data = try encoder.encode(original)
         let decoded = try decoder.decode(ThomasEventHandler.self, from: data)

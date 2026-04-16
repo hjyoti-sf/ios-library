@@ -16,7 +16,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor()
         var delegated: [DelegatedOutcome] = []
         processor.processSync(
-            outcomes: [.dismiss(.init(cancel: true))],
+            outcomes: [.dismiss(.init(cancel: true, identifier: "proc.dismiss"))],
             formFieldValue: nil,
             delegated: { delegated.append($0) }
         )
@@ -33,7 +33,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor()
         var delegated: [DelegatedOutcome] = []
         processor.processSync(
-            outcomes: [.form(.init(command: .submit))],
+            outcomes: [.form(.init(command: .submit, identifier: "proc.form"))],
             formFieldValue: nil,
             delegated: { delegated.append($0) }
         )
@@ -51,7 +51,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor()
         var delegated: [DelegatedOutcome] = []
         processor.processSync(
-            outcomes: [.airshipAction(.init(actions: payload))],
+            outcomes: [.airshipAction(.init(actions: payload, identifier: "proc.action"))],
             formFieldValue: nil,
             delegated: { delegated.append($0) }
         )
@@ -88,7 +88,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor(pagerState: pager)
         #expect(pager.inProgress == true)
         processor.processSync(
-            outcomes: [.pagerPlayback(.init(command: .pause))],
+            outcomes: [.pagerPlayback(.init(command: .pause, identifier: "proc.pager.pb"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -101,7 +101,7 @@ struct ThomasOutcomeProcessorTest {
         #expect(pager.currentPageId == "p1")
         let processor = processor(pagerState: pager)
         processor.processSync(
-            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .ignore))],
+            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .ignore, identifier: "proc.pager.step"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -115,7 +115,7 @@ struct ThomasOutcomeProcessorTest {
         var delegated: [DelegatedOutcome] = []
         let processor = processor(pagerState: pager)
         processor.processSync(
-            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .dismiss))],
+            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .dismiss, identifier: "proc.pager.boundary"))],
             formFieldValue: nil,
             delegated: { delegated.append($0) }
         )
@@ -125,6 +125,7 @@ struct ThomasOutcomeProcessorTest {
             return
         }
         #expect(outcome.cancel == false)
+        #expect(outcome.identifier == ThomasButtonClickBehavior.dismiss.outcomeIdentifier)
     }
 
     @Test
@@ -133,7 +134,7 @@ struct ThomasOutcomeProcessorTest {
         pager.navigateToPage(id: "p2")
         let processor = processor(pagerState: pager)
         processor.processSync(
-            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .wrap))],
+            outcomes: [.pagerStepNavigation(.init(direction: .next, boundaryBehavior: .wrap, identifier: "proc.pager.wrap"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -146,7 +147,7 @@ struct ThomasOutcomeProcessorTest {
         #expect(pager.currentPageId == "p1")
         let processor = processor(pagerState: pager)
         processor.processSync(
-            outcomes: [.pagerStepNavigation(.init(direction: .previous, boundaryBehavior: .wrap))],
+            outcomes: [.pagerStepNavigation(.init(direction: .previous, boundaryBehavior: .wrap, identifier: "proc.pager.wrap2"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -159,13 +160,13 @@ struct ThomasOutcomeProcessorTest {
         pager.navigateToPage(id: "b")
         let processor = processor(pagerState: pager)
         processor.processSync(
-            outcomes: [.pagerJumpNavigation(.init(page: .start))],
+            outcomes: [.pagerJumpNavigation(.init(page: .start, identifier: "proc.jump.start"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
         #expect(pager.currentPageId == "a")
         processor.processSync(
-            outcomes: [.pagerJumpNavigation(.init(page: .end))],
+            outcomes: [.pagerJumpNavigation(.init(page: .end, identifier: "proc.jump.end"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -180,7 +181,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor(videoState: video)
         #expect(video.isPlaying == false)
         processor.processSync(
-            outcomes: [.mediaPlayback(.init(command: .play))],
+            outcomes: [.mediaPlayback(.init(command: .play, identifier: "proc.video.play"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -193,7 +194,7 @@ struct ThomasOutcomeProcessorTest {
         let processor = processor(videoState: video)
         #expect(video.isMuted == false)
         processor.processSync(
-            outcomes: [.mediaAudio(.init(command: .mute))],
+            outcomes: [.mediaAudio(.init(command: .mute, identifier: "proc.video.mute"))],
             formFieldValue: nil,
             delegated: { _ in }
         )
@@ -208,8 +209,8 @@ struct ThomasOutcomeProcessorTest {
         var asyncDelegated: [DelegatedOutcome] = []
         await processor.process(
             outcomes: [
-                .dismiss(.init(cancel: false)),
-                .form(.init(command: .validate)),
+                .dismiss(.init(cancel: false, identifier: "proc.async.dismiss")),
+                .form(.init(command: .validate, identifier: "proc.async.form")),
             ],
             formFieldValue: nil,
             delegated: { asyncDelegated.append($0) }
@@ -217,8 +218,8 @@ struct ThomasOutcomeProcessorTest {
         var syncDelegated: [DelegatedOutcome] = []
         processor.processSync(
             outcomes: [
-                .dismiss(.init(cancel: false)),
-                .form(.init(command: .validate)),
+                .dismiss(.init(cancel: false, identifier: "proc.async.dismiss")),
+                .form(.init(command: .validate, identifier: "proc.async.form")),
             ],
             formFieldValue: nil,
             delegated: { syncDelegated.append($0) }
@@ -239,7 +240,7 @@ struct ThomasOutcomeProcessorTest {
         await processor.process(
             outcomes: [
                 ThomasStateAction.clearState.asOutcome,
-                .dismiss(.init(cancel: nil)),
+                .dismiss(.init(cancel: nil, identifier: "proc.state.then.dismiss")),
             ],
             formFieldValue: nil,
             delegated: { delegated.append($0) }
@@ -262,8 +263,8 @@ struct ThomasOutcomeProcessorTest {
         var delegationCount = 0
         await processor.process(
             outcomes: [
-                .pagerPlayback(.init(command: .pause)),
-                .asyncView(.init(command: .retry)),
+                .pagerPlayback(.init(command: .pause, identifier: "proc.nil.deps.pb")),
+                .asyncView(.init(command: .retry, identifier: "proc.nil.deps.async")),
             ],
             formFieldValue: nil,
             delegated: { _ in delegationCount += 1 }
@@ -276,11 +277,11 @@ struct ThomasOutcomeProcessorTest {
     private func sameDelegation(_ a: DelegatedOutcome, _ b: DelegatedOutcome) -> Bool {
         switch (a, b) {
         case (.dismiss(let da), .dismiss(let db)):
-            return da.cancel == db.cancel
+            return da.cancel == db.cancel && da.identifier == db.identifier
         case (.formAction(let fa), .formAction(let fb)):
-            return fa.command == fb.command
+            return fa.command == fb.command && fa.identifier == fb.identifier
         case (.runAction(let ra), .runAction(let rb)):
-            return ra.actions == rb.actions
+            return ra.actions == rb.actions && ra.identifier == rb.identifier
         default:
             return false
         }

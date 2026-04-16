@@ -18,6 +18,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
         }
         #expect(o.direction == .next)
         #expect(o.boundaryBehavior == .ignore)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerNext.outcomeIdentifier)
     }
 
     @Test
@@ -28,6 +29,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
         }
         #expect(o.direction == .previous)
         #expect(o.boundaryBehavior == .ignore)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerPrevious.outcomeIdentifier)
     }
 
     @Test
@@ -38,6 +40,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
         }
         #expect(o.direction == .next)
         #expect(o.boundaryBehavior == .dismiss)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerNextOrDismiss.outcomeIdentifier)
     }
 
     @Test
@@ -48,6 +51,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
         }
         #expect(o.direction == .next)
         #expect(o.boundaryBehavior == .wrap)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerNextOrFirst.outcomeIdentifier)
     }
 
     // MARK: Pager playback
@@ -59,6 +63,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .pause)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerPause.outcomeIdentifier)
     }
 
     @Test
@@ -68,6 +73,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .resume)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerResume.outcomeIdentifier)
     }
 
     @Test
@@ -77,6 +83,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .toggle)
+        #expect(o.identifier == ThomasButtonClickBehavior.pagerPauseToggle.outcomeIdentifier)
     }
 
     // MARK: Media playback
@@ -88,6 +95,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .play)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoPlay.outcomeIdentifier)
     }
 
     @Test
@@ -97,6 +105,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .pause)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoPause.outcomeIdentifier)
     }
 
     @Test
@@ -106,6 +115,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .toggle)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoTogglePlay.outcomeIdentifier)
     }
 
     // MARK: Media audio
@@ -117,6 +127,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .mute)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoMute.outcomeIdentifier)
     }
 
     @Test
@@ -126,6 +137,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .unmute)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoUnmute.outcomeIdentifier)
     }
 
     @Test
@@ -135,6 +147,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .toggle)
+        #expect(o.identifier == ThomasButtonClickBehavior.videoToggleMute.outcomeIdentifier)
     }
 
     // MARK: Form
@@ -146,6 +159,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .submit)
+        #expect(o.identifier == ThomasButtonClickBehavior.formSubmit.outcomeIdentifier)
     }
 
     @Test
@@ -155,6 +169,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .validate)
+        #expect(o.identifier == ThomasButtonClickBehavior.formValidate.outcomeIdentifier)
     }
 
     // MARK: Dismiss
@@ -166,6 +181,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.cancel == false)
+        #expect(o.identifier == ThomasButtonClickBehavior.dismiss.outcomeIdentifier)
     }
 
     @Test
@@ -175,6 +191,7 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.cancel == true)
+        #expect(o.identifier == ThomasButtonClickBehavior.cancel.outcomeIdentifier)
     }
 
     // MARK: Async view
@@ -186,6 +203,33 @@ struct ThomasButtonClickBehaviorOutcomeTest {
             return
         }
         #expect(o.command == .retry)
+        #expect(o.identifier == ThomasButtonClickBehavior.asyncViewRetry.outcomeIdentifier)
+    }
+
+    // MARK: Outcome identifier contract
+
+    @Test("outcomeIdentifier is behavior_ plus schema raw string", arguments: [
+        (ThomasButtonClickBehavior.dismiss, "behavior_dismiss"),
+        (.cancel, "behavior_cancel"),
+        (.pagerNext, "behavior_pager_next"),
+        (.pagerPrevious, "behavior_pager_previous"),
+        (.pagerNextOrDismiss, "behavior_pager_next_or_dismiss"),
+        (.pagerNextOrFirst, "behavior_pager_next_or_first"),
+        (.formSubmit, "behavior_form_submit"),
+        (.formValidate, "behavior_form_validate"),
+        (.pagerPause, "behavior_pager_pause"),
+        (.pagerResume, "behavior_pager_resume"),
+        (.asyncViewRetry, "behavior_async_view_retry"),
+        (.pagerPauseToggle, "behavior_pager_toggle_pause"),
+        (.videoPlay, "behavior_video_play"),
+        (.videoPause, "behavior_video_pause"),
+        (.videoTogglePlay, "behavior_video_toggle_play"),
+        (.videoMute, "behavior_video_mute"),
+        (.videoUnmute, "behavior_video_unmute"),
+        (.videoToggleMute, "behavior_video_toggle_mute"),
+    ] as [(ThomasButtonClickBehavior, String)])
+    func outcomeIdentifierUsesConcreteString(behavior: ThomasButtonClickBehavior, expected: String) {
+        #expect(behavior.outcomeIdentifier == expected)
     }
 
     // MARK: Exhaustiveness

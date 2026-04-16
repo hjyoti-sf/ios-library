@@ -122,7 +122,7 @@ struct ButtonLayout : View {
         
         let behavior = info.properties.clickBehaviors?.map(\.asOutcome) ?? []
         
-        if let actions = info.properties.actions?.asOutcome {
+        if let actions = info.properties.actions?.asOutcome() {
             return behavior + [actions]
         }
         

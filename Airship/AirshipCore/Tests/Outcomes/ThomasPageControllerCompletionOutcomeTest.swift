@@ -17,7 +17,7 @@ struct ThomasPageControllerCompletionOutcomeTest {
           "pager_completions": [
             {
               "outcomes": [
-                { "type": "dismiss", "cancel": false }
+                { "type": "dismiss", "cancel": false, "identifier": "branch.dismiss" }
               ]
             }
           ]

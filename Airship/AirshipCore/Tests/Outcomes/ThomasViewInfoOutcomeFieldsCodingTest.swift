@@ -47,7 +47,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
           \(backgroundColor),
           \(labelFragment),
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "dec.dismiss.false" }
           ]
         }
         """
@@ -96,7 +96,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
             }
           },
           "outcomes": [
-            { "type": "dismiss", "cancel": true }
+            { "type": "dismiss", "cancel": true, "identifier": "dec.dismiss.true" }
           ]
         }
         """
@@ -160,7 +160,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
             }
           ],
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "dec.dismiss.false" }
           ]
         }
         """
@@ -222,7 +222,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
             }
           },
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "dec.dismiss.false" }
           ]
         }
         """
@@ -269,7 +269,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
             {
               "identifier": "page1",
               "display_outcomes": [
-                { "type": "dismiss", "cancel": false }
+                { "type": "dismiss", "cancel": false, "identifier": "dec.dismiss.false" }
               ],
               "view": {
                 "type": "empty_view",
@@ -331,7 +331,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
           "type": "swipe",
           "direction": "up",
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "dec.dismiss.false" }
           ]
         }
         """
@@ -369,7 +369,7 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
           "type": "tap",
           "location": "start",
           "outcomes": [
-            { "type": "dismiss", "cancel": true }
+            { "type": "dismiss", "cancel": true, "identifier": "dec.dismiss.true" }
           ]
         }
         """
@@ -406,10 +406,10 @@ struct ThomasViewInfoOutcomeFieldsCodingTest {
           "type": "hold",
           "identifier": "hold1",
           "press_outcomes": [
-            { "type": "pager_playback", "command": "pause" }
+            { "type": "pager_playback", "command": "pause", "identifier": "dec.hold.pause" }
           ],
           "release_outcomes": [
-            { "type": "pager_playback", "command": "resume" }
+            { "type": "pager_playback", "command": "resume", "identifier": "dec.hold.resume" }
           ]
         }
         """

@@ -74,7 +74,7 @@ struct LabelButton : View {
         }
         
         var result = self.info.properties.clickBehaviors?.map(\.asOutcome) ?? []
-        if let action = self.info.properties.actions?.asOutcome {
+        if let action = self.info.properties.actions?.asOutcome() {
             result.append(action)
         }
         

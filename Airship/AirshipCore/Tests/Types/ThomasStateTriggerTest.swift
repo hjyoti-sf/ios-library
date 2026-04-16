@@ -44,7 +44,7 @@ struct ThomasStateTriggerTest {
           \(predicateFragment),
           "on_trigger": {
             "outcomes": [
-              { "type": "dismiss", "cancel": false }
+              { "type": "dismiss", "cancel": false, "identifier": "trigger.dismiss" }
             ]
           }
         }
@@ -62,7 +62,7 @@ struct ThomasStateTriggerTest {
           \(predicateFragment),
           "on_trigger": {
             "outcomes": [
-              { "type": "dismiss", "cancel": true }
+              { "type": "dismiss", "cancel": true, "identifier": "trigger.dismiss.true" }
             ],
             "state_actions": [
               { "type": "clear" }
@@ -86,7 +86,7 @@ struct ThomasStateTriggerTest {
             resetWhenStateMatches: nil,
             onTrigger: .init(
                 stateActions: nil,
-                outcomes: [.dismiss(.init(cancel: false))]
+                outcomes: [.dismiss(.init(cancel: false, identifier: "trigger.rt.dismiss"))]
             )
         )
         let data = try encoder.encode(original)

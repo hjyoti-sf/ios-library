@@ -12,11 +12,12 @@ struct ThomasActionPayloadOutcomeTest {
     func actionsPayloadAsOutcomeWrapsPayload() throws {
         let json = try AirshipJSON.from(json: #"{"hello":"world"}"#)
         let payload = ThomasActionsPayload(value: json)
-        guard case .airshipAction(let wrapped) = payload.asOutcome else {
+        guard case .airshipAction(let wrapped) = payload.asOutcome() else {
             Issue.record("Expected .airshipAction")
             return
         }
         #expect(wrapped.actions.value == payload.value)
+        #expect(wrapped.identifier == "actions_payload")
     }
 
     @Test
@@ -32,12 +33,24 @@ struct ThomasActionPayloadOutcomeTest {
         }
         """)
         let payload = ThomasActionsPayload(value: json)
-        guard case .airshipAction(let wrapped) = payload.asOutcome else {
+        guard case .airshipAction(let wrapped) = payload.asOutcome() else {
             Issue.record("Expected .airshipAction")
             return
         }
         let landing = try #require(wrapped.actions.value.object?["display_landing_page"])
         #expect(landing == .string("https://example.com/ios"))
+        #expect(wrapped.identifier == "actions_payload")
+    }
+
+    @Test
+    func actionsPayloadAsOutcomeWithIndexAppendsIndexToIdentifier() throws {
+        let json = try AirshipJSON.from(json: #"{"k":"v"}"#)
+        let payload = ThomasActionsPayload(value: json)
+        guard case .airshipAction(let wrapped) = payload.asOutcome(index: 2) else {
+            Issue.record("Expected .airshipAction")
+            return
+        }
+        #expect(wrapped.identifier == "actions_payload_2")
     }
 
     @Test
@@ -48,6 +61,7 @@ struct ThomasActionPayloadOutcomeTest {
             return
         }
         #expect(wrapped.action == .clearState)
+        #expect(wrapped.identifier == "state_action_clear")
     }
 
     @Test
@@ -59,6 +73,7 @@ struct ThomasActionPayloadOutcomeTest {
             return
         }
         #expect(wrapped.action == action)
+        #expect(wrapped.identifier == "state_action_set_k")
     }
 
     @Test
@@ -70,5 +85,6 @@ struct ThomasActionPayloadOutcomeTest {
             return
         }
         #expect(wrapped.action == action)
+        #expect(wrapped.identifier == "state_action_set_set_form_value_field_key")
     }
 }

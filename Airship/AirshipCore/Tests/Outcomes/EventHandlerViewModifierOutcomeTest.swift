@@ -16,7 +16,7 @@ struct EventHandlerViewModifierOutcomeTest {
             .init(
                 type: .tap,
                 stateActions: [],
-                outcomes: [.dismiss(.init(cancel: false))]
+                outcomes: [.dismiss(.init(cancel: false, identifier: "eh.dismiss.false"))]
             ),
             .init(
                 type: .tap,
@@ -48,7 +48,7 @@ struct EventHandlerViewModifierOutcomeTest {
             .init(
                 type: .tap,
                 stateActions: [.clearState],
-                outcomes: [.dismiss(.init(cancel: true))]
+                outcomes: [.dismiss(.init(cancel: true, identifier: "eh.dismiss.true"))]
             ),
         ]
         let tapOutcomes = EventHandlerViewModifier.outcomes(for: handlers, type: .tap)
@@ -68,7 +68,7 @@ struct EventHandlerViewModifierOutcomeTest {
         let thomasState = ThomasState(mutableState: .init(initialState: [:]), onStateChange: { _ in })
 
         await EventHandlerViewModifier.processOutcomes(
-            [.dismiss(.init(cancel: true))],
+            [.dismiss(.init(cancel: true, identifier: "eh.process.dismiss"))],
             thomasState: thomasState,
             thomasEnvironment: env,
             layoutState: .empty

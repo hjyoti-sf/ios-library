@@ -155,7 +155,9 @@ final class DefaultThomasOutcomeProcessor: ThomasOutcomeProcessor {
         switch (outcome.boundaryBehavior) {
         case .ignore: break
         case .dismiss:
-            delegate(.dismiss(ThomasOutcome.DismissOutcome(cancel: false)))
+            delegate(.dismiss(ThomasOutcome.DismissOutcome(
+                cancel: false,
+                identifier: ThomasButtonClickBehavior.dismiss.outcomeIdentifier)))
         case .wrap:
             let next: PageRequest = switch(outcome.direction) {
             case .next: .first

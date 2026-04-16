@@ -12,7 +12,7 @@ struct ThomasAutomatedActionOutcomeTest {
 
     @Test
     func preparedOutcomesReturnsOutcomesWhenPresent() throws {
-        let list: [ThomasOutcome] = [.dismiss(.init(cancel: false))]
+        let list: [ThomasOutcome] = [.dismiss(.init(cancel: false, identifier: "auto.explicit.dismiss"))]
         let emptyPayload = ThomasActionsPayload(value: try AirshipJSON.from(json: "{}"))
         let action = ThomasAutomatedAction(
             identifier: "a1",
@@ -40,7 +40,43 @@ struct ThomasAutomatedActionOutcomeTest {
         #expect(result.count == 3)
         #expect(result[0] == ThomasButtonClickBehavior.pagerNext.asOutcome)
         #expect(result[1] == ThomasButtonClickBehavior.pagerPrevious.asOutcome)
-        #expect(result[2] == payload.asOutcome)
+        #expect(result[2] == payload.asOutcome(index: 0))
+    }
+
+    @Test
+    func preparedOutcomesLegacyUsesBehaviorOutcomeIdentifiersAndIndexedActionPayloadIds() throws {
+        let p0 = ThomasActionsPayload(value: try AirshipJSON.from(json: #"{"i":0}"#))
+        let p1 = ThomasActionsPayload(value: try AirshipJSON.from(json: #"{"i":1}"#))
+        let action = ThomasAutomatedAction(
+            identifier: "a1",
+            delay: nil,
+            actions: [p0, p1],
+            behaviors: [.pagerNext, .formSubmit],
+            reportingMetadata: nil,
+            outcomes: nil
+        )
+        let result = action.preparedOutcomes()
+        #expect(result.count == 4)
+        guard case .pagerStepNavigation(let nav) = result[0] else {
+            Issue.record("Expected pager step from behavior")
+            return
+        }
+        #expect(nav.identifier == ThomasButtonClickBehavior.pagerNext.outcomeIdentifier)
+        guard case .form(let form) = result[1] else {
+            Issue.record("Expected form from behavior")
+            return
+        }
+        #expect(form.identifier == ThomasButtonClickBehavior.formSubmit.outcomeIdentifier)
+        guard case .airshipAction(let air0) = result[2] else {
+            Issue.record("Expected first action outcome")
+            return
+        }
+        #expect(air0.identifier == "actions_payload_0")
+        guard case .airshipAction(let air1) = result[3] else {
+            Issue.record("Expected second action outcome")
+            return
+        }
+        #expect(air1.identifier == "actions_payload_1")
     }
 
     @Test
@@ -86,7 +122,7 @@ struct ThomasAutomatedActionOutcomeTest {
         {
           "identifier": "auto1",
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "auto.json.dismiss" }
           ]
         }
         """

@@ -52,7 +52,7 @@ struct StateTriggerEvaluationTest {
         let trigger = triggerWhenFlagTrue(
             onTrigger: .init(
                 stateActions: [.clearState],
-                outcomes: [.dismiss(.init(cancel: true))]
+                outcomes: [.dismiss(.init(cancel: true, identifier: "eval.dismiss"))]
             )
         )
         var fired = Set<String>()

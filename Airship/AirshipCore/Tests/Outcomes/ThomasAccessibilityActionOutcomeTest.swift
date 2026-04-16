@@ -17,7 +17,7 @@ struct ThomasAccessibilityActionOutcomeTest {
           "type": "default",
           "behaviors": ["cancel"],
           "outcomes": [
-            { "type": "dismiss", "cancel": true }
+            { "type": "dismiss", "cancel": true, "identifier": "a11y.dismiss.true" }
           ]
         }
         """
@@ -41,10 +41,48 @@ struct ThomasAccessibilityActionOutcomeTest {
         let result = action.preparedOutcomes()
         #expect(result.count == 2)
         #expect(result[0] == ThomasButtonClickBehavior.videoPlay.asOutcome)
-        guard case .airshipAction = result[1] else {
+        guard case .airshipAction(let wrapped) = result[1] else {
             Issue.record("Expected wrapped actions")
             return
         }
+        #expect(wrapped.identifier == "actions_payload_0")
+    }
+
+    @Test
+    func preparedOutcomesLegacyIdentifiersFollowBehaviorThenIndexedActions() throws {
+        let json = """
+        {
+          "type": "default",
+          "behaviors": ["video_play", "pager_next"],
+          "actions": [
+            { "a": 1 },
+            { "b": 2 }
+          ]
+        }
+        """
+        let action = try decoder.decode(ThomasAccessibilityAction.self, from: Data(json.utf8))
+        let result = action.preparedOutcomes()
+        #expect(result.count == 4)
+        guard case .mediaPlayback(let media) = result[0] else {
+            Issue.record("Expected media playback from first behavior")
+            return
+        }
+        #expect(media.identifier == ThomasButtonClickBehavior.videoPlay.outcomeIdentifier)
+        guard case .pagerStepNavigation(let nav) = result[1] else {
+            Issue.record("Expected pager step from second behavior")
+            return
+        }
+        #expect(nav.identifier == ThomasButtonClickBehavior.pagerNext.outcomeIdentifier)
+        guard case .airshipAction(let air0) = result[2] else {
+            Issue.record("Expected first actions outcome")
+            return
+        }
+        #expect(air0.identifier == "actions_payload_0")
+        guard case .airshipAction(let air1) = result[3] else {
+            Issue.record("Expected second actions outcome")
+            return
+        }
+        #expect(air1.identifier == "actions_payload_1")
     }
 
     @Test
@@ -64,7 +102,7 @@ struct ThomasAccessibilityActionOutcomeTest {
         {
           "type": "escape",
           "outcomes": [
-            { "type": "dismiss", "cancel": false }
+            { "type": "dismiss", "cancel": false, "identifier": "a11y.dismiss.false" }
           ]
         }
         """

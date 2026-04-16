@@ -92,7 +92,7 @@ struct ImageButton : View {
         }
         
         var result = info.properties.clickBehaviors?.map(\.asOutcome) ?? []
-        if let action = info.properties.actions?.asOutcome {
+        if let action = info.properties.actions?.asOutcome() {
             result += [action]
         }
         
