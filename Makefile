@@ -12,6 +12,8 @@ export AIRSHIP_VERSION = $(shell bash "./scripts/airship_version.sh")
 
 build_path = build
 derived_data_path = ${build_path}/derived_data
+derived_data_devapp_store = ${build_path}/derived_data_devapp_store
+devapp_store_out = ${build_path}/devapp_store
 archive_path = ${build_path}/archive
 
 xcframeworks_path = ${build_path}/xcframeworks
@@ -65,6 +67,11 @@ build-samples: build-sample-ios build-sample-macos
 .PHONY: build-sample-ios
 build-sample-ios: setup
 	bash ./scripts/build_sample.sh "DevApp" "${derived_data_path}"
+
+# Release archive + App Store IPA export + altool validation (requires ASC API key + distribution cert in CI).
+.PHONY: archive-devapp-store
+archive-devapp-store: setup
+	bash ./scripts/archive_devapp_store.sh "${derived_data_devapp_store}" "${devapp_store_out}"
 	
 .PHONY: build-sample-macos
 build-sample-macos: setup
