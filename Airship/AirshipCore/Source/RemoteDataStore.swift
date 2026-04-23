@@ -141,7 +141,7 @@ final class RemoteDataStore: Sendable {
         // set the properties
         remoteDataStorePayload.type = payload.type
         remoteDataStorePayload.timestamp = payload.timestamp
-        remoteDataStorePayload.data = AirshipJSONUtils.toData(payload.data.unWrap() as? [AnyHashable : Any]) ?? Data()
+        remoteDataStorePayload.data = (try? payload.data.toData()) ?? Data()
         do {
             remoteDataStorePayload.remoteDataInfo = try payload.remoteDataInfo?.toEncodedJSONData()
         } catch {

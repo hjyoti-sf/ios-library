@@ -24,10 +24,7 @@ public class JSONValueTransformer: ValueTransformer {
         }
 
         do {
-            return try AirshipJSONUtils.data(
-                value,
-                options: JSONSerialization.WritingOptions.prettyPrinted
-            )
+            return try AirshipJSON.wrap(value).toData()
         } catch {
             AirshipLogger.error(
                 "Failed to transform value: \(value), error: \(error)"

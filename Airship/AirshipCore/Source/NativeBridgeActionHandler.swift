@@ -166,10 +166,7 @@ final class NativeBridgeActionHandler: NativeBridgeActionHandlerProtocol {
         webView: WKWebView
     ) async -> String? {
         
-        let callbackID = try? AirshipJSONUtils.string(
-            callbackID,
-            options: .fragmentsAllowed
-        )
+        let callbackID = try? AirshipJSON.wrap(callbackID).toString()
         
         let result = await self.actionRunner.runAction(
             actionName: actionName, 
@@ -215,7 +212,7 @@ final class NativeBridgeActionHandler: NativeBridgeActionHandlerProtocol {
     }
 
     private func errorResponse(errorMessage: String, callbackID: String) -> String {
-        let json = (try? AirshipJSONUtils.string(errorMessage, options: .fragmentsAllowed)) ?? ""
+        let json = (try? AirshipJSON.wrap(errorMessage).toString()) ?? ""
 
         return "var error = new Error(); error.message = \(json); UAirship.finishAction(error, null, \(callbackID));"
     }

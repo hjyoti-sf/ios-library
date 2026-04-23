@@ -63,7 +63,10 @@ final class ChannelAuthTokenAPIClient: ChannelAuthTokenAPIClientProtocol, Sendab
                 return nil
             }
 
-            return try AirshipJSONUtils.decode(data: data)
+            guard let data = data else {
+                throw AirshipErrors.parseError("Missing response body")
+            }
+            return try AirshipJSON.defaultDecoder.decode(ChannelAuthTokenResponse.self, from: data)
         }
     }
 }

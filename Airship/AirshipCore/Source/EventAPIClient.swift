@@ -94,7 +94,7 @@ final class EventAPIClient: EventAPIClientProtocol {
             return eventBody
         }
 
-        return try AirshipJSONUtils.data(preparedEvents, options: [])
+        return try AirshipJSON.wrap(preparedEvents).toData()
     }
 }
 
