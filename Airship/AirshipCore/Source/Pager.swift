@@ -252,7 +252,11 @@ struct Pager: View {
                 childConstraints: childConstraints,
                 metrics: metrics,
                 isLegacyPager: isLegacyPager
-            )
+            ).onAppear {
+                if pagerState.pageItems[index].identifier == pagerState.currentPageId {
+                    pagerState.confirmNavigation()
+                }
+            }
         }
     }
 
