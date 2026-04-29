@@ -82,7 +82,10 @@ final class DefaultThomasStateStorage: ThomasStateStorage {
             let stored = store.retrieve(identifier),
             let state = decodeState(T.SnapshotType.self, data: stored)
         {
+            AirshipLogger.debug("StateStorage[\(identifier)] restoring from persisted data")
             result.restorePersistentState(state)
+        } else {
+            AirshipLogger.debug("StateStorage[\(identifier)] no persisted data — creating fresh")
         }
 
         store(result, identifier: identifier)
@@ -122,10 +125,13 @@ final class DefaultThomasStateStorage: ThomasStateStorage {
 
     private func scheduleSave() {
         pendingSaveTask?.cancel()
-        pendingSaveTask = Task { [weak self] in
-            try? await self?.taskSleeper.sleep(timeInterval: DefaultThomasStateStorage.debounceInterval)
+        // Strong capture keeps this object alive for the debounce window so
+        // state written after dismiss (e.g. form status set to .submitted after
+        // the flush in tryDismiss) still reaches the persistent store.
+        pendingSaveTask = Task { [self] in
+            try? await taskSleeper.sleep(timeInterval: DefaultThomasStateStorage.debounceInterval)
             guard !Task.isCancelled else { return }
-            self?.flushPendingData()
+            flushPendingData()
         }
     }
 

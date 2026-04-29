@@ -24,15 +24,15 @@ class ThomasEnvironment: ObservableObject {
             return existing
         }
         
-        if let stored = stateStorage?.retrieve(identifier: identifier, builder: create) {
+        if let stored = stateStorage?.retrieve(identifier: key, builder: create) {
             self.state[key] = stored
             return stored
         }
         
         let new = create()
         state[key] = new
-        stateStorage?.store(new, identifier: identifier)
-        
+        stateStorage?.store(new, identifier: key)
+
         return new
     }
 

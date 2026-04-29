@@ -229,14 +229,12 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
             //can't use self here because it's init
             NativeLayoutPersistentDataStore(
                 messageID: messageID) { state in
-                    Task {
-                        await Airship.internalMessageCenter
-                            .internalInbox
-                            .saveLayoutState(
-                                for: messageID,
-                                state: state
-                            )
-                    }
+                    await Airship.internalMessageCenter
+                        .internalInbox
+                        .saveLayoutState(
+                            for: messageID,
+                            state: state
+                        )
                 } onFetch: {
                     await Airship.internalMessageCenter
                         .internalInbox
