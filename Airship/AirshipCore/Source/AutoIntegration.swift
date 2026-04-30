@@ -23,8 +23,6 @@ final class AutoIntegration {
     private let dummyNotificationDelegate = UAAutoIntegrationDummyDelegate()
     weak var delegate: (any AppIntegrationDelegate)?
 
-
-
     public func integrate(with delegate: any AppIntegrationDelegate) {
         self.delegate = delegate
 
@@ -192,7 +190,7 @@ fileprivate extension AirshipSwizzler {
 
             if
                 let strongSelf = self,
-                let original = strongSelf.originalImplementation(willPresentSelector, forClass: type(of: receiver))
+                let original = strongSelf.originalImplementation(willPresentSelector, forClass: runtimeClass(receiver))
             {
                 group.enter()
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, UNUserNotificationCenter, UNNotification, @escaping (UNNotificationPresentationOptions) -> Void) -> Void).self)
@@ -234,7 +232,7 @@ fileprivate extension AirshipSwizzler {
             let group = DispatchGroup()
             if
                 let strongSelf = self,
-                let original = strongSelf.originalImplementation(responseSelector, forClass: type(of: receiver))
+                let original = strongSelf.originalImplementation(responseSelector, forClass: runtimeClass(receiver))
             {
                 group.enter()
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, UNUserNotificationCenter, UNNotificationResponse, @escaping () -> Void) -> Void).self)
@@ -272,7 +270,7 @@ extension AirshipSwizzler {
         let regSelector = #selector((any WKExtensionDelegate).didRegisterForRemoteNotifications(withDeviceToken:))
         let regBlock: WatchDidRegisterForRemoteNotificationsBlock = { [weak self] (receiver, token) in
             integrationDelegate.didRegisterForRemoteNotifications(deviceToken: token)
-            if let strongSelf = self, let original = strongSelf.originalImplementation(regSelector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(regSelector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, Data) -> Void).self)
                 fn(receiver, regSelector, token)
             }
@@ -299,7 +297,7 @@ extension AirshipSwizzler {
                 }
             }
 
-            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: runtimeClass(receiver)) {
                 group.enter()
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, [AnyHashable: Any], @escaping (WKBackgroundFetchResult) -> Void) -> Void).self)
                 let safeCompletion = strongSelf.ensureOnce(selector: selector) { res in
@@ -339,7 +337,7 @@ extension AirshipSwizzler {
             integrationDelegate.didFailToRegisterForRemoteNotifications(error: error)
 
             if let strongSelf = self,
-               let original = strongSelf.originalImplementation(selector, forClass: type(of: receiver)) {
+               let original = strongSelf.originalImplementation(selector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, any Error) -> Void).self)
                 fn(receiver, selector, error)
             }
@@ -368,7 +366,7 @@ extension AirshipSwizzler {
         let selector = #selector((any NSApplicationDelegate).application(_:didRegisterForRemoteNotificationsWithDeviceToken:))
         let block: MacDidRegisterBlock = { [weak self] (receiver, app, token) in
             delegate.didRegisterForRemoteNotifications(deviceToken: token)
-            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, NSApplication, Data) -> Void).self)
                 fn(receiver, selector, app, token)
             }
@@ -380,7 +378,7 @@ extension AirshipSwizzler {
         let selector = #selector((any NSApplicationDelegate).application(_:didFailToRegisterForRemoteNotificationsWithError:))
         let block: MacDidFailBlock = { [weak self] (receiver, app, error) in
             delegate.didFailToRegisterForRemoteNotifications(error: error)
-            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(selector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, NSApplication, any Error) -> Void).self)
                 fn(receiver, selector, app, error)
             }
@@ -394,7 +392,7 @@ extension AirshipSwizzler {
             let isForeground = NSApplication.shared.isActive
             delegate.didReceiveRemoteNotification(userInfo: userInfo, isForeground: isForeground)
             if let strongSelf = self,
-               let original = strongSelf.originalImplementation(selector, forClass: type(of: receiver)) {
+               let original = strongSelf.originalImplementation(selector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, NSApplication, [AnyHashable: Any]) -> Void).self)
                 fn(receiver, selector, app, userInfo)
             }
@@ -422,7 +420,7 @@ fileprivate extension AirshipSwizzler {
         let regSelector = #selector((any UIApplicationDelegate).application(_:didRegisterForRemoteNotificationsWithDeviceToken:))
         let regBlock: DidRegisterForRemoteNotificationsBlock = { [weak self] (receiver, app, token) in
             delegate.didRegisterForRemoteNotifications(deviceToken: token)
-            if let strongSelf = self, let original = strongSelf.originalImplementation(regSelector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(regSelector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, UIApplication, Data) -> Void).self)
                 fn(receiver, regSelector, app, token)
             }
@@ -440,7 +438,7 @@ fileprivate extension AirshipSwizzler {
         let failSelector = #selector((any UIApplicationDelegate).application(_:didFailToRegisterForRemoteNotificationsWithError:))
         let failBlock: DidFailToRegisterForRemoteNotificationsBlock = { [weak self] (receiver, app, error) in
             delegate.didFailToRegisterForRemoteNotifications(error: error)
-            if let strongSelf = self, let original = strongSelf.originalImplementation(failSelector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(failSelector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, UIApplication, any Error) -> Void).self)
                 fn(receiver, failSelector, app, error)
             }
@@ -469,7 +467,7 @@ fileprivate extension AirshipSwizzler {
 
             if
                 let strongSelf = self,
-                let original = strongSelf.originalImplementation(fetchSelector, forClass: type(of: receiver))
+                let original = strongSelf.originalImplementation(fetchSelector, forClass: runtimeClass(receiver))
             {
                 group.enter()
                 typealias RawFetchFunc = @convention(c) (NSObject, Selector, UIApplication, [AnyHashable: Any], @escaping (UIBackgroundFetchResult) -> Void) -> Void
@@ -504,7 +502,7 @@ fileprivate extension AirshipSwizzler {
         let backgroundSelector = #selector((any UIApplicationDelegate).application(_:performFetchWithCompletionHandler:))
         let backgroundBlock: BackgroundFetchBlock = { [weak self] (receiver, app, handler) in
             delegate.onBackgroundAppRefresh()
-            if let strongSelf = self, let original = strongSelf.originalImplementation(backgroundSelector, forClass: type(of: receiver)) {
+            if let strongSelf = self, let original = strongSelf.originalImplementation(backgroundSelector, forClass: runtimeClass(receiver)) {
                 let fn = unsafeBitCast(original, to: (@convention(c) (NSObject, Selector, UIApplication, @escaping (UIBackgroundFetchResult) -> Void) -> Void).self)
                 let safeCompletion = strongSelf.ensureOnce(selector: backgroundSelector, completion: handler)
                 fn(receiver, backgroundSelector, app, safeCompletion)
@@ -524,6 +522,10 @@ fileprivate extension AirshipSwizzler {
 }
 #endif
 
+
+fileprivate func runtimeClass(_ object: AnyObject) -> AnyClass {
+    object_getClass(object) ?? type(of: object)
+}
 
 fileprivate extension AirshipSwizzler {
     func ensureOnce<T>(selector: Selector, completion: @escaping (T) -> Void) -> (T) -> Void {
