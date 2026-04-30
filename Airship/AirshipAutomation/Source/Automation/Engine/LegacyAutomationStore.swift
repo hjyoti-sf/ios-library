@@ -371,7 +371,7 @@ fileprivate extension UAScheduleData {
         let version = self.dataVersion
 
         if (version != 3) {
-            guard var json = AirshipJSONUtils.object(self.data) as? [String: Any] else {
+            guard var json = try? AirshipJSON.from(json: self.data).unWrap() as? [String: Any] else {
                 return
             }
             switch(version) {
@@ -388,7 +388,7 @@ fileprivate extension UAScheduleData {
                 break
             }
 
-            self.data = try AirshipJSONUtils.string(json, options: .fragmentsAllowed)
+            self.data = try AirshipJSON.wrap(json).toString()
         }
 
     }

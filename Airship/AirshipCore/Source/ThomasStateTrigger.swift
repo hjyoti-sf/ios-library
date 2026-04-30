@@ -9,9 +9,12 @@ struct ThomasStateTriggers: ThomasSerializable {
 
     struct TriggerActions: ThomasSerializable {
         var stateActions: [ThomasStateAction]?
+        /// If defined, `stateActions` will be ignored.
+        var outcomes: [ThomasOutcome]?
 
         enum CodingKeys: String, CodingKey {
             case stateActions = "state_actions"
+            case outcomes
         }
     }
 

@@ -230,9 +230,9 @@ struct DeepLinkHandlerTest {
         let lock = NSLock()
 
         airshipInstance.deepLinkHandler = { url in
-            lock.lock()
-            processedURLs.insert(url.absoluteString)
-            lock.unlock()
+            lock.withLock {
+                processedURLs.insert(url.absoluteString)
+            }
             // Simulate some processing time
             try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
         }
@@ -256,9 +256,7 @@ struct DeepLinkHandlerTest {
         }
 
         // Verify all URLs were processed
-        lock.lock()
-        let finalCount = processedURLs.count
-        lock.unlock()
+        let finalCount = lock.withLock { processedURLs.count }
 
         #expect(finalCount == urls.count)
     }

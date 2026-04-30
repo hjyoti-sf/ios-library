@@ -74,6 +74,17 @@ jobs:
         run: make build-samples
 
   # Test jobs, all depend on check-version
+  run-tests-basement:
+    needs: check-version
+    runs-on: macos-15-xlarge
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install xcodegen
+        run: brew install xcodegen
+      - name: Test Basement
+        run: make test-basement
+
   run-tests-core:
     needs: check-version
     runs-on: macos-15-xlarge
@@ -145,6 +156,7 @@ jobs:
       contents: write
     runs-on: macos-15-xlarge
     needs:
+      - run-tests-basement
       - run-tests-core
       - run-tests-preference-center
       - run-tests-message-center
@@ -230,6 +242,7 @@ jobs:
   deploy-pods:
     runs-on: macos-15-xlarge
     needs:
+      - run-tests-basement
       - run-tests-core
       - run-tests-preference-center
       - run-tests-message-center

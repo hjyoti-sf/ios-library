@@ -55,6 +55,7 @@ extension Array where Element == ThomasAutomatedAction {
                 case .pagerPause: false
                 case .pagerResume: false
                 case .pagerPauseToggle: false
+                case .asyncViewRetry: false
                 case .videoPlay: false
                 case .videoPause: false
                 case .videoTogglePlay: false

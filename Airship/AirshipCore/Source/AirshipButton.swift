@@ -10,15 +10,16 @@ struct AirshipButton<Label> : View  where Label : View {
     @EnvironmentObject private var videoState: VideoState
     @EnvironmentObject private var thomasState: ThomasState
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var asyncViewState: ThomasAsyncViewState
+
     @Environment(\.layoutState) private var layoutState
     @Environment(\.isButtonActionsEnabled) private var isButtonActionsEnabled
 
     private let identifier: String
     private let reportingMetadata: AirshipJSON?
     private let description: String?
-    private let clickBehaviors: [ThomasButtonClickBehavior]?
+    private let outcomes: [ThomasOutcome]
     private let eventHandlers: [ThomasEventHandler]?
-    private let actions: ThomasActionsPayload?
     private let tapEffect: ThomasButtonTapEffect?
     private let label: () -> Label
 
@@ -29,18 +30,16 @@ struct AirshipButton<Label> : View  where Label : View {
         identifier: String,
         reportingMetadata: AirshipJSON? = nil,
         description: String?,
-        clickBehaviors: [ThomasButtonClickBehavior]? = nil,
+        outcomes: [ThomasOutcome] = [],
         eventHandlers: [ThomasEventHandler]? = nil,
-        actions: ThomasActionsPayload? = nil,
         tapEffect: ThomasButtonTapEffect? = nil,
         label: @escaping () -> Label
     ) {
         self.identifier = identifier
         self.reportingMetadata = reportingMetadata
         self.description = description
-        self.clickBehaviors = clickBehaviors
+        self.outcomes = outcomes
         self.eventHandlers = eventHandlers
-        self.actions = actions
         self.tapEffect = tapEffect
         self.label = label
     }
@@ -65,17 +64,19 @@ struct AirshipButton<Label> : View  where Label : View {
 
     @MainActor
     private func doButtonActions() async {
-        if clickBehaviors?.contains(.formSubmit) == true || clickBehaviors?.contains(.formValidate) == true {
+        if outcomes.hasFormOutcome {
             guard await formState.validate() else { return }
         }
-
+        
         let taps = self.eventHandlers?.filter { $0.type == .tap }
         if let taps, !taps.isEmpty {
-            /// Tap handlers
-            taps.forEach { tap in
-                handleStateActions(tap.stateActions)
+            
+            let outcomes = taps.flatMap { handler in
+                handler.outcomes ?? handler.stateActions.map(\.asOutcome)
             }
-
+            
+            await thomasState.process(outcomes: outcomes)
+            
             // WORKAROUND: SwiftUI state updates are not immediately available to child views.
             // Yielding allows the state changes to propagate through the view hierarchy
             // before executing behaviors that may depend on the updated state.
@@ -88,109 +89,39 @@ struct AirshipButton<Label> : View  where Label : View {
             reportingMetadata: self.reportingMetadata,
             layoutState: layoutState
         )
-
-        // Buttons
-        await handleBehaviors(self.clickBehaviors ?? [])
-        handleActions(self.actions)
-    }
-
-    private func handleBehaviors(
-        _ behaviors: [ThomasButtonClickBehavior]?
-    ) async {
-        guard let behaviors else { return }
-
-        for behavior in behaviors {
-            switch(behavior) {
-            case .dismiss:
+        
+        var asyncTasks: [Task<Void, Never>] = []
+        
+        await thomasState.process(outcomes: outcomes) { delegated in
+            switch(delegated) {
+            case .dismiss(let outcome):
                 thomasEnvironment.dismiss(
                     buttonIdentifier: self.identifier,
                     buttonDescription: self.description ?? self.identifier,
-                    cancel: false,
+                    cancel: outcome.cancel ?? false,
                     layoutState: layoutState
                 )
-
-            case .cancel:
-                  thomasEnvironment.dismiss(
-                    buttonIdentifier: self.identifier,
-                    buttonDescription: self.description ?? self.identifier,
-                    cancel: true,
-                    layoutState: layoutState
-                  )
-
-            case .pagerNext:
-                pagerState.process(request: .next)
-
-            case .pagerPrevious:
-                pagerState.process(request: .back)
-
-            case .pagerNextOrDismiss:
-                if pagerState.isLastPage {
-                    thomasEnvironment.dismiss(
-                        buttonIdentifier: self.identifier,
-                        buttonDescription: self.description ?? self.identifier,
-                        cancel: false,
-                        layoutState: layoutState
-                    )
-                } else {
-                    pagerState.process(request: .next)
+            case .formAction(let outcome):
+                switch(outcome.command) {
+                case .validate: break //already handled above
+                case .submit:
+                    asyncTasks.append(Task {
+                        do {
+                            try await formState.submit(layoutState: layoutState)
+                        } catch {
+                            AirshipLogger.error("Failed to submit \(error)")
+                        }
+                    })
                 }
-
-            case .pagerNextOrFirst:
-                if pagerState.isLastPage {
-                    pagerState.process(request: .first)
-                } else {
-                    pagerState.process(request: .next)
-                }
-
-            case .pagerPause:
-                pagerState.pause()
-
-            case .pagerResume:
-                pagerState.resume()
-
-            case .pagerPauseToggle:
-                pagerState.togglePause()
-
-            case .formValidate:
-                // Already handled above
-                break
-
-            case .formSubmit:
-                do {
-                    try await formState.submit(layoutState: layoutState)
-                } catch {
-                    AirshipLogger.error("Failed to submit \(error)")
-                }
-
-            case .videoPlay:
-                videoState.play()
-
-            case .videoPause:
-                videoState.pause()
-
-            case .videoTogglePlay:
-                videoState.togglePlay()
-
-            case .videoMute:
-                videoState.mute()
-
-            case .videoUnmute:
-                videoState.unmute()
-
-            case .videoToggleMute:
-                videoState.toggleMute()
+            case .runAction(let outcome):
+                self.thomasEnvironment
+                    .runActions(outcome.actions, layoutState: self.layoutState)
             }
         }
-    }
-
-    private func handleActions(_ actionPayload: ThomasActionsPayload?) {
-        if let actionPayload {
-            thomasEnvironment.runActions(actionPayload, layoutState: layoutState)
+        
+        for task in asyncTasks {
+            await task.value
         }
-    }
-
-    private func handleStateActions(_ stateActions: [ThomasStateAction]) {
-        thomasState.processStateActions(stateActions)
     }
 }
 

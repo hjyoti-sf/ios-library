@@ -3,6 +3,9 @@
 import CommonCrypto
 public import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
 
 public protocol AirshipRequestSession: Sendable {
 
@@ -310,7 +313,7 @@ final class DefaultAirshipRequestSession: AirshipRequestSession, Sendable {
 
         case .generatedChannelToken(let channelID):
             let nonce = self.nonceFactory()
-            let timestamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso)
+            let timestamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601)
             let token = try AirshipUtils.generateSignedToken(
                 secret: self.appSecret,
                 tokenParams: [
@@ -333,7 +336,7 @@ final class DefaultAirshipRequestSession: AirshipRequestSession, Sendable {
 
         case .generatedAppToken:
             let nonce = self.nonceFactory()
-            let timestamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso)
+            let timestamp = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601)
             let token = try AirshipUtils.generateSignedToken(
                 secret: self.appSecret,
                 tokenParams: [

@@ -7,27 +7,10 @@ import AirshipCore
 
 final class ExperimentTest: XCTestCase {
 
-    var encoder: JSONEncoder {
-        let encoder = JSONEncoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        return encoder
-    }
-
-    var decoder: JSONDecoder {
-        let decoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        return decoder
-    }
-
-
     func testCodable() throws {
         let json: String =  """
         {
-           "created" : "2023-07-10T18:10:46.203",
+           "created" : "2023-07-10T18:10:46.203Z",
            "experiment_definition" : {
               "audience_selector" : {
                  "hash" : {
@@ -63,15 +46,15 @@ final class ExperimentTest: XCTestCase {
               "type" : "static"
            },
            "experiment_id" : "cf9b8c05-05e2-4b8e-a2a3-7ed06d99cc1c",
-           "last_updated" : "2023-07-11T16:06:49.003",
+           "last_updated" : "2023-07-11T16:06:49.003Z",
         }
         """
 
-        let decoded: Experiment = try self.decoder.decode(
+        let decoded: Experiment = try Experiment.decoder.decode(
             Experiment.self,
             from: json.data(using: .utf8)!
         )
-        
+
         let expected = Experiment(
             id: "cf9b8c05-05e2-4b8e-a2a3-7ed06d99cc1c",
             lastUpdated: decoded.lastUpdated,
@@ -94,15 +77,13 @@ final class ExperimentTest: XCTestCase {
             timeCriteria: .init(start: Date(milliseconds: 1689012595000), end: Date(milliseconds: 1689091608000))
         )
 
-        let encoded = String(data: try encoder.encode(decoded), encoding: .utf8)
-        XCTAssertEqual(try AirshipJSON.from(json: json), try AirshipJSON.from(json: encoded))
         XCTAssertEqual(expected, decoded)
     }
-    
+
     func testCodableWithCompoundAudience() throws {
         let json: String =  """
         {
-          "created": "2023-07-10T18:10:46.203",
+          "created": "2023-07-10T18:10:46.203Z",
           "experiment_definition": {
             "audience_selector": {
               "hash": {
@@ -146,15 +127,15 @@ final class ExperimentTest: XCTestCase {
             "type": "static"
           },
           "experiment_id": "cf9b8c05-05e2-4b8e-a2a3-7ed06d99cc1c",
-          "last_updated": "2023-07-11T16:06:49.003"
+          "last_updated": "2023-07-11T16:06:49.003Z"
         }
         """
 
-        let decoded: Experiment = try self.decoder.decode(
+        let decoded: Experiment = try Experiment.decoder.decode(
             Experiment.self,
             from: json.data(using: .utf8)!
         )
-        
+
         let expected = Experiment(
             id: "cf9b8c05-05e2-4b8e-a2a3-7ed06d99cc1c",
             lastUpdated: decoded.lastUpdated,
@@ -178,8 +159,6 @@ final class ExperimentTest: XCTestCase {
             timeCriteria: .init(start: Date(milliseconds: 1689012595000), end: Date(milliseconds: 1689091608000))
         )
 
-        let encoded = String(data: try encoder.encode(decoded), encoding: .utf8)
-        XCTAssertEqual(try AirshipJSON.from(json: json), try AirshipJSON.from(json: encoded))
         XCTAssertEqual(expected, decoded)
     }
 }

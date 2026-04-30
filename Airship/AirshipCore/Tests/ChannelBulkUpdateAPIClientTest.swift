@@ -2,6 +2,7 @@
 
 import XCTest
 
+@_spi(AirshipInternal) import AirshipBasement
 @testable import AirshipCore
 
 class ChannelBulkUpdateAPIClientTest: XCTestCase {
@@ -91,18 +92,18 @@ class ChannelBulkUpdateAPIClientTest: XCTestCase {
                     [
                         "action": "set",
                         "key": "some-attribute",
-                        "timestamp": AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter),
+                        "timestamp": AirshipDateFormatter.string(fromDate: date, format: .iso8601),
                         "value": "hello",
                     ]
                 ],
             ] as NSDictionary
 
         let lastRequest = self.session.lastRequest!
-        let body =
-            AirshipJSONUtils.object(String(data: lastRequest.body!, encoding: .utf8)!)
-            as? NSDictionary
+        let bodyJSON = try AirshipJSON.from(data: XCTUnwrap(lastRequest.body))
+        let expectedJSON = try AirshipJSON.wrap(expectedBody as! [String: Any])
+          
         XCTAssertEqual("PUT", lastRequest.method)
-        XCTAssertEqual(expectedBody, body)
+        XCTAssertEqual(expectedJSON, bodyJSON)
 
         let url = lastRequest.url
         XCTAssertEqual(

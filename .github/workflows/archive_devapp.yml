@@ -1,0 +1,51 @@
+name: Archive DevApp (App Store)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - next
+    paths:
+      - 'DevApp/**'
+      - '.github/workflows/archive_devapp.yml'
+      - 'scripts/archive_devapp_store.sh'
+      - 'scripts/export_options/**'
+      - 'Makefile'
+  pull_request:
+    paths:
+      - 'DevApp/**'
+      - '.github/workflows/archive_devapp.yml'
+      - 'scripts/archive_devapp_store.sh'
+      - 'scripts/export_options/**'
+      - 'Makefile'
+
+env:
+  BUNDLE_PATH: vendor/bundle
+
+concurrency:
+  group: archive-devapp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  archive-devapp:
+    if: |
+      github.repository == 'urbanairship/ios-library' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: macos-15-xlarge
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Apple Certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.CERTIFICATEXC }}
+          p12-password: ${{ secrets.CERTIFICATEXC_PASS }}
+
+      - name: Archive, export, validate DevApp
+        env:
+          ASC_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+        run: make archive-devapp-store

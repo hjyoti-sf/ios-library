@@ -1,5 +1,9 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 import Foundation
 
 protocol MeteredUsageAPIClientProtocol: Sendable {
@@ -16,12 +20,7 @@ final class MeteredUsageAPIClient : MeteredUsageAPIClientProtocol {
 
     private var encoder: JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .custom({ date, encoder in
-            var container = encoder.singleValueContainer()
-            try container.encode(
-                AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter)
-            )
-        })
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         return encoder
     }
 

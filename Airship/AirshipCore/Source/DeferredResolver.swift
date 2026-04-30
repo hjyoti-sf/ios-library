@@ -1,5 +1,9 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 public import Foundation
 
 /// NOTE: For internal use only. :nodoc:
@@ -205,6 +209,6 @@ extension AirshipHTTPResponse {
             return seconds
         }
 
-        return AirshipDateFormatter.date(fromISOString: retryAfter)?.timeIntervalSince1970
+        return AirshipDateFormatter.date(from: retryAfter)?.timeIntervalSince1970
     }
 }

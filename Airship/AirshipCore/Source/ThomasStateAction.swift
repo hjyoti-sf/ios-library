@@ -62,3 +62,15 @@ enum ThomasStateAction: ThomasSerializable {
         }
     }
 }
+
+extension ThomasStateAction {
+    var asOutcome: ThomasOutcome {
+        let identifier = switch self {
+        case .setState(let state): "state_action_\(state.type.rawValue)_\(state.key)"
+        case .clearState: "state_action_clear"
+        case .formValue(let state): "state_action_set_\(state.type.rawValue)_\(state.key)"
+        }
+        
+        return .stateAction(.init(action: self, identifier: identifier))
+    }
+}

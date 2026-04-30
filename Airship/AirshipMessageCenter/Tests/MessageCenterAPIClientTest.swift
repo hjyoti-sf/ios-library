@@ -270,12 +270,12 @@ final class MessageCenterAPIClientTest: XCTestCase {
             headerFields: [:]
         )
 
-        self.session.data = try AirshipJSONUtils.data(
+        self.session.data = (try? AirshipJSON.wrap(
             [
                 "user_id": "some user id",
                 "password": "some password",
             ]
-        )
+        ).toData()) ?? Data()
 
         let response = try await self.client.createUser(
             withChannelID: "some channel"
@@ -334,7 +334,7 @@ final class MessageCenterAPIClientTest: XCTestCase {
             headerFields: [:]
         )
 
-        self.session.data = try AirshipJSONUtils.data([:])
+        self.session.data = (try? AirshipJSON.wrap([:]).toData()) ?? Data()
         do {
             let _ = try await self.client.createUser(withChannelID: "channelID")
             XCTFail("Expected error")

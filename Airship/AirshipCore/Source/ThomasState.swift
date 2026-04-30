@@ -14,8 +14,10 @@ class ThomasState: ObservableObject {
     private let pagerState: PagerState?
     private let videoState: VideoState?
     private let mutableState: MutableState?
+    private let asyncViewState: ThomasAsyncViewState?
 
     private let onStateChange: @Sendable @MainActor (AirshipJSON) -> Void
+    private let outcomesProcessor: any ThomasOutcomeProcessor
 
     // Internal state snapshot that tracks current values
     @MainActor
@@ -27,6 +29,7 @@ class ThomasState: ObservableObject {
         var videoPlaying: Bool?
         var videoMuted: Bool?
         var mutableStateValue: AirshipJSON?
+        var asyncViewStatus: ThomasAsyncViewState.Status?
 
         /// Generates the final AirshipJSON based strictly on this snapshot data
         func toAirshipJSON() -> AirshipJSON {
@@ -62,6 +65,17 @@ class ThomasState: ObservableObject {
                 ]
             }
 
+            // Add $asyncView
+            if let asyncViewStatus {
+                do {
+                    result["$asyncView"] = .object([
+                        "current": try AirshipJSON.wrap(asyncViewStatus)
+                    ])
+                } catch {
+                    AirshipLogger.error("Failed to encode asyncViewStatus: \(error)")
+                }
+            }
+
             return .object(result)
         }
     }
@@ -74,13 +88,24 @@ class ThomasState: ObservableObject {
         pagerState: PagerState? = nil,
         videoState: VideoState? = nil,
         mutableState: MutableState? = nil,
+        asyncViewState: ThomasAsyncViewState? = nil,
         onStateChange: @escaping @Sendable @MainActor (AirshipJSON) -> Void
     ) {
         self.formState = formState
         self.pagerState = pagerState
         self.videoState = videoState
         self.mutableState = mutableState
+        self.asyncViewState = asyncViewState
         self.onStateChange = onStateChange
+        
+        self.outcomesProcessor = DefaultThomasOutcomeProcessor(
+            pagerState: pagerState,
+            videoState: videoState,
+            asyncViewState: asyncViewState,
+            onStateAction: { @MainActor [weak mutableState] action, formFieldValue in
+                action.performOn(mutableState, fieldValue: formFieldValue)
+            }
+        )
 
         setupSubscriptions()
 
@@ -93,6 +118,7 @@ class ThomasState: ObservableObject {
             videoPlaying: videoState?.isPlaying,
             videoMuted: videoState?.isMuted,
             mutableStateValue: mutableState?.state,
+            asyncViewStatus: asyncViewState?.status
         )
     }
 
@@ -103,6 +129,7 @@ class ThomasState: ObservableObject {
         videoState?.isPlayingPublisher.sink { [weak self] in self?.updateSnapshot(videoPlaying: $0) }.store(in: &subscriptions)
         videoState?.isMutedPublisher.sink { [weak self] in self?.updateSnapshot(videoMuted: $0) }.store(in: &subscriptions)
         mutableState?.$state.sink { [weak self] in self?.updateSnapshot(mutableStateValue: $0) }.store(in: &subscriptions)
+        asyncViewState?.$status.sink { [weak self] in self?.updateSnapshot(asyncViewStatus: $0) }.store(in: &subscriptions)
     }
 
     private func updateSnapshot(
@@ -113,6 +140,7 @@ class ThomasState: ObservableObject {
         videoPlaying: Bool? = nil,
         videoMuted: Bool? = nil,
         mutableStateValue: AirshipJSON? = nil,
+        asyncViewStatus: ThomasAsyncViewState.Status? = nil
     ) {
         // Update the snapshot with provided values
         if let val = formStatus { stateSnapshot.formStatus = val }
@@ -122,6 +150,7 @@ class ThomasState: ObservableObject {
         if let val = videoPlaying { stateSnapshot.videoPlaying = val }
         if let val = videoMuted { stateSnapshot.videoMuted = val }
         if let val = mutableStateValue { stateSnapshot.mutableStateValue = val }
+        if let val = asyncViewStatus { stateSnapshot.asyncViewStatus = val }
 
         // Compute new output directly from the snapshot
         let newOutput = stateSnapshot.toAirshipJSON()
@@ -140,17 +169,20 @@ class ThomasState: ObservableObject {
         pagerState: PagerState? = nil,
         videoState: VideoState? = nil,
         mutableState: MutableState? = nil,
+        asyncViewState: ThomasAsyncViewState? = nil
     ) -> ThomasState {
         let newFormState = formState ?? self.formState
         let newPagerState = pagerState ?? self.pagerState
         let newVideoState = videoState ?? self.videoState
         let newMutableState = mutableState ?? self.mutableState
+        let newAsyncViewState = asyncViewState ?? self.asyncViewState
 
         // Return self if nothing changed to avoid redundant copies
         if newFormState === self.formState,
            newPagerState === self.pagerState,
            newVideoState === self.videoState,
-           newMutableState === self.mutableState {
+           newMutableState === self.mutableState,
+           newAsyncViewState === self.asyncViewState {
             return self
         }
 
@@ -159,24 +191,31 @@ class ThomasState: ObservableObject {
             pagerState: newPagerState,
             videoState: newVideoState,
             mutableState: newMutableState,
+            asyncViewState: newAsyncViewState,
             onStateChange: self.onStateChange
         )
     }
-
-    func processStateActions(
-        _ stateActions: [ThomasStateAction],
-        formFieldValue: ThomasFormField.Value? = nil
+    
+    func process(
+        outcomes: [ThomasOutcome],
+        formFieldValue: ThomasFormField.Value? = nil,
+        actionsDelegate: @Sendable @escaping @MainActor (DelegatedOutcome) -> Void = { _ in }
+    ) async {
+        await outcomesProcessor.process(
+            outcomes: outcomes,
+            formFieldValue: formFieldValue,
+            delegated: actionsDelegate)
+    }
+    
+    func processSync(
+        outcomes: [ThomasOutcome],
+        formFieldValue: ThomasFormField.Value? = nil,
+        actionsDelegate: @Sendable @escaping @MainActor (DelegatedOutcome) -> Void = { _ in }
     ) {
-        stateActions.forEach { action in
-            switch action {
-            case .setState(let details):
-                self.mutableState?.set(key: details.key, value: details.value, ttl: details.ttl)
-            case .clearState:
-                self.mutableState?.clearState()
-            case .formValue(let details):
-                self.mutableState?.set(key: details.key, value: formFieldValue?.stateFormValue)
-            }
-        }
+        outcomesProcessor.processSync(
+            outcomes: outcomes,
+            formFieldValue: formFieldValue,
+            delegated: actionsDelegate)
     }
 
     @MainActor
@@ -253,6 +292,25 @@ fileprivate extension ThomasFormField.Value {
             return .string(value)
         case .score(let value): return value
         case .form, .npsForm: return nil
+        }
+    }
+}
+
+fileprivate extension ThomasStateAction {
+    @MainActor
+    func performOn(
+        _ state: ThomasState.MutableState?,
+        fieldValue: ThomasFormField.Value?
+    ) {
+        guard let state else { return }
+        
+        switch self {
+        case .setState(let details):
+            state.set(key: details.key, value: details.value, ttl: details.ttl)
+        case .clearState:
+            state.clearState()
+        case .formValue(let details):
+            state.set(key: details.key, value: fieldValue?.stateFormValue)
         }
     }
 }

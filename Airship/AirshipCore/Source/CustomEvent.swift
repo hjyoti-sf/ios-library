@@ -2,6 +2,10 @@
 
 public import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 /// CustomEvent captures information regarding a custom event for
 /// Analytics.
 public struct CustomEvent: Sendable {
@@ -37,7 +41,7 @@ public struct CustomEvent: Sendable {
     /// Default encoder. Uses `iso8601` date encoding strategy.
     public static func defaultEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         return encoder
     }
 

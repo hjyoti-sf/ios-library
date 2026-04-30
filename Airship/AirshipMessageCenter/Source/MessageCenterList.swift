@@ -97,7 +97,8 @@ public protocol MessageCenterInbox: AnyObject, Sendable {
 protocol InternalMessageCenterInbox: MessageCenterInbox {
     func saveDisplayHistory(for messageID: String, history: MessageDisplayHistory) async
     func saveLayoutState(for messageID: String, state: MessageCenterMessage.AssociatedData.ViewState?) async
-    
+    func associatedData(forID messageID: String) async -> MessageCenterMessage.AssociatedData
+
     @MainActor
     func getNativeStateStorage(for messageID: String) -> any LayoutDataStorage
 }
@@ -228,19 +229,16 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
             //can't use self here because it's init
             NativeLayoutPersistentDataStore(
                 messageID: messageID) { state in
-                    Task {
-                        await Airship.internalMessageCenter
-                            .internalInbox
-                            .saveLayoutState(
-                                for: messageID,
-                                state: state
-                            )
-                    }
+                    await Airship.internalMessageCenter
+                        .internalInbox
+                        .saveLayoutState(
+                            for: messageID,
+                            state: state
+                        )
                 } onFetch: {
                     await Airship.internalMessageCenter
                         .internalInbox
-                        .message(forID: messageID)?
-                        .associatedData.viewState
+                        .associatedData(forID: messageID).viewState
                 }
         }
 
@@ -494,22 +492,17 @@ final class DefaultMessageCenterInbox: InternalMessageCenterInbox, Sendable {
     func saveLayoutState(for messageID: String, state: MessageCenterMessage.AssociatedData.ViewState?) async {
         await updateAssociatedData(for: messageID) { $0.viewState = state }
     }
+
+    func associatedData(forID messageID: String) async -> MessageCenterMessage.AssociatedData {
+        return await self.store.associatedData(for: messageID)
+    }
     
-    private func updateAssociatedData(for messageID: String, block: (inout MessageCenterMessage.AssociatedData) throws -> Void) async {
+    private func updateAssociatedData(
+        for messageID: String,
+        block: @escaping @Sendable (inout MessageCenterMessage.AssociatedData) throws -> Void
+    ) async {
         do {
-            guard var message = try await self.store.message(forID: messageID) else {
-                AirshipLogger.error("Failed to find message to update")
-                return
-            }
-            
-            try block(&message.associatedData)
-            
-            try await self.store.updateMessages(
-                messages: [message],
-                lastModifiedTime: nil,
-                updateLastModifiedTime: false,
-                overwriteAssociatedData: true
-            )
+            try await self.store.updateAssociatedData(for: messageID, block: block)
         } catch {
             AirshipLogger.error("Failed to save history data message: \(error)")
         }

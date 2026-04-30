@@ -475,8 +475,8 @@ final class EventRecorder: ThomasLayoutEventRecorderProtocol, @unchecked Sendabl
     var lastRecordedImpression: AirshipMeteredUsageEvent?
 
     var eventData: [ThomasLayoutEventData] = []
-    func recordEvent(inAppEventData: ThomasLayoutEventData) {
-        eventData.append(inAppEventData)
+    func recordEvent(thomasLayoutEventData: ThomasLayoutEventData) {
+        eventData.append(thomasLayoutEventData)
     }
 
     func recordImpressionEvent(_ event: AirshipMeteredUsageEvent) {

@@ -192,10 +192,10 @@ struct TextInput: View {
                 initialValue: self.viewModel.input,
                 valueUpdates: self.viewModel.$input,
                 validatables: info.validation
-            ) { [weak thomasState, weak viewModel] actions in
+            ) { [weak thomasState, weak viewModel] outcomes in
                 guard let thomasState, let viewModel else { return }
-                thomasState.processStateActions(
-                    actions,
+                thomasState.processSync(
+                    outcomes: outcomes,
                     formFieldValue: viewModel.formField?.input
                 )
             }
@@ -211,13 +211,6 @@ struct TextInput: View {
             state: thomasState,
             overrides: self.info.overrides?.iconEnd,
             defaultValue: self.info.properties.iconEnd ?? nil
-        )
-    }
-
-    private func handleStateActions(_ stateActions: [ThomasStateAction]) {
-        thomasState.processStateActions(
-            stateActions,
-            formFieldValue: self.viewModel.formField?.input
         )
     }
     

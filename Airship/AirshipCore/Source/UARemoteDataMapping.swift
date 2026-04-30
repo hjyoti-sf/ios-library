@@ -30,7 +30,7 @@ class UARemoteDataMappingV3toV4: NSEntityMigrationPolicy {
 
         newRemoteDataEntity.setValue(type, forKey: "type")
         newRemoteDataEntity.setValue(timestamp, forKey: "timestamp")
-        newRemoteDataEntity.setValue(AirshipJSONUtils.toData(data), forKey: "data")
+        newRemoteDataEntity.setValue(try? AirshipJSON.wrap(data).toData(), forKey: "data")
         newRemoteDataEntity.setValue(remoteDataInfo, forKey: "remoteDataInfo")
     }
 }
@@ -62,7 +62,7 @@ class UARemoteDataMappingV2toV4: NSEntityMigrationPolicy {
 
         newRemoteDataEntity.setValue(type, forKey: "type")
         newRemoteDataEntity.setValue(timestamp, forKey: "timestamp")
-        newRemoteDataEntity.setValue(AirshipJSONUtils.toData(data), forKey: "data")
+        newRemoteDataEntity.setValue(try? AirshipJSON.wrap(data).toData(), forKey: "data")
     }
 }
 
@@ -93,6 +93,6 @@ class UARemoteDataMappingV1toV4: NSEntityMigrationPolicy {
 
         newRemoteDataEntity.setValue(type, forKey: "type")
         newRemoteDataEntity.setValue(timestamp, forKey: "timestamp")
-        newRemoteDataEntity.setValue(AirshipJSONUtils.toData(data), forKey: "data")
+        newRemoteDataEntity.setValue(try? AirshipJSON.wrap(data).toData(), forKey: "data")
     }
 }

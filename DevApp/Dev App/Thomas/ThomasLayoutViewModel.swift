@@ -31,7 +31,12 @@ final class ThomasLayoutViewModel: ObservableObject {
     func refreshRecent() {
         self.recentLayouts = ThomasUserDefaults.shared.recentLayouts
     }
-    
+
+    func clearRecentLayouts() {
+        ThomasUserDefaults.shared.recentLayouts = []
+        self.recentLayouts = []
+    }
+
     static func saveToRecent(_ layout: LayoutFile) {
         ThomasUserDefaults.shared.addRecentLayout(layout)
     }

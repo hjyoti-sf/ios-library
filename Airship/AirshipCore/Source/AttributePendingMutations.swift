@@ -1,5 +1,9 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 import Foundation
 
 // Legacy attribute mutation. Used for migration to AttributeUpdates.
@@ -26,7 +30,7 @@ class AttributePendingMutations: NSObject, NSSecureCoding {
                 return nil
             }
 
-            guard let date = AirshipDateFormatter.date(fromISOString:  dateString) else {
+            guard let date = AirshipDateFormatter.date(from:  dateString) else {
                 AirshipLogger.error("Unexpected date \(dateString)")
                 return nil
             }

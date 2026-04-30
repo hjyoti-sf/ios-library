@@ -5,6 +5,7 @@ import XCTest
 import AirshipCore
 @testable
 import AirshipAutomation
+@_spi(AirshipInternal) import AirshipBasement
 
 final class AutomationRemoteDataAccessTest: XCTestCase {
     private let remoteData: TestRemoteData = TestRemoteData()
@@ -333,7 +334,7 @@ final class AutomationRemoteDataAccessTest: XCTestCase {
         // Failed schedule with ID should be tracked
         XCTAssertEqual(decoded.failedSchedules.map { $0.identifier}, ["failed_schedule_id"])
         // Verify created date is captured as createdDate
-        let expectedCreatedDate = AirshipDateFormatter.date(fromISOString: "2023-12-20T12:00:00Z")
+        let expectedCreatedDate = AirshipDateFormatter.date(from: "2023-12-20T12:00:00Z")
         XCTAssertEqual(decoded.failedSchedules.first?.createdDate, expectedCreatedDate)
     }
     
@@ -383,7 +384,7 @@ final class AutomationRemoteDataAccessTest: XCTestCase {
         // Verify aggregate failedSchedules on InAppRemoteData
         XCTAssertEqual(inAppRemoteData.failedSchedules.map { $0.identifier}, ["failed_schedule_id"])
         // Verify created date is captured as createdDate
-        let expectedCreatedDate = AirshipDateFormatter.date(fromISOString: "2023-12-20T12:00:00Z")
+        let expectedCreatedDate = AirshipDateFormatter.date(from: "2023-12-20T12:00:00Z")
         XCTAssertEqual(inAppRemoteData.failedSchedules.first?.createdDate, expectedCreatedDate)
     }
     

@@ -1,5 +1,9 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 public import Foundation
 
 /**
@@ -8,11 +12,15 @@ public import Foundation
 public enum AirshipJSON: Codable, Equatable, Sendable, Hashable {
     public static var defaultEncoder: JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .airship(format: .iso8601)
         return encoder
     }
 
-    public static var defaultDecoder: JSONDecoder { return JSONDecoder() }
+    public static var defaultDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .airshipISO8601
+        return decoder
+    }
 
     case string(String)
     case number(Double)

@@ -90,7 +90,7 @@ class ThomasFormState: ObservableObject {
         formType: FormType,
         formResponseType: String?,
         validationMode: ThomasFormValidationMode,
-        parentFormState: ThomasFormState? = nil
+        parentFormState: ThomasFormState? = nil,
     ) {
         self.identifier = identifier
         self.formType = formType
@@ -471,9 +471,13 @@ extension ThomasFormState: ThomasStateProvider {
     var updates: AnyPublisher<any Codable, Never> {
         return Publishers
             .CombineLatest4($activeFields, $isVisible, $isFormInputEnabled, $status)
-            .map { activeFields, isVisible, isFormInputEnabled, status in
-                Snapshot(
-                    initialValues: activeFields.mapValues(\.input),
+            .map { [weak self] activeFields, isVisible, isFormInputEnabled, status -> Snapshot in
+                var values = self?.initialValues ?? [:]
+                for (key, field) in activeFields {
+                    values[key] = field.input
+                }
+                return Snapshot(
+                    initialValues: values,
                     isVisible: isVisible,
                     isFormInputEnabled: isFormInputEnabled,
                     status: status
@@ -483,21 +487,28 @@ extension ThomasFormState: ThomasStateProvider {
             .map(\.self)
             .eraseToAnyPublisher()
     }
-    
+
     func restorePersistentState(_ state: Snapshot) {
+        AirshipLogger.debug("FormState[\(identifier)] restoring: status=\(state.status), fields=\(state.initialValues.keys.sorted())")
         self.initialValues = state.initialValues
         self.isVisible = state.isVisible
         self.isFormInputEnabled = state.isFormInputEnabled
         self.status = state.status
     }
-    
+
     func persistentStateSnapshot() -> SnapshotType {
-        return Snapshot(
-            initialValues: activeFields.mapValues(\.input),
+        var values = self.initialValues
+        for (key, field) in activeFields {
+            values[key] = field.input
+        }
+        let snapshot = Snapshot(
+            initialValues: values,
             isVisible: isVisible,
             isFormInputEnabled: isFormInputEnabled,
             status: status
         )
+        AirshipLogger.debug("FormState[\(identifier)] snapshot: status=\(status), fields=\(values.keys.sorted())")
+        return snapshot
     }
 }
 

@@ -3,6 +3,10 @@
 import Foundation
 import Combine
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 #if canImport(AirshipCore)
 import AirshipCore
 #endif
@@ -325,7 +329,7 @@ fileprivate struct PartialSchedule: Decodable {
         self.minSDKVersion = try container.decodeIfPresent(String.self, forKey: .minSDKVersion)
         
         if let createdString = try? container.decodeIfPresent(String.self, forKey: .created) {
-            self.created = AirshipDateFormatter.date(fromISOString: createdString)
+            self.created = AirshipDateFormatter.date(from: createdString)
         } else {
             self.created = nil
         }

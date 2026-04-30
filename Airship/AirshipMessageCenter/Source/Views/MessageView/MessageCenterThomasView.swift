@@ -9,43 +9,40 @@ import AirshipCore
 #endif
 
 struct MessageCenterThomasView: View {
-    
+
     @Binding
     var phase: MessageCenterMessageView.DisplayPhase
-    
+
     @StateObject
     private var viewModel: ViewModel
-    
+
     init(
         phase: Binding<MessageCenterMessageView.DisplayPhase>,
         layoutRequest: @escaping () async throws -> URLRequest,
-        analytics: ThomasDisplayListener,
+        displayListener: ThomasDisplayListener,
         dismissHandle: ThomasDismissHandle,
-        stateStorage: (any LayoutDataStorage)? = nil
+        stateStorage: @escaping () -> any LayoutDataStorage
     ) {
         self._phase = phase
         self._viewModel = StateObject(
             wrappedValue: ViewModel(
                 request: layoutRequest,
-                analytics: analytics,
+                displayListener: displayListener,
                 dismissHandle: dismissHandle,
                 stateStorage: stateStorage
             )
         )
     }
-    
+
     var body: some View {
-        if let layout = viewModel.layout {
+        if let (layout, model) = viewModel.layout {
             AirshipSimpleLayoutView(
                 layout: layout,
-                viewModel: viewModel.layoutViewModel
+                viewModel: model
             )
         } else {
             Color.clear.task {
-                switch phase {
-                case .loaded: return
-                default: self.phase = await viewModel.loadLayout()
-                }
+                self.phase = await viewModel.loadLayout()
             }
         }
     }
@@ -54,63 +51,79 @@ struct MessageCenterThomasView: View {
 @MainActor
 private final class ViewModel: ObservableObject {
     private let layoutRequest: () async throws -> URLRequest
-    private let stateStorage: (any LayoutDataStorage)?
+    private let stateStorageBuilder: () -> any LayoutDataStorage
 
     @Published
-    private(set) var layout: AirshipLayout? = nil
+    private(set) var layout: (AirshipLayout, AirshipSimpleLayoutViewModel)? = nil
 
-    let analyticsRecorder: any ThomasDelegate
+    let displayListener: any ThomasDelegate
     let dismissHandle: ThomasDismissHandle
-    let layoutViewModel: AirshipSimpleLayoutViewModel
+
+    private var loadTask: Task<MessageCenterMessageView.DisplayPhase, Never>?
 
     init(
         request: @escaping () async throws -> URLRequest,
-        analytics: ThomasDisplayListener,
+        displayListener: ThomasDisplayListener,
         dismissHandle: ThomasDismissHandle,
-        stateStorage: (any LayoutDataStorage)? = nil
+        stateStorage: @escaping () -> any LayoutDataStorage
     ) {
         self.layoutRequest = request
-        self.analyticsRecorder = analytics
+        self.displayListener = displayListener
         self.dismissHandle = dismissHandle
-        self.stateStorage = stateStorage
-        self.layoutViewModel = AirshipSimpleLayoutViewModel(
-            delegate: analytics,
-            dismissHandle: dismissHandle,
-            stateStorage: stateStorage
-        )
+        self.stateStorageBuilder = stateStorage
     }
-    
+
     func loadLayout() async -> MessageCenterMessageView.DisplayPhase {
-        if let layout {
-            await preloadData(for: layout)
+        guard self.layout == nil else {
             return .loaded
         }
-        
+
+        if let loadTask {
+            return await loadTask.value
+        }
+
+        let task = Task { await self.performLoadLayout() }
+        self.loadTask = task
+        let result = await task.value
+        self.loadTask = nil
+        return result
+    }
+
+    private func performLoadLayout() async -> MessageCenterMessageView.DisplayPhase {
+        guard self.layout == nil else {
+            return .loaded
+        }
+
         do {
             let request = try await self.layoutRequest()
             let (data, _) = try await URLSession.airshipSecureSession.data(for: request)
             let downloaded = try JSONDecoder().decode(AirshipLayout.self, from: data)
-            await preloadData(for: downloaded)
-            self.layout = downloaded
+            let storage = await preloadData(for: downloaded)
+            self.layout = (downloaded, makeSimpleLayoutViewModel(with: storage))
         } catch {
             return .error(error)
         }
-        
+
         return .loaded
     }
 
-    func dismiss() {
-        self.dismissHandle.dismiss()
-    }
-    
-    private func preloadData(for layout: AirshipLayout) async {
-        await self.stateStorage?.prepare(restoreID: "static") //TODO: replace with the actual
-    }
-}
+    private func preloadData(for layout: AirshipLayout) async -> (any LayoutDataStorage)? {
+        let storage = self.stateStorageBuilder()
 
-extension View {
-    func also(_ action: (Self) -> ()) -> some View {
-        action(self)
-        return self
+        guard let options = layout.options?.stateRestoration else {
+            storage.clear()
+            return nil
+        }
+
+        await storage.prepare(restoreID: options.restoreID)
+        return storage
+    }
+
+    private func makeSimpleLayoutViewModel(with storage: (any LayoutDataStorage)?) -> AirshipSimpleLayoutViewModel {
+        AirshipSimpleLayoutViewModel(
+            delegate: displayListener,
+            dismissHandle: dismissHandle,
+            stateStorage: storage
+        )
     }
 }

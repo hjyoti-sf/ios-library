@@ -10,6 +10,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  run-tests-basement:
+    runs-on: macos-15-xlarge
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: make test-basement
+
   run-tests-core:
     runs-on: macos-15-xlarge
     timeout-minutes: 5
@@ -112,6 +120,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Pod lint
         run: make pod-lint-watchos
+        
+  pod-lib-lint-macos:
+    runs-on: macos-15-xlarge
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pod lint
+        run: make pod-lint-macos
         
   pod-lib-lint-tvos:
     runs-on: macos-15-xlarge

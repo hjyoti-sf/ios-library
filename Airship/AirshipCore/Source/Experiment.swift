@@ -1,21 +1,25 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 import Foundation
 
-enum ExperimentType: String, Codable, Sendable, Equatable {
+enum ExperimentType: String, Decodable, Sendable, Equatable {
     case holdoutGroup = "holdout"
 }
 
-enum ResultionType: String, Codable, Sendable, Equatable {
+enum ResultionType: String, Decodable, Sendable, Equatable {
     case `static` = "static"
 }
 
-struct ExperimentCompoundAudience: Codable, Sendable, Equatable {
+struct ExperimentCompoundAudience: Decodable, Sendable, Equatable {
     var selector: CompoundDeviceAudienceSelector
 }
 
 
-struct Experiment: Codable, Sendable, Equatable {
+struct Experiment: Decodable, Sendable, Equatable {
 
     let id: String
     let type: ExperimentType
@@ -85,34 +89,11 @@ struct Experiment: Codable, Sendable, Equatable {
         self.compoundAudience = try definitionContainer.decodeIfPresent(ExperimentCompoundAudience.self, forKey: .compoundAudience)
     }
 
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.id, forKey: .id)
-        
-        try container.encode(Self.dateFormatter.string(from: self.created), forKey: .created)
-        try container.encode(Self.dateFormatter.string(from: self.lastUpdated), forKey: .lastUpdated)
-        
-        var definition = container.nestedContainer(keyedBy: ExperimentDefinitionKeys.self, forKey: .experimentDefinition)
-        try definition.encode(self.type, forKey: .type)
-        try definition.encode(self.resolutionType, forKey: .resolutionType)
-        try definition.encode(self.reportingMetadata, forKey: .reportingMetadata)
-        try definition.encodeIfPresent(self.audienceSelector, forKey: .audienceSelector)
-        try definition.encodeIfPresent(self.compoundAudience, forKey: .compoundAudience)
-        try definition.encodeIfPresent(self.exclusions, forKey: .exclusions)
-        try definition.encodeIfPresent(self.timeCriteria, forKey: .timeCriteria)
-    }
-    
-    private static let dateFormatter: DateFormatter = {
-        let result = DateFormatter()
-        result.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-        return result
-    }()
-    
-    static let decoder: JSONDecoder = {
-        var decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(Self.dateFormatter)
+    static var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .airshipISO8601
         return decoder
-    }()
+    }
 
 
 }

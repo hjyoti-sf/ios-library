@@ -3,6 +3,10 @@
 import Foundation
 public import UserNotifications
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 #if canImport(AirshipCore)
 public import AirshipCore
 #endif
@@ -183,7 +187,7 @@ public struct LegacyInAppMessage: Sendable, Equatable {
 
         if
             let rawDate = payload[ParseKey.expiry.rawValue] as? String,
-            let date = AirshipDateFormatter.date(fromISOString: rawDate)
+            let date = AirshipDateFormatter.date(from: rawDate)
         {
             self.expiry = date
         } else {
