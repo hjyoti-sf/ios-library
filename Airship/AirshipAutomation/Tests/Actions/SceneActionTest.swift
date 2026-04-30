@@ -8,20 +8,17 @@ import AirshipAutomation
 @testable
 import AirshipCore
 
-// Mirrors Android's MINIMAL_LAYOUT_JSON exactly — same "layout" wrapper, same whitespace.
 private let minimalLayoutJSON = """
     {
-      "layout": {
-        "version": 1,
-        "presentation": {
-          "type": "embedded",
-          "embedded_id": "home_banner",
-          "default_placement": {
-            "size": { "width": "50%", "height": "50%" }
-          }
-        },
-        "view": { "type": "container", "items": [] }
-      }
+      "version": 1,
+      "presentation": {
+        "type": "embedded",
+        "embedded_id": "home_banner",
+        "default_placement": {
+          "size": { "width": "50%", "height": "50%" }
+        }
+      },
+      "view": { "type": "container", "items": [] }
     }
     """
 

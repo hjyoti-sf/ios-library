@@ -92,10 +92,6 @@ final class SceneAction: AirshipAction {
         return nil
     }
 
-    private struct ScenePayload: Decodable {
-        var layout: AirshipLayout
-    }
-
     private static func decodeLayout(from base64Scene: String) throws -> AirshipLayout {
         guard let compressedData = AirshipBase64.data(from: base64Scene) else {
             throw AirshipErrors.error("Invalid base64 encoded scene string")
@@ -105,7 +101,6 @@ final class SceneAction: AirshipAction {
         decoder.dateDecodingStrategy = .airshipISO8601
 
         let decompressedData = try (compressedData as NSData).decompressed(using: .zlib) as Data
-        let payload = try decoder.decode(ScenePayload.self, from: decompressedData)
-        return payload.layout
+        return try decoder.decode(AirshipLayout.self, from: decompressedData)
     }
 }
