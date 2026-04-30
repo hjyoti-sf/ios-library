@@ -46,15 +46,15 @@ class UAInboxDataMappingV2toV4: NSEntityMigrationPolicy {
         newEntity.setValue(messageID, forKey: "messageID")
         newEntity.setValue(messageBodyURL, forKey: "messageBodyURL")
         newEntity.setValue(messageURL, forKey: "messageURL")
-        newEntity.setValue(AirshipJSONUtils.toData(messageReporting), forKey: "messageReporting")
+        newEntity.setValue(try? AirshipJSON.wrap(messageReporting).toData(), forKey: "messageReporting")
         newEntity.setValue(unread, forKey: "unread")
         newEntity.setValue(unreadClient, forKey: "unreadClient")
         newEntity.setValue(deletedClient, forKey: "deletedClient")
         newEntity.setValue(messageSent, forKey: "messageSent")
         newEntity.setValue(messageExpiration, forKey: "messageExpiration")
         newEntity.setValue(title, forKey: "title")
-        newEntity.setValue(AirshipJSONUtils.toData(extra), forKey: "extra")
-        newEntity.setValue(AirshipJSONUtils.toData(rawMessageObject), forKey: "rawMessageObject")
+        newEntity.setValue(try? AirshipJSON.wrap(extra).toData(), forKey: "extra")
+        newEntity.setValue(try? AirshipJSON.wrap(rawMessageObject).toData(), forKey: "rawMessageObject")
         
         manager.associate(sourceInstance: source, withDestinationInstance: newEntity, for: mapping)
     }
@@ -102,8 +102,8 @@ class UAInboxDataMappingV1toV4: NSEntityMigrationPolicy {
         newEntity.setValue(messageSent, forKey: "messageSent")
         newEntity.setValue(messageExpiration, forKey: "messageExpiration")
         newEntity.setValue(title, forKey: "title")
-        newEntity.setValue(AirshipJSONUtils.toData(extra), forKey: "extra")
-        newEntity.setValue(AirshipJSONUtils.toData(rawMessageObject), forKey: "rawMessageObject")
+        newEntity.setValue(try? AirshipJSON.wrap(extra).toData(), forKey: "extra")
+        newEntity.setValue(try? AirshipJSON.wrap(rawMessageObject).toData(), forKey: "rawMessageObject")
 
         manager.associate(sourceInstance: source, withDestinationInstance: newEntity, for: mapping)
     }

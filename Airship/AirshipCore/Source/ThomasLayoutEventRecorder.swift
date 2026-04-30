@@ -3,7 +3,7 @@
 import Foundation
 
 /// NOTE: For internal use only. :nodoc:
-public struct ThomasLayoutEventData {
+public struct ThomasLayoutEventData: Sendable {
     let event: any ThomasLayoutEvent
     let context: ThomasLayoutEventContext?
     let source: ThomasLayoutEventSource
@@ -25,9 +25,15 @@ public struct ThomasLayoutEventData {
     }
 }
 
+extension ThomasLayoutEventData: CustomStringConvertible {
+    public var description: String {
+        "ThomasLayoutEventData(eventType: \(event.name.reportingName), messageID: \(messageID.identifier), source: \(source.rawValue))"
+    }
+}
+
 /// NOTE: For internal use only. :nodoc:
 public protocol ThomasLayoutEventRecorderProtocol: Sendable {
-    func recordEvent(inAppEventData: ThomasLayoutEventData)
+    func recordEvent(thomasLayoutEventData: ThomasLayoutEventData)
     func recordImpressionEvent(_ event: AirshipMeteredUsageEvent)
 }
 
@@ -36,31 +42,34 @@ public struct ThomasLayoutEventRecorder: ThomasLayoutEventRecorderProtocol {
     private let airshipAnalytics: any InternalAirshipAnalytics
     private let meteredUsage: any AirshipMeteredUsage
 
-    public init(airshipAnalytics: any InternalAirshipAnalytics, meteredUsage: any AirshipMeteredUsage) {
+    public init(
+        airshipAnalytics: any InternalAirshipAnalytics,
+        meteredUsage: any AirshipMeteredUsage
+    ) {
         self.airshipAnalytics = airshipAnalytics
         self.meteredUsage = meteredUsage
     }
 
-    public func recordEvent(inAppEventData: ThomasLayoutEventData) {
+    public func recordEvent(thomasLayoutEventData: ThomasLayoutEventData) {
         let eventBody = EventBody(
-            identifier: inAppEventData.messageID,
-            source: inAppEventData.source,
-            context: inAppEventData.context,
+            identifier: thomasLayoutEventData.messageID,
+            source: thomasLayoutEventData.source,
+            context: thomasLayoutEventData.context,
             conversionSendID: airshipAnalytics.conversionSendID,
             conversionPushMetadata: airshipAnalytics.conversionPushMetadata,
-            renderedLocale: inAppEventData.renderedLocale,
-            baseData: inAppEventData.event.data
+            renderedLocale: thomasLayoutEventData.renderedLocale,
+            baseData: thomasLayoutEventData.event.data
         )
 
         do {
             airshipAnalytics.recordEvent(
                 AirshipEvent(
-                    eventType: inAppEventData.event.name,
+                    eventType: thomasLayoutEventData.event.name,
                     eventData: try AirshipJSON.wrap(eventBody)
                 )
             )
         } catch {
-            AirshipLogger.error("Failed to add event \(inAppEventData) error \(error)")
+            AirshipLogger.error("Failed to add native layout event \(thomasLayoutEventData): \(error)")
         }
     }
 
@@ -91,7 +100,6 @@ fileprivate struct EventBody: Encodable, Sendable {
         case conversionSendID = "conversion_send_id"
         case conversionPushMetadata = "conversion_metadata"
         case renderedLocale = "rendered_locale"
-        case deviceInfo = "device"
     }
 
     func encode(to encoder: any Encoder) throws {

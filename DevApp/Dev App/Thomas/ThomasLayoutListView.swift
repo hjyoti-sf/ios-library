@@ -36,11 +36,20 @@ struct ThomasLayoutListView: View {
 
     private var layoutsView: some View {
         Form {
-            Section("Recent") {
+            Section {
                 ForEach(viewModel.recentLayouts) { layout in
                     Button(layout.fileName) {
                        open(layout, addToRecents: false)
                     }
+                }
+            } header: {
+                HStack {
+                    Text("Recent")
+                    Spacer()
+                    Button("Clear") {
+                        viewModel.clearRecentLayouts()
+                    }
+                    .disabled(viewModel.recentLayouts.isEmpty)
                 }
             }
 

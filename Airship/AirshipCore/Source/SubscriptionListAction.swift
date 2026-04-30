@@ -1,5 +1,9 @@
 /* Copyright Airship and Contributors */
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 public import Foundation
 
 /// Subscribes to/unsubscribes from a subscription list.
@@ -25,7 +29,7 @@ public final class SubscriptionListAction: AirshipAction {
   
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .airshipISO8601
         return decoder
     }
     

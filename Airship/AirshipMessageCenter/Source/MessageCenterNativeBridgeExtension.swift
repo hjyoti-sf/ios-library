@@ -8,6 +8,14 @@ public import WebKit
 public import AirshipCore
 #endif
 
+private let messageSentDateFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    f.timeZone = TimeZone(secondsFromGMT: 0)
+    return f
+}()
+
 /// Airship native bridge extension for the Message Center.
 public final class MessageCenterNativeBridgeExtension: NSObject, NativeBridgeExtensionDelegate, Sendable {
 
@@ -43,7 +51,7 @@ public final class MessageCenterNativeBridgeExtension: NSObject, NativeBridgeExt
         )
         js.add(
             "getMessageSentDate",
-            string: AirshipDateFormatter.string(fromDate: message.sentDate, format: .iso)
+            string: messageSentDateFormatter.string(from: message.sentDate)
         )
         js.add("getMessageExtras", dictionary: message.extra)
         js.add("getUserId", string: self.user.username)

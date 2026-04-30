@@ -2,6 +2,7 @@
 
 import XCTest
 
+@_spi(AirshipInternal) import AirshipBasement
 @testable import AirshipCore
 import Combine
 
@@ -219,7 +220,7 @@ class ChannelAudienceManagerTest: XCTestCase {
         let attributePayload = [
             "action": "remove",
             "key": "some-attribute",
-            "timestamp": AirshipDateFormatter.string(fromDate: testDate.now, format: .isoDelimitter)
+            "timestamp": AirshipDateFormatter.string(fromDate: testDate.now, format: .iso8601)
         ]
 
         let attributeMutation = AttributePendingMutations(mutationsPayload: [
@@ -262,7 +263,7 @@ class ChannelAudienceManagerTest: XCTestCase {
             [
                 AttributeUpdate.remove(
                     attribute: "some-attribute",
-                    date: AirshipDateFormatter.date(fromISOString: attributePayload["timestamp"]!)!
+                    date: AirshipDateFormatter.date(from: attributePayload["timestamp"]!)!
                 )
             ],
             pending?.attributes

@@ -20,9 +20,9 @@ final class ChannelAPIClientTest: XCTestCase {
     func testCreate() async throws {
         let payload = ChannelRegistrationPayload()
 
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "channel_id": "some-channel-id"
-        ])
+        ]).toData()) ?? Data()
 
         self.session.response = HTTPURLResponse(
             url: URL(string: "https://neat")!,
@@ -48,9 +48,9 @@ final class ChannelAPIClientTest: XCTestCase {
     func testCreateInvalidResponse() async throws {
         let payload = ChannelRegistrationPayload()
 
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "not-right": "some-channel-id"
-        ])
+        ]).toData()) ?? Data()
 
         self.session.response = HTTPURLResponse(
             url: URL(string: "https://neat")!,

@@ -12,6 +12,10 @@ public struct AirshipLayout: ThomasSerializable {
 
     /// Presentation configuration
     let presentation: ThomasPresentationInfo
+    
+    /// Layout control options
+    /// - Note: For internal use only. :nodoc:
+    public let options: NativeLayoutControlOptions?
 
     public var isEmbedded: Bool {
         guard case .embedded(_) = presentation else {
@@ -76,6 +80,7 @@ extension ThomasViewInfo {
         case .iconView: nil
         case .scoreController(let info): [info.properties.view]
         case .scoreToggleLayout(let info): [info.properties.view]
+        case .asyncViewController: nil
         case .videoController(let info): [info.properties.view]
         }
     }

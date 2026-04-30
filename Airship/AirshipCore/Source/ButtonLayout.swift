@@ -12,6 +12,7 @@ struct ButtonLayout : View {
     @EnvironmentObject private var videoState: VideoState
     @EnvironmentObject private var thomasState: ThomasState
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var asyncViewState: ThomasAsyncViewState
 
     @State private var actionTask: Task<Void, Never>?
 
@@ -65,9 +66,8 @@ struct ButtonLayout : View {
                 identifier: self.info.properties.identifier,
                 reportingMetadata: self.info.properties.reportingMetadata,
                 description: self.info.accessible.resolveContentDescription,
-                clickBehaviors: self.info.properties.clickBehaviors,
+                outcomes: makeOutcomes(),
                 eventHandlers: self.info.commonProperties.eventHandlers,
-                actions: self.info.properties.actions,
                 tapEffect: self.info.properties.tapEffect
             ) {
                 ViewFactory.createView(self.info.properties.view, constraints: constraints)
@@ -88,17 +88,20 @@ struct ButtonLayout : View {
     @MainActor
     private func performButtonAction() async {
         // Form validation
-        if info.properties.clickBehaviors?.contains(.formSubmit) == true ||
-           info.properties.clickBehaviors?.contains(.formValidate) == true {
+        let outcomes = makeOutcomes()
+        if outcomes.hasFormOutcome {
             guard await formState.validate() else { return }
         }
 
         // Tap event handlers
         let taps = info.commonProperties.eventHandlers?.filter { $0.type == .tap }
         if let taps, !taps.isEmpty {
-            taps.forEach { tap in
-                thomasState.processStateActions(tap.stateActions)
+            let tapOutcomes = taps.flatMap { entry in
+                entry.outcomes ?? entry.stateActions.map(\.asOutcome)
             }
+            
+            await thomasState.process(outcomes: tapOutcomes)
+            
             await Task.yield()
         }
 
@@ -109,100 +112,20 @@ struct ButtonLayout : View {
             layoutState: layoutState
         )
 
-        // Click behaviors
-        await handleBehaviors(info.properties.clickBehaviors ?? [])
-
-        // Actions
-        handleActions(info.properties.actions)
+        await thomasState.process(outcomes: outcomes)
     }
-
-    private func handleBehaviors(_ behaviors: [ThomasButtonClickBehavior]) async {
-        for behavior in behaviors {
-            switch(behavior) {
-            case .dismiss:
-                thomasEnvironment.dismiss(
-                    buttonIdentifier: info.properties.identifier,
-                    buttonDescription: info.accessible.resolveContentDescription ?? info.properties.identifier,
-                    cancel: false,
-                    layoutState: layoutState
-                )
-
-            case .cancel:
-                thomasEnvironment.dismiss(
-                    buttonIdentifier: info.properties.identifier,
-                    buttonDescription: info.accessible.resolveContentDescription ?? info.properties.identifier,
-                    cancel: true,
-                    layoutState: layoutState
-                )
-
-            case .pagerNext:
-                pagerState.process(request: .next)
-
-            case .pagerPrevious:
-                pagerState.process(request: .back)
-
-            case .pagerNextOrDismiss:
-                if pagerState.isLastPage {
-                    thomasEnvironment.dismiss(
-                        buttonIdentifier: info.properties.identifier,
-                        buttonDescription: info.accessible.resolveContentDescription ?? info.properties.identifier,
-                        cancel: false,
-                        layoutState: layoutState
-                    )
-                } else {
-                    pagerState.process(request: .next)
-                }
-
-            case .pagerNextOrFirst:
-                if pagerState.isLastPage {
-                    pagerState.process(request: .first)
-                } else {
-                    pagerState.process(request: .next)
-                }
-
-            case .pagerPause:
-                pagerState.pause()
-
-            case .pagerResume:
-                pagerState.resume()
-
-            case .pagerPauseToggle:
-                pagerState.togglePause()
-
-            case .formValidate:
-                break
-
-            case .formSubmit:
-                do {
-                    try await formState.submit(layoutState: layoutState)
-                } catch {
-                    AirshipLogger.error("Failed to submit \(error)")
-                }
-
-            case .videoPlay:
-                videoState.play()
-
-            case .videoPause:
-                videoState.pause()
-
-            case .videoTogglePlay:
-                videoState.togglePlay()
-
-            case .videoMute:
-                videoState.mute()
-
-            case .videoUnmute:
-                videoState.unmute()
-
-            case .videoToggleMute:
-                videoState.toggleMute()
-            }
+    
+    private func makeOutcomes() -> [ThomasOutcome] {
+        if let outcomes = info.properties.outcomes {
+            return outcomes
         }
-    }
-
-    private func handleActions(_ actionPayload: ThomasActionsPayload?) {
-        if let actionPayload {
-            thomasEnvironment.runActions(actionPayload, layoutState: layoutState)
+        
+        let behavior = info.properties.clickBehaviors?.map(\.asOutcome) ?? []
+        
+        if let actions = info.properties.actions?.asOutcome() {
+            return behavior + [actions]
         }
+        
+        return behavior
     }
 }

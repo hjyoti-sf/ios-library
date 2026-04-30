@@ -158,6 +158,13 @@ fileprivate struct AutomationActionManifest : ActionsManifest {
                 action: LandingPageAction(),
                 predicate: LandingPageAction.defaultPredicate
             )
+        },
+
+        SceneAction.defaultNames: {
+            return ActionEntry(
+                action: SceneAction(),
+                predicate: SceneAction.defaultPredicate
+            )
         }
     ]
 }

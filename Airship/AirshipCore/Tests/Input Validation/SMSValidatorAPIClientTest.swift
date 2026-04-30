@@ -89,10 +89,10 @@ struct SMSValidatorAPIClientTest {
             headerFields: [String: String]()
         )
 
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "valid": true,
             "msisdn": msisdn + "valid"
-        ])
+        ]).toData()) ?? Data()
 
         let response = try await apiClient.validateSMS(
             msisdn: msisdn,
@@ -112,9 +112,9 @@ struct SMSValidatorAPIClientTest {
             headerFields: [String: String]()
         )
 
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "valid": false
-        ])
+        ]).toData()) ?? Data()
 
         let response = try await apiClient.validateSMS(
             msisdn: msisdn,

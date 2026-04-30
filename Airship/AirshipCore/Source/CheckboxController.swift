@@ -88,10 +88,10 @@ struct CheckboxController: View {
                             initialValue: checkboxState.selected,
                             valueUpdates: checkboxState.$selected,
                             validatables: info.validation
-                        ) { [weak thomasState, weak checkboxState] actions in
+                        ) { [weak thomasState, weak checkboxState] outcomes in
                             guard let thomasState, let checkboxState else { return }
-                            thomasState.processStateActions(
-                                actions,
+                            thomasState.processSync(
+                                outcomes: outcomes,
                                 formFieldValue: .multipleCheckbox(
                                     Set(checkboxState.selected.map { $0.reportingValue })
                                 )

@@ -25,7 +25,7 @@ public final class MessageCenterMessageViewModel: ObservableObject {
 
     private var fetchMessageTask: Task<MessageCenterMessage, any Error>? = nil
     
-    private var nativeAnalytics: ThomasDisplayListener? = nil
+    private var thomasAnalytics: ThomasDisplayListener? = nil
     let thomasDismissHandle: ThomasDismissHandle = .init()
 
     func makeAnalytics(
@@ -34,7 +34,7 @@ public final class MessageCenterMessageViewModel: ObservableObject {
     ) -> ThomasDisplayListener? {
         guard let message else { return nil }
 
-        if let cached = nativeAnalytics {
+        if let cached = thomasAnalytics {
             return cached
         }
 
@@ -47,7 +47,7 @@ public final class MessageCenterMessageViewModel: ObservableObject {
                 ),
                 historyStorage: MessageDisplayHistoryStore(
                     storageGetter: { messageID in
-                        await messageCenter.internalInbox.message(forID: messageID)?.associatedData.displayHistory
+                        await messageCenter.internalInbox.associatedData(forID: messageID).displayHistory
                     },
                     storageSetter: { messageID, data in
                         await messageCenter.internalInbox.saveDisplayHistory(for: messageID, history: data)
@@ -58,7 +58,7 @@ public final class MessageCenterMessageViewModel: ObservableObject {
             }
         )
 
-        nativeAnalytics = result
+        thomasAnalytics = result
         return result
     }
     

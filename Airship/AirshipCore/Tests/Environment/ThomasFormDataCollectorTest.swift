@@ -28,6 +28,7 @@ struct ThomasFormDataCollectorTest {
             automatedActions: nil,
             accessibilityActions: nil,
             stateActions: nil,
+            displayOutcomes: nil,
             branching: nil
         ),
         .init(
@@ -37,6 +38,7 @@ struct ThomasFormDataCollectorTest {
             automatedActions: nil,
             accessibilityActions: nil,
             stateActions: nil,
+            displayOutcomes: nil,
             branching: nil
         ),
         .init(
@@ -46,6 +48,7 @@ struct ThomasFormDataCollectorTest {
             automatedActions: nil,
             accessibilityActions: nil,
             stateActions: nil,
+            displayOutcomes: nil,
             branching: nil
         )
     ]

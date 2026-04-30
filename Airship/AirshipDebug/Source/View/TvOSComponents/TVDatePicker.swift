@@ -97,7 +97,7 @@ struct TVDatePicker: View {
                 Spacer()
                 Text(AirshipDateFormatter.string(
                     fromDate: selection,
-                    format: .relativeShort
+                    relativeFormat: .short
                 ))
                 Image(systemName: "chevron.right")
             }
@@ -138,7 +138,7 @@ private extension TVDatePicker {
             Spacer()
             Text(AirshipDateFormatter.string(
                 fromDate: selection,
-                format: .relativeShort
+                relativeFormat: .short
             ))
             .font(.largeTitle)
             Spacer()

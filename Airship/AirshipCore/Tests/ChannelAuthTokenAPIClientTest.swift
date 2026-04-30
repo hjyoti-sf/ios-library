@@ -17,10 +17,10 @@ final class ChannelAuthTokenAPIClientTest: AirshipBaseTest {
     }
     
     func testTokenWithChannelID() async throws {
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "token": "abc123",
             "expires_in": 12345
-        ] as [String : Any])
+        ] as [String : Any]).toData()) ?? Data()
         self.session.response = HTTPURLResponse(
             url: URL(string: "https://www.linkedin.com/")!,
             statusCode: 200,
@@ -42,10 +42,10 @@ final class ChannelAuthTokenAPIClientTest: AirshipBaseTest {
     }
     
     func testTokenWithChannelIDMalformedPayload() async throws {
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "not a token": "abc123",
             "expires_in_3_2_1": 12345
-        ] as [String : Any])
+        ] as [String : Any]).toData()) ?? Data()
         self.session.response = HTTPURLResponse(
             url: URL(string: "https://www.linkedin.com/")!,
             statusCode: 200,
@@ -62,9 +62,9 @@ final class ChannelAuthTokenAPIClientTest: AirshipBaseTest {
     }
     
     func testTokenWithChannelIDClientError() async throws {
-        self.session.data = try AirshipJSONUtils.data([
+        self.session.data = (try? AirshipJSON.wrap([
             "too": "bad"
-        ])
+        ]).toData()) ?? Data()
         self.session.response = HTTPURLResponse(
             url: URL(string: "https://www.linkedin.com/")!,
             statusCode: 400,

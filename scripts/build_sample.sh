@@ -7,10 +7,14 @@ ROOT_PATH=`dirname "${0}"`/..
 
 SAMPLE="$1"
 DERIVED_DATA="$2"
+PLATFORM="$3"
 
 if [ $SAMPLE == "tvOSSample" ]
 then
   TARGET_SDK='appletvsimulator'
+elif [ $PLATFORM == "macOS" ]
+then
+  TARGET_SDK='macosx'
 else
   TARGET_SDK='iphonesimulator'
 fi
@@ -21,9 +25,25 @@ echo -ne "\n\n *********** BUILDING SAMPLE $SAMPLE *********** \n\n"
 cp -np "${ROOT_PATH}/$SAMPLE/AirshipConfig.plist.sample" "${ROOT_PATH}/$SAMPLE/AirshipConfig.plist" || true
 
 # Use Debug configurations and a simulator SDK so the build process doesn't attempt to sign the output
+
+if [ $PLATFORM == "macOS" ]
+then
 xcrun xcodebuild \
 -configuration Debug \
 -workspace "${ROOT_PATH}/Airship.xcworkspace" \
 -scheme "${SAMPLE}" \
 -sdk $TARGET_SDK \
--derivedDataPath "$DERIVED_DATA" | xcbeautify --renderer $XCBEAUTIFY_RENDERER
+-derivedDataPath "$DERIVED_DATA" \
+build \
+CODE_SIGNING_ALLOWED=NO \
+| xcbeautify --renderer $XCBEAUTIFY_RENDERER
+else
+xcrun xcodebuild \
+-configuration Debug \
+-workspace "${ROOT_PATH}/Airship.xcworkspace" \
+-scheme "${SAMPLE}" \
+-sdk $TARGET_SDK \
+-derivedDataPath "$DERIVED_DATA" \
+| xcbeautify --renderer $XCBEAUTIFY_RENDERER
+fi
+

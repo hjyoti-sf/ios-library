@@ -60,7 +60,7 @@ class AttributeEditorTest: XCTestCase {
         XCTAssertEqual(AttributeUpdateType.set, attribute?.type)
         XCTAssertEqual(applyDate, attribute?.date)
         XCTAssertEqual(
-            "1970-01-01T02:46:40",
+            "1970-01-01T02:46:40Z",
             attribute?.jsonValue?.unWrap() as! String
         )
     }

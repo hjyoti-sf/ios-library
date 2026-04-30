@@ -32,13 +32,13 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
     }
 
     func testEventData() async throws {
-        let inAppEvent = TestThomasLayoutEvent(
+        let layoutEvent = TestThomasLayoutEvent(
             name: .appInit,
             data: TestData(field: "something", anotherField: "something something")
         )
 
         let data = ThomasLayoutEventData(
-            event: inAppEvent,
+            event: layoutEvent,
             context: ThomasLayoutEventContext(
                 reportingContext: self.reportingMetadata,
                 experimentsReportingData: self.experimentResult.reportingMetadata
@@ -49,7 +49,7 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
         )
 
 
-        self.eventRecorder.recordEvent(inAppEventData: data)
+        self.eventRecorder.recordEvent(thomasLayoutEventData: data)
 
         let expectedJSON = """
         {
@@ -77,12 +77,12 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
 
         let event = self.airshipAnalytics.events.first!
 
-        XCTAssertEqual(event.eventType, inAppEvent.name)
+        XCTAssertEqual(event.eventType, layoutEvent.name)
         XCTAssertEqual(event.eventData, try AirshipJSON.from(json: expectedJSON))
     }
 
     func testConversionIDs() async throws {
-        let inAppEvent = TestThomasLayoutEvent(
+        let layoutEvent = TestThomasLayoutEvent(
             name: .featureFlagInteraction,
             data: TestData(field: "something", anotherField: "something something")
         )
@@ -91,7 +91,7 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
         self.airshipAnalytics.conversionPushMetadata = UUID().uuidString
 
         let data = ThomasLayoutEventData(
-            event: inAppEvent,
+            event: layoutEvent,
             context: ThomasLayoutEventContext(
                 reportingContext: self.reportingMetadata,
                 experimentsReportingData: self.experimentResult.reportingMetadata
@@ -102,7 +102,7 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
         )
 
 
-        self.eventRecorder.recordEvent(inAppEventData: data)
+        self.eventRecorder.recordEvent(thomasLayoutEventData: data)
 
 
         let expectedJSON = """
@@ -133,18 +133,18 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
 
         let event = self.airshipAnalytics.events.first!
 
-        XCTAssertEqual(event.eventType, inAppEvent.name)
+        XCTAssertEqual(event.eventType, layoutEvent.name)
         XCTAssertEqual(event.eventData, try AirshipJSON.from(json: expectedJSON))
     }
 
     func testEventDataError() async throws {
-        let inAppEvent = TestThomasLayoutEvent(
+        let layoutEvent = TestThomasLayoutEvent(
             name: .appForeground,
             data: ErrorData(field: "something", anotherField: "something something")
         )
 
         let data = ThomasLayoutEventData(
-            event: inAppEvent,
+            event: layoutEvent,
             context: ThomasLayoutEventContext(
                 reportingContext: self.reportingMetadata,
                 experimentsReportingData: self.experimentResult.reportingMetadata
@@ -154,7 +154,7 @@ class ThomasLayoutEventRecorderTest: XCTestCase {
             renderedLocale: self.renderedLocale
         )
 
-        self.eventRecorder.recordEvent(inAppEventData: data)
+        self.eventRecorder.recordEvent(thomasLayoutEventData: data)
 
         XCTAssertTrue(self.airshipAnalytics.events.isEmpty)
     }

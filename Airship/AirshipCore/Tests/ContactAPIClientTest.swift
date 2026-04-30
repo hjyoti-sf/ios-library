@@ -2,6 +2,7 @@
 
 import XCTest
 
+@_spi(AirshipInternal) import AirshipBasement
 @testable import AirshipCore
 
 class ContactAPIClientTest: XCTestCase {
@@ -49,7 +50,7 @@ class ContactAPIClientTest: XCTestCase {
 
         let expected = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "1a32e8c7-5a73-47c0-9716-99fd3d41924b",
                 isAnonymous: true
             ),
@@ -110,7 +111,7 @@ class ContactAPIClientTest: XCTestCase {
 
         let expected = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "1a32e8c7-5a73-47c0-9716-99fd3d41924b",
                 isAnonymous: true
             ),
@@ -170,7 +171,7 @@ class ContactAPIClientTest: XCTestCase {
 
         let expected = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "1a32e8c7-5a73-47c0-9716-99fd3d41924b",
                 isAnonymous: true
             ),
@@ -248,7 +249,10 @@ class ContactAPIClientTest: XCTestCase {
                     "timezone": TimeZone.current.identifier,
                     "locale_country": "CA",
                     "locale_language": "fr",
-                    "transactional_opted_in": AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter),
+                    "transactional_opted_in": AirshipDateFormatter.string(
+                        fromDate: date,
+                        format: .iso8601
+                    ),
                 ],
                 "opt_in_mode": "double",
                 "properties": [
@@ -732,26 +736,27 @@ class ContactAPIClientTest: XCTestCase {
             options: []
         ) as! [String: Any]
 
-        let formattedDate = AirshipDateFormatter.string(fromDate: date, format: .isoDelimitter)
-        
+        let attributeFormattedDate = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
+        let subscriptionFormattedDate = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
+
         let expectedBody = [
             "attributes": [
                 [
                     "action": "set",
                     "key": "some-string",
-                    "timestamp": formattedDate,
+                    "timestamp": attributeFormattedDate,
                     "value": "Hello",
                 ] as [String : Any],
                 [
                     "action": "set",
                     "key": "some-number",
-                    "timestamp": formattedDate,
+                    "timestamp": attributeFormattedDate,
                     "value": 32,
                 ],
                 [
                     "action": "remove",
                     "key": "some-remove",
-                    "timestamp": formattedDate,
+                    "timestamp": attributeFormattedDate,
                 ],
             ],
             "tags": [
@@ -777,13 +782,13 @@ class ContactAPIClientTest: XCTestCase {
                     "action": "subscribe",
                     "list_id": "bar",
                     "scope": "web",
-                    "timestamp": formattedDate,
+                    "timestamp": subscriptionFormattedDate,
                 ],
                 [
                     "action": "unsubscribe",
                     "list_id": "foo",
                     "scope": "app",
-                    "timestamp": formattedDate,
+                    "timestamp": subscriptionFormattedDate,
                 ],
             ],
         ] as [String : Any]

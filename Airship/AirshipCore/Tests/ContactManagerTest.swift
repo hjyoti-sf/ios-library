@@ -1,5 +1,6 @@
 import Testing
 
+@_spi(AirshipInternal) import AirshipBasement
 @testable
 import AirshipCore
 import Foundation
@@ -42,7 +43,7 @@ struct ContactManagerTest {
 
         self.anonIdentifyResponse = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "some contact",
                 isAnonymous: true
             ),
@@ -52,7 +53,7 @@ struct ContactManagerTest {
 
         self.nonAnonIdentifyResponse = ContactIdentifyResult(
             contact: ContactIdentifyResult.ContactInfo(
-                channelAssociatedDate: AirshipDateFormatter.date(fromISOString: "2022-12-29T10:15:30.00")!,
+                channelAssociatedDate: AirshipDateFormatter.date(from: "2022-12-29T10:15:30.00")!,
                 contactID: "some other contact",
                 isAnonymous: false
             ),
@@ -696,7 +697,7 @@ struct ContactManagerTest {
 
     @Test("Auth token resolve mismatch")
     func authTokenResolveMismatch() async {
-        try await confirmation { confirm in
+        await confirmation { confirm in
             self.apiClient.resolveCallback = { channelID, contactID, possiblyOrphanedContactID in
                 #expect(self.channel.identifier == channelID)
                 confirm()
@@ -748,7 +749,7 @@ struct ContactManagerTest {
 
     @Test("Auth token failed")
     func authTokenFailed() async  {
-        try await confirmation { confirm in
+        await confirmation { confirm in
             self.apiClient.resolveCallback = { channelID, contactID, possiblyOrphanedContactID in
                 #expect(self.channel.identifier == channelID)
                 confirm()

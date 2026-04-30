@@ -2,6 +2,10 @@
 
 import Foundation
 
+#if canImport(AirshipBasement)
+@_spi(AirshipInternal) import AirshipBasement
+#endif
+
 #if canImport(AirshipCore)
 import AirshipCore
 #endif
@@ -380,7 +384,7 @@ extension HTTPURLResponse {
 
 extension String {
     fileprivate func toDate() throws -> Date {
-        guard let date = AirshipDateFormatter.date(fromISOString: self) else {
+        guard let date = AirshipDateFormatter.date(from: self) else {
             throw AirshipErrors.error("Invalid date \(self)")
         }
         return date

@@ -163,7 +163,7 @@ final class InAppMessageAnalytics: InAppMessageAnalyticsProtocol {
             renderedLocale: self.renderedLocale
         )
 
-        self.eventRecorder.recordEvent(inAppEventData: data)
+        self.eventRecorder.recordEvent(thomasLayoutEventData: data)
     }
 
     @MainActor

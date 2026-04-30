@@ -112,7 +112,7 @@ public final class ThomasDisplayListener: ThomasDelegate {
             }
 
 
-        @unknown default: AirshipLogger.error("Unhandled IAX event \(event)")
+        @unknown default: AirshipLogger.error("Unhandled Native reporting event \(event)")
         }
     }
 

@@ -99,20 +99,14 @@ fileprivate final class TestPasteboard: AirshipPasteboardProtocol, @unchecked Se
     private var _lastCopyValue: String?
     
     var lastCopyValue: String? {
-        lock.lock()
-        defer { lock.unlock() }
-        return _lastCopyValue
+        lock.withLock { _lastCopyValue }
     }
 
     func copy(value: String, expiry: TimeInterval) {
-        lock.lock()
-        defer { lock.unlock() }
-        _lastCopyValue = value
+        lock.withLock { _lastCopyValue = value }
     }
 
     func copy(value: String) {
-        lock.lock()
-        defer { lock.unlock() }
-        _lastCopyValue = value
+        lock.withLock { _lastCopyValue = value }
     }
 }

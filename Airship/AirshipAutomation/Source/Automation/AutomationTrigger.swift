@@ -257,7 +257,10 @@ public struct EventAutomationTrigger: Sendable, Codable, Equatable {
         var components: [String] = []
         components.append(contentsOf: [self.type.rawValue, String(self.goal), executionType.rawValue])
 
-        if let predicate = predicate, let json = try? AirshipJSONUtils.string(predicate, options: .sortedKeys) {
+        let encoder = AirshipJSON.defaultEncoder
+        encoder.outputFormatting = .sortedKeys
+        if let predicate = predicate, let json = try? AirshipJSON.wrap(predicate).toString(encoder: encoder)
+        {
             components.append(json)
         }
 

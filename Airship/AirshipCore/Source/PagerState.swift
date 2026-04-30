@@ -43,6 +43,7 @@ enum PageRequest {
     case next
     case back
     case first
+    case last
 }
 
 struct ThomasPageInfo: Sendable {
@@ -116,6 +117,7 @@ class PagerState: ObservableObject {
     private let branchControl: BranchControl?
     private var thomasStateSubscription: AnyCancellable? = nil
     private let taskSleeper: any AirshipTaskSleeper
+    private var restoredState: Snapshot? = nil
 
     // Used for reporting
     var reportingPageCount: Int {
@@ -155,17 +157,17 @@ class PagerState: ObservableObject {
         swipeDisableSelectors: [ThomasViewInfo.Pager.DisableSwipeSelector]?
     ) {
         let pagesChanged = pages != self.pageItems
-        
+
         if let branchControl {
             branchControl.configureAndAttachTo(
                 pages: pages,
                 thomasState: thomasState
             )
         } else {
-            self.pageStates = pages.map({ $0.toPageState() })
+            self.pageStates = restoredState?.pageStates ?? pages.map({ $0.toPageState() })
             self.pageItems = pages
         }
-        
+
         thomasStateSubscription?.cancel()
         if let selectors = swipeDisableSelectors {
             thomasStateSubscription = thomasState.$state
@@ -175,7 +177,14 @@ class PagerState: ObservableObject {
                 }
         }
 
-        if self.currentPageId == nil || pagesChanged {
+        if let restored = restoredState {
+            // pager uses scrollview + lazystack. in this configuration it could ignore scrolling to position
+            // until the stack is initialized and loaded. schedule a page navigation task
+            restored.currentPageId.flatMap(self.schedulePageNavigation)
+            self.progress = restored.progress
+
+            self.restoredState = nil
+        } else if self.currentPageId == nil || pagesChanged {
             self.currentPageId = pageItems.first?.identifier
         }
     }
@@ -260,9 +269,46 @@ class PagerState: ObservableObject {
             viewCount: self.pageViewCounts[pageIdentifier] ?? 0
         )
     }
+    
+    private var pageNavigationTask: Task<Void, Never>? = nil
+    func schedulePageNavigation(_ pageId: String) {
+        pageNavigationTask?.cancel()
+        
+        let scrollDelay = 0.05 // 50ms
+        
+        //try to navigate to the page id in the usual way
+        self.currentPageId = pageId
+        
+        pageNavigationTask = Task { @MainActor [weak self] in
+            guard let pageIds = self?.pageItems.map(\.identifier) else {
+                return
+            }
+            
+            // wait for the navigation animation
+            try? await self?.taskSleeper.sleep(timeInterval: 0.2)
+            //cooperative cancel task if the usual navigation worked
+            guard !Task.isCancelled else { return }
+            
+            // once we failed to navigate to the target page, iterate thru all pager pages and navigate to the next
+            // until we reach the target page. that solves navigation with lazy stacks when we might not have the target
+            // screen rendered
+            // ignore task cancellation
+            for item in pageIds {
+                await Task.yield()
+                self?.currentPageId = item
+                if item == pageId { break }
+                try? await self?.taskSleeper.sleep(timeInterval: scrollDelay)
+            }
+        }
+    }
+    
+    func confirmNavigation() {
+        pageNavigationTask?.cancel()
+    }
 
     @discardableResult
     func process(request: PageRequest) -> NavigationResult? {
+        guard !pageItems.isEmpty else { return nil }
         let id = pageItems[nextIndexNoBranching(request: request)].identifier
         guard
             let result = self.navigateToPage(id: id)
@@ -315,12 +361,10 @@ class PagerState: ObservableObject {
     
     private func nextIndexNoBranching(request: PageRequest) -> Int {
         return switch request {
-        case .next:
-            min(pageIndex + 1, pageItems.count - 1)
-        case .back:
-            max(pageIndex - 1, 0)
-        case .first:
-            0
+        case .next: min(pageIndex + 1, pageItems.count - 1)
+        case .back: max(pageIndex - 1, 0)
+        case .first: 0
+        case .last: max(pageItems.count - 1, 0)
         }
     }
     
@@ -422,7 +466,7 @@ private class BranchControl: Sendable {
         self.updateState()
         
         switch request {
-        case .next, .back: break
+        case .next, .back, .last: break
         case .first: history.removeAll()
         }
     }
@@ -496,30 +540,29 @@ private class BranchControl: Sendable {
     
     private func evaluateCompletion() {
         guard !isComplete else { return }
-        
-        var result = false
-        for indicator in completionChecker.completions {
-            if indicator.predicate?.evaluate(json: payload) != false {
-                result = true
-                break
-            }
+
+        let result = completionChecker.completions.contains {
+            $0.predicate?.evaluate(json: payload) != false
         }
-        
+
         if result, result != isComplete {
-            performCompletionStateActions()
+            performCompletionOutcomes()
         }
-        
+
         self.isComplete = result
     }
-    
-    private func performCompletionStateActions() {
-        guard let thomasState else { return }
-        let actions = completionChecker.completions
-            .filter { $0.predicate?.evaluate(json: payload) != false }
-            .compactMap { $0.stateActions }
-            .flatMap { $0 }
 
-        thomasState.processStateActions(actions)
+    private func performCompletionOutcomes() {
+        guard let thomasState else { return }
+        
+        let outcomes = completionChecker.completions
+            .filter { $0.predicate?.evaluate(json: payload) != false }
+            .compactMap { $0.outcomes ?? $0.stateActions?.map(\.asOutcome) }
+            .flatMap { $0 }
+        
+        Task {
+            await thomasState.process(outcomes: outcomes)
+        }
     }
 }
 
@@ -573,10 +616,6 @@ extension PagerState: ThomasStateProvider {
     }
     
     func restorePersistentState(_ state: Snapshot) {
-        DispatchQueue.main.async {
-            self.pageStates = state.pageStates
-            self.currentPageId = state.currentPageId
-            self.progress = state.progress
-        }
+        self.restoredState = state
     }
 }

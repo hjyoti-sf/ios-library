@@ -17,7 +17,7 @@ struct LegacyInAppAnalytics : LegacyInAppAnalyticsProtocol {
 
     func recordReplacedEvent(scheduleID: String, replacementID: String) {
         recorder.recordEvent(
-            inAppEventData: ThomasLayoutEventData(
+            thomasLayoutEventData: ThomasLayoutEventData(
                 event: LegacyResolutionEvent.replaced(replacementID: replacementID),
                 context: nil,
                 source: .airship,
@@ -29,7 +29,7 @@ struct LegacyInAppAnalytics : LegacyInAppAnalyticsProtocol {
 
     func recordDirectOpenEvent(scheduleID: String) {
         recorder.recordEvent(
-            inAppEventData: ThomasLayoutEventData(
+            thomasLayoutEventData: ThomasLayoutEventData(
                 event: LegacyResolutionEvent.directOpen(),
                 context: nil,
                 source: .airship,

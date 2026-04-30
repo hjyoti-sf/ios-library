@@ -10,25 +10,35 @@ struct ThomasValidationInfo: ThomasSerializable {
 
     struct ErrorInfo: ThomasSerializable {
         var stateActions: [ThomasStateAction]?
+        
+        /// If defined, `stateActions` will be ignored.
+        var outcomes: [ThomasOutcome]?
 
         enum CodingKeys: String, CodingKey {
             case stateActions = "state_actions"
+            case outcomes
         }
     }
 
     struct EditInfo: ThomasSerializable {
         var stateActions: [ThomasStateAction]?
+        /// If defined, `stateActions` will be ignored.
+        var outcomes: [ThomasOutcome]?
 
         enum CodingKeys: String, CodingKey {
             case stateActions = "state_actions"
+            case outcomes
         }
     }
 
     struct ValidInfo: ThomasSerializable {
         var stateActions: [ThomasStateAction]?
+        /// If defined, `stateActions` will be ignored.
+        var outcomes: [ThomasOutcome]?
 
         enum CodingKeys: String, CodingKey {
             case stateActions = "state_actions"
+            case outcomes
         }
     }
 

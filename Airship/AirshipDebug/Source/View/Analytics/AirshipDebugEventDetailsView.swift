@@ -3,6 +3,7 @@
 import Combine
 import SwiftUI
 import AirshipCore
+@_spi(AirshipInternal) import AirshipBasement
 
 struct AirshipDebugEventDetailsView: View {
 
@@ -25,7 +26,7 @@ struct AirshipDebugEventDetailsView: View {
                     makeInfoItem("ID", event.identifier)
                     makeInfoItem(
                         "Date",
-                        AirshipDateFormatter.string(fromDate: event.date, format: .iso)
+                        AirshipDateFormatter.string(fromDate: event.date, format: .iso8601)
                     )
                 }
 

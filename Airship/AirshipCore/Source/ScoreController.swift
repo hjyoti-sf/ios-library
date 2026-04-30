@@ -102,10 +102,10 @@ struct ScoreController: View {
                             initialValue: scoreState.selected,
                             valueUpdates: scoreState.$selected,
                             validatables: info.validation
-                        ) { [weak thomasState, weak scoreState] actions in
+                        ) { [weak thomasState, weak scoreState] outcomes in
                             guard let thomasState, let scoreState else { return }
-                            thomasState.processStateActions(
-                                actions,
+                            thomasState.processSync(
+                                outcomes: outcomes,
                                 formFieldValue: .score(scoreState.selected?.reportingValue)
                             )
                         }

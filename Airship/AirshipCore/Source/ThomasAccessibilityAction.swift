@@ -14,12 +14,15 @@ struct ThomasAccessibilityAction: ThomasSerializable {
         var reportingMetadata: AirshipJSON?
         var actions: [ThomasActionsPayload]?
         var behaviors: [ThomasButtonClickBehavior]?
+        /// If defined, `behaviors` and `actions` will be ignored.
+        var outcomes: [ThomasOutcome]?
 
         enum CodingKeys: String, CodingKey {
             case type
             case reportingMetadata = "reporting_metadata"
             case actions
             case behaviors
+            case outcomes
         }
     }
 

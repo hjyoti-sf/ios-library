@@ -49,3 +49,12 @@ struct ThomasActionsPayload: ThomasSerializable, Hashable {
         return .object(actions)
     }
 }
+
+extension ThomasActionsPayload {
+    func asOutcome(index: Int? = nil) -> ThomasOutcome {
+        let appendix = index.map { "_\($0)" } ?? ""
+        let identifier = "actions_payload\(appendix)"
+        
+        return .airshipAction(.init(actions: self, identifier: identifier))
+    }
+}

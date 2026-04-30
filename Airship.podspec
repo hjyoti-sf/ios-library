@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
    s.ios.deployment_target      = "16.0"
    s.tvos.deployment_target     = "18.0"
    s.watchos.deployment_target  = "11.0"
+   s.macos.deployment_target    = "15.0"
    s.swift_versions             = "6.0"
    s.requires_arc               = true
    s.default_subspecs           = ["Basement", "Core", "Automation", "MessageCenter", "PreferenceCenter", "FeatureFlags"]

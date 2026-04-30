@@ -407,11 +407,48 @@ actor MessageCenterStore {
         return data
     }
 
+    func updateAssociatedData(
+        for messageID: String,
+        block: @escaping @Sendable (inout MessageCenterMessage.AssociatedData) throws -> Void
+    ) async throws {
+        guard let coreData = self.coreData else {
+            throw MessageCenterStoreError.coreDataUnavailble
+        }
+
+        try await coreData.perform { context in
+            let request: NSFetchRequest<InboxMessageData> = InboxMessageData.fetchRequest()
+            request.predicate = NSPredicate(format: "messageID == %@", messageID)
+            request.fetchLimit = 1
+            guard let data = try context.fetch(request).first else {
+                throw MessageCenterStoreError.coreDataError
+            }
+
+            var associatedData = data.associatedData
+                .flatMap { try? JSONDecoder().decode(MessageCenterMessage.AssociatedData.self, from: $0) }
+                ?? MessageCenterMessage.AssociatedData()
+            try block(&associatedData)
+            data.associatedData = associatedData.encoded()
+        }
+    }
+
+    func associatedData(for messageID: String) async -> MessageCenterMessage.AssociatedData {
+        guard let coreData = self.coreData else { return MessageCenterMessage.AssociatedData() }
+
+        let result = try? await coreData.performWithResult { context in
+            let request: NSFetchRequest<InboxMessageData> = InboxMessageData.fetchRequest()
+            request.predicate = NSPredicate(format: "messageID == %@", messageID)
+            request.fetchLimit = 1
+            return try context.fetch(request).first?.associatedData
+                .flatMap { try? JSONDecoder().decode(MessageCenterMessage.AssociatedData.self, from: $0) }
+                ?? MessageCenterMessage.AssociatedData()
+        }
+        return result ?? MessageCenterMessage.AssociatedData()
+    }
+
     func updateMessages(
         messages: [MessageCenterMessage],
         lastModifiedTime: String?,
-        updateLastModifiedTime: Bool = true,
-        overwriteAssociatedData: Bool = false
+        updateLastModifiedTime: Bool = true
     ) async throws {
         guard let coreData = self.coreData else {
             throw MessageCenterStoreError.coreDataUnavailble
@@ -437,10 +474,6 @@ actor MessageCenterStore {
                 data.rawMessageObject = message.rawMessageObject.toDataLoggingError()
                 data.messageReporting = message.messageReporting?.toDataLoggingError()
                 data.messageExpiration = message.expirationDate
-                
-                if overwriteAssociatedData {
-                    data.associatedData = message.associatedData.encoded()
-                }
             }
 
             // Delete any messages no longer in the listing
@@ -493,8 +526,7 @@ extension InboxMessageData {
             unread: (self.unread && self.unreadClient),
             sentDate: messageSent,
             messageURL: messageURL,
-            rawMessageObject: rawJSON,
-            associatedData: self.associatedData
+            rawMessageObject: rawJSON
         )
     }
 }

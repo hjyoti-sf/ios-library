@@ -4,6 +4,7 @@ import XCTest
 
 @testable
 import AirshipCore
+@_spi(AirshipInternal) import AirshipBasement
 
 final class ExperimentManagerTest: XCTestCase {
 
@@ -312,12 +313,32 @@ private extension MessageInfo {
 
 fileprivate extension Experiment {
     var toString: String {
-        let encoder = JSONEncoder()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
-        encoder.dateEncodingStrategy = .formatted(formatter)
+        var definition: [String: AirshipJSON] = [
+            "experiment_type": .string(type.rawValue),
+            "type": .string(resolutionType.rawValue),
+            "reporting_metadata": reportingMetadata,
+        ]
+        if let audienceSelector {
+            definition["audience_selector"] = try! AirshipJSON.wrap(audienceSelector)
+        }
+        if let compoundAudience {
+            definition["compound_audience"] = try! AirshipJSON.wrap(compoundAudience)
+        }
+        if let exclusions {
+            definition["message_exclusions"] = try! AirshipJSON.wrap(exclusions)
+        }
+        if let timeCriteria {
+            definition["time_criteria"] = try! AirshipJSON.wrap(timeCriteria)
+        }
 
-        return try! AirshipJSON.wrap(self).toString(encoder: encoder)
+        let root: [String: AirshipJSON] = [
+            "experiment_id": .string(id),
+            "created": .string(AirshipDateFormatter.string(fromDate: created, format: .iso8601)),
+            "last_updated": .string(AirshipDateFormatter.string(fromDate: lastUpdated, format: .iso8601)),
+            "experiment_definition": .object(definition)
+        ]
+
+        return try! AirshipJSON.object(root).toString()
     }
 
     static func generate(
