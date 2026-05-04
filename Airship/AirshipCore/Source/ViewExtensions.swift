@@ -92,6 +92,19 @@ extension View {
         }
     }
 
+    @_spi(AirshipInternal)
+    @ViewBuilder
+    public func airshipApplyIfPresent<Value, Content: View>(
+        _ value: Value?,
+        @ViewBuilder transform: (Self, Value) -> Content
+    ) -> some View {
+        if let value {
+            transform(self, value)
+        } else {
+            self
+        }
+    }
+
     @ViewBuilder
     public func airshipGeometryGroupCompat() -> some View {
         if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *) {

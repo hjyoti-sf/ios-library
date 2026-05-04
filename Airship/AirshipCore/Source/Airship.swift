@@ -306,14 +306,12 @@ public final class Airship: Sendable {
 
     /// - NOTE: For internal use only. :nodoc:
     public class func requireComponent<E>(ofType componentType: E.Type) -> E {
-        let component = shared.airshipInstance.component(
+        guard let component = shared.airshipInstance.component(
             ofType: componentType
-        )
-
-        if component == nil {
-            assertionFailure("Missing required component: \(componentType)")
+        ) else {
+            preconditionFailure("Missing required component: \(componentType)")
         }
-        return component!
+        return component
     }
 
     /// - NOTE: For internal use only. :nodoc:
@@ -438,15 +436,18 @@ public final class Airship: Sendable {
             return date
         }
 
-        var date: Date!
-
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last,
-           let attributes = try? FileManager.default.attributesOfItem(atPath: documentsURL.path),
-           let installDate = attributes[.creationDate] as? Date
+        let date: Date = if let documentsURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).last,
+            let attributes = try? FileManager.default.attributesOfItem(atPath: documentsURL.path),
+            let installDate = attributes[.creationDate] as? Date
         {
-            date = installDate
+            installDate
         } else {
-            date = self.airshipInstance.component(ofType: (any AirshipChannel).self)?.identifier != nil ? Date.distantPast : Date()
+            self.airshipInstance.component(ofType: (any AirshipChannel).self)?.identifier != nil
+                ? Date.distantPast
+                : Date()
         }
 
         self.airshipInstance.preferenceDataStore.setObject(date, forKey: Airship.newUserCutOffDateKey)

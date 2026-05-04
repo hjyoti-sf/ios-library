@@ -326,15 +326,13 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
     /// The change token is just an easy way to know when we need to require an actual update vs checking the remote-data info if it has
     /// changed. We will create a new token on foreground (if its passed the refresh interval) or background push.
     private var changeToken: String {
-        var token: String!
-        self.changeTokenLock.sync {
-            let fromStore = self.dataStore.string(forKey: RemoteData.changeTokenKey)
-            if let fromStore = fromStore {
-                token = fromStore
-            } else {
-                token = UUID().uuidString
-                self.dataStore.setObject(token, forKey: RemoteData.changeTokenKey)
+        let token = self.changeTokenLock.sync {
+            if let fromStore = self.dataStore.string(forKey: RemoteData.changeTokenKey) {
+                return fromStore
             }
+            let newToken = UUID().uuidString
+            self.dataStore.setObject(newToken, forKey: RemoteData.changeTokenKey)
+            return newToken
         }
 
         return token + self.appVersion

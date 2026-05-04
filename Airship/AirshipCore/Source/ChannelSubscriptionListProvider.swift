@@ -81,8 +81,8 @@ final class ChannelSubscriptionListProvider: ChannelSubscriptionListProviderProt
 }
 
 enum ChannelSubscriptionListResult: Equatable, Sendable, Hashable, CachingRemoteDataProviderResult {
-    static func error(_ error: CachingRemoteDataError) -> any CachingRemoteDataProviderResult {
-        return ChannelSubscriptionListResult.fail(error)
+    static func error(_ error: CachingRemoteDataError) -> ChannelSubscriptionListResult {
+        ChannelSubscriptionListResult.fail(error)
     }
     
     case success([String])

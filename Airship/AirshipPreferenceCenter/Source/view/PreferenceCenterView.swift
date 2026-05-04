@@ -5,7 +5,7 @@ public import SwiftUI
 import Combine
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 /// The main view for the Airship Preference Center. This view provides a navigation stack.
@@ -83,14 +83,14 @@ public struct PreferenceCenterView: View {
                 }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .airshipApplyIf(resolvedNavigationBarColor != nil) { view in
+            .airshipApplyIfPresent(resolvedNavigationBarColor) { view, resolvedNavigationBarColor in
                 let visibility: Visibility = if #available(iOS 26.0, *) {
                     .automatic
                 } else {
                     .visible
                 }
 #if !os(macOS)
-                view.toolbarBackground(resolvedNavigationBarColor!, for: .navigationBar)
+                view.toolbarBackground(resolvedNavigationBarColor, for: .navigationBar)
                     .toolbarBackground(visibility, for: .navigationBar)
 #endif
             }

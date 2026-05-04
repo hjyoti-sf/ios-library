@@ -136,10 +136,10 @@ public struct InAppMessage: Codable, Equatable, Sendable {
 
         let displayType = try container.decode(DisplayType.self, forKey: .displayType)
 
-        var displayContent: InAppMessageDisplayContent!
         var displayContentJSON: AirshipJSON?
+        let displayContent: InAppMessageDisplayContent
 
-        switch (displayType) {
+        switch displayType {
         case .banner:
             let banner = try container.decode(InAppMessageDisplayContent.Banner.self, forKey: .display)
             displayContent = .banner(banner)

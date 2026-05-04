@@ -5,8 +5,8 @@ import Combine
 
 protocol CachingRemoteDataProviderResult: Sendable, Equatable {
     var isSuccess: Bool { get }
-    
-    static func error(_ error: CachingRemoteDataError) -> any CachingRemoteDataProviderResult
+
+    static func error(_ error: CachingRemoteDataError) -> Self
 }
 
 final actor BaseCachingRemoteDataProvider<Output: CachingRemoteDataProviderResult, Overrides: Sendable> {
@@ -218,7 +218,7 @@ final actor BaseCachingRemoteDataProvider<Output: CachingRemoteDataProviderResul
 
         private func fetch() async -> Output {
             guard isEnabled() else {
-                return Output.error(.disabled) as! Output
+                return Output.error(.disabled)
             }
 
             return await self.fetchQueue.runSafe { [cachedValue, remoteFetcher, identifier, cacheTtl] in
@@ -243,7 +243,7 @@ final actor BaseCachingRemoteDataProvider<Output: CachingRemoteDataProviderResul
                         "Received error when fetching contact channels \(error))"
                     )
 
-                    return Output.error(.failedToFetch) as! Output
+                    return Output.error(.failedToFetch)
                 }
             }
         }

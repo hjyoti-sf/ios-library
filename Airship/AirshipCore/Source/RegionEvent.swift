@@ -188,23 +188,21 @@ public class RegionEvent {
             proximityData[RegionEvent.proximityRegionRSSIKey] =
                 proximityRegion.rssi
 
-            if proximityRegion.latitude != nil
-                && proximityRegion.longitude != nil
+            if let latitude = proximityRegion.latitude,
+               let longitude = proximityRegion.longitude
             {
                 if stringifyFields {
                     proximityData[RegionEvent.latitudeKey] = String(
                         format: "%.7f",
-                        proximityRegion.latitude!
+                        latitude
                     )
                     proximityData[RegionEvent.longitudeKey] = String(
                         format: "%.7f",
-                        proximityRegion.longitude!
+                        longitude
                     )
                 } else {
-                    proximityData[RegionEvent.latitudeKey] =
-                        proximityRegion.latitude
-                    proximityData[RegionEvent.longitudeKey] =
-                        proximityRegion.longitude
+                    proximityData[RegionEvent.latitudeKey] = latitude
+                    proximityData[RegionEvent.longitudeKey] = longitude
                 }
             }
 

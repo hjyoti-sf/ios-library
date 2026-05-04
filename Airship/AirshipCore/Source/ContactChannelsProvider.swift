@@ -80,8 +80,8 @@ fileprivate extension CachingRemoteDataError {
 }
 
 public enum ContactChannelsResult: Equatable, Sendable, Hashable, CachingRemoteDataProviderResult {
-    static func error(_ error: CachingRemoteDataError) -> any CachingRemoteDataProviderResult {
-        return ContactChannelsResult.error(error.toChannelError())
+    static func error(_ error: CachingRemoteDataError) -> ContactChannelsResult {
+        .error(error.toChannelError())
     }
     
     case success([ContactChannel])

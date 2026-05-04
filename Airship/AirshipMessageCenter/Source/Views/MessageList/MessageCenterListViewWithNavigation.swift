@@ -5,7 +5,7 @@ import Foundation
 public import SwiftUI
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 /// A view that displays a list of messages as well as modifies the toolbars and navigation title.
@@ -227,13 +227,13 @@ public struct MessageCenterListViewWithNavigation: View {
 #endif
         
 #if !os(macOS)
-            .airshipApplyIf(containerColor != nil) { view in
+            .airshipApplyIfPresent(containerColor) { view, containerColor in
                 let visibility: Visibility = if #available(iOS 26.0, *) {
                     .automatic
                 } else {
                     .visible
                 }
-                view.toolbarBackground(containerColor!, for: .navigationBar)
+                view.toolbarBackground(containerColor, for: .navigationBar)
                     .toolbarBackground(visibility, for: .navigationBar)
             }
             .airshipApplyIf(dismissAction != nil) { view in

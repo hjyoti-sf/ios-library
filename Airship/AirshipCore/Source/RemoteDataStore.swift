@@ -11,13 +11,17 @@ final class RemoteDataStore: Sendable {
     
     public init(storeName: String, inMemory: Bool) {
         self.inMemory = inMemory
-        let modelURL = AirshipCoreResources.bundle.url(
-            forResource: "UARemoteData",
-            withExtension: "momd"
-        )
+        guard
+            let modelURL = AirshipCoreResources.bundle.url(
+                forResource: "UARemoteData",
+                withExtension: "momd"
+            )
+        else {
+            preconditionFailure("Missing Core Data model UARemoteData.momd in AirshipCoreResources bundle")
+        }
         self.coreData = UACoreData(
             name:  "UARemoteData",
-            modelURL: modelURL!,
+            modelURL: modelURL,
             inMemory: inMemory,
             stores: [storeName]
         )

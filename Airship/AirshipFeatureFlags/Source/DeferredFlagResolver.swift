@@ -115,13 +115,27 @@ actor FeatureFlagDeferredResolver: FeatureFlagDeferredResolverProtocol {
                 throw FeatureFlagEvaluationError.connectionError(errorMessage: "Failed to resolve flag.")
             }
 
-            if (backoff > 0) {
-                AirshipLogger.debug(statusCode == nil ? "Backing off deferred flag request \(requestID) for \(backoff) seconds" : "Backing off deferred flag request \(requestID) for \(backoff) seconds with status code: \(statusCode!)")
+            if backoff > 0 {
+                if let statusCode {
+                    AirshipLogger.debug(
+                        "Backing off deferred flag request \(requestID) for \(backoff) seconds with status code: \(statusCode)"
+                    )
+                } else {
+                    AirshipLogger.debug(
+                        "Backing off deferred flag request \(requestID) for \(backoff) seconds"
+                    )
+                }
 
                 try await self.taskSleeper.sleep(timeInterval: backoff)
             }
 
-            AirshipLogger.error(statusCode == nil ? "Retrying deferred flag request \(requestID)" : "Retrying deferred flag request \(requestID) with status code: \(statusCode!)")
+            if let statusCode {
+                AirshipLogger.error(
+                    "Retrying deferred flag request \(requestID) with status code: \(statusCode)"
+                )
+            } else {
+                AirshipLogger.error("Retrying deferred flag request \(requestID)")
+            }
 
             return try await self.fetchFlag(
                 request: request,

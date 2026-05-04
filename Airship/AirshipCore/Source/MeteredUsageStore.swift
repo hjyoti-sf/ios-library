@@ -17,13 +17,17 @@ final class MeteredUsageStore: Sendable {
             format: MeteredUsageStore.fileFormat,
             appKey
         )
-        let modelURL = AirshipCoreResources.bundle.url(
-            forResource: "UAMeteredUsage",
-            withExtension: "momd"
-        )
+        guard
+            let modelURL = AirshipCoreResources.bundle.url(
+                forResource: "UAMeteredUsage",
+                withExtension: "momd"
+            )
+        else {
+            preconditionFailure("Missing Core Data model UAMeteredUsage.momd in AirshipCoreResources bundle")
+        }
         self.coreData = UACoreData(
             name: Self.eventDataEntityName,
-            modelURL: modelURL!,
+            modelURL: modelURL,
             inMemory: inMemory,
             stores: [storeName]
         )

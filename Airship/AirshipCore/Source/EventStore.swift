@@ -13,13 +13,17 @@ actor EventStore {
 
     init(appKey: String, inMemory: Bool = false) {
         self.inMemory = inMemory
-        let modelURL = AirshipCoreResources.bundle.url(
-            forResource: "UAEvents",
-            withExtension: "momd"
-        )
+        guard
+            let modelURL = AirshipCoreResources.bundle.url(
+                forResource: "UAEvents",
+                withExtension: "momd"
+            )
+        else {
+            preconditionFailure("Missing Core Data model UAEvents.momd in AirshipCoreResources bundle")
+        }
         self.coreData = UACoreData(
             name: Self.eventDataEntityName,
-            modelURL: modelURL!,
+            modelURL: modelURL,
             inMemory: inMemory,
             stores: ["Events-\(appKey).sqlite"]
         )

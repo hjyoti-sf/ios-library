@@ -118,12 +118,9 @@ public struct AudienceHashSelector: Codable, Sendable, Equatable {
     }
 
     private func hashParameter(channelID: String, contactID: String) -> String {
-        var property: String!
-        switch(self.hash.property) {
-        case .channel:
-            property = channelID
-        case .contact:
-            property = contactID
+        let property: String = switch self.hash.property {
+        case .channel: channelID
+        case .contact: contactID
         }
 
         let resolved: String = self.hash.overrides?[property] ?? property
