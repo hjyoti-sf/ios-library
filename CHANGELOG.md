@@ -4,6 +4,13 @@
 [Migration Guides](https://github.com/urbanairship/ios-library/tree/main/Documentation/Migration)
 [All Releases](https://github.com/urbanairship/ios-library/releases)
 
+## Version 20.7.0 - April 30, 2026
+Minor release that adds support for Native Message Center and fixes Firebase coexistence for reliable push handling.
+
+### Changes
+- Added support for rendering Native Content in Message Center
+- Fixed Firebase coexistence to ensure reliable push handling
+
 ## Version 20.6.3 - April 24, 2026
 Patch release with Scenes reliability fixes and a VoiceOver accessibility fix for paged scenes.
 

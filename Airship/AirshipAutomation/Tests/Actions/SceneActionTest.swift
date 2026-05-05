@@ -36,7 +36,7 @@ struct SceneActionTests {
 
     @Test("default action names")
     func defaultNames() {
-        #expect(Set(SceneAction.defaultNames) == ["scene_action", "^sla"])
+        #expect(Set(SceneAction.defaultNames) == ["scene_action", "^sc"])
     }
 
     @Test("accepts expected action situations")

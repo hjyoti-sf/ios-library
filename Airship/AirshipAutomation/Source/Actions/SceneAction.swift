@@ -17,7 +17,7 @@ final class SceneAction: AirshipAction {
     private static let queue: String = "landing_page"
 
     /// Scene action names.
-    public static let defaultNames: [String] = ["scene_action", "^sla"]
+    public static let defaultNames: [String] = ["scene_action", "^sc"]
 
     /// Default predicate - rejects `ActionSituation.foregroundPush`
     public static let defaultPredicate: @Sendable (ActionArguments) -> Bool = { args in

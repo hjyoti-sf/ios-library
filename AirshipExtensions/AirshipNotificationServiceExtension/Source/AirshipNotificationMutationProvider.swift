@@ -3,6 +3,8 @@ import UniformTypeIdentifiers
 @preconcurrency
 import UserNotifications
 
+#if !os(tvOS)
+
 final class AirshipNotificationMutationProvider: Sendable {
 
     static let supportedExtensions = ["jpg", "jpeg", "png", "gif", "aif", "aiff", "mp3", "mpg", "mpeg", "mp4", "m4a", "wav", "avi"]
@@ -232,3 +234,5 @@ struct AirshipAttachment: Sendable {
         }
     }
 }
+
+#endif
