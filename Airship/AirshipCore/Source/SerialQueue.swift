@@ -3,7 +3,7 @@
 import Foundation
 
 // An actor that will run a task with a result in order.
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public actor AirshipSerialQueue {
     private var nextTaskNumber: Int = 0
     private var currentTaskNumber: Int = 0

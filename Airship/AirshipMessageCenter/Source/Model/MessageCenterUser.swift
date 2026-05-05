@@ -13,7 +13,6 @@ public struct MessageCenterUser: Codable, Sendable, Equatable {
     /// The password.
     public var username: String
 
-    /// - Note: for internal use only.  :nodoc:
     init(username: String, password: String) {
         self.username = username
         self.password = password

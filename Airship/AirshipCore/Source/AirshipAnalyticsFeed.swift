@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipAnalyticsFeed: Sendable {
     private let isEnabled:  @Sendable () -> Bool
 

@@ -11,8 +11,6 @@ import UIKit
 import WatchKit
 #endif
 
-
-// NOTE: For internal use only. :nodoc:
 final class DefaultAppIntegrationDelegate: AppIntegrationDelegate, Sendable {
 
     let push: any InternalAirshipPush

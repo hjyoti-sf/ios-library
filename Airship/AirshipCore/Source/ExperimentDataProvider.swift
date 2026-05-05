@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ExperimentDataProvider: Sendable {
     func evaluateExperiments(
         info: MessageInfo,
@@ -10,7 +10,7 @@ public protocol ExperimentDataProvider: Sendable {
     ) async throws -> ExperimentResult?
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct MessageInfo: Equatable, Hashable {
     let messageType: String
     let campaigns: AirshipJSON?
@@ -21,7 +21,7 @@ public struct MessageInfo: Equatable, Hashable {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ExperimentResult: Codable, Sendable, Hashable {
     public let channelID: String
     public let contactID: String

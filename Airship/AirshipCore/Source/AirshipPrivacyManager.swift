@@ -46,7 +46,6 @@ protocol InternalAirshipPrivacyManager: AirshipPrivacyManager {
     /// - Parameters:
     ///     - ignoringRemoteConfig: true to ignore any remotely disable features, false to include them.
     /// - Returns: `true` if a feature is enabled, otherwise `false`.
-    /// * - Note: For internal use only. :nodoc:
     func isAnyFeatureEnabled(ignoringRemoteConfig: Bool) -> Bool
 }
 

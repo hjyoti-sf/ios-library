@@ -3,7 +3,7 @@
 public import Foundation
 
 /// Airship component.
-///  - Note: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipComponent: Sendable {
 
     /// Called once the Airship instance is ready.

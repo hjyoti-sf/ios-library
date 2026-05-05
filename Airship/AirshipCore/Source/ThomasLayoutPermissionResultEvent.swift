@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutPermissionResultEvent: ThomasLayoutEvent {
     public let name: EventType = EventType.inAppPermissionResult
     public let data: (any Sendable & Encodable)?

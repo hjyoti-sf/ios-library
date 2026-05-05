@@ -149,7 +149,7 @@ public protocol AirshipChannel: AnyObject, Sendable {
 #endif
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol InternalAirshipChannel: AirshipChannel {
     @MainActor
     func addRegistrationExtender(

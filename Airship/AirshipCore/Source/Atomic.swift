@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipAtomicValue<T: Sendable>: @unchecked Sendable {
 
     fileprivate let lock: AirshipLock = AirshipLock()

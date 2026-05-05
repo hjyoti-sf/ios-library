@@ -158,7 +158,7 @@ fileprivate class EntryHolder {
 }
 
 /// Airship action manifest.
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ActionsManifest {
     var manifest: [[String]: () -> ActionEntry]  { get }
 }

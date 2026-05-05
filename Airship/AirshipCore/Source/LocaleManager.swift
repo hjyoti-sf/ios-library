@@ -44,9 +44,6 @@ final class DefaultAirshipLocaleManager: AirshipLocaleManager {
         }
     }
     
-    /**
-     * - Note: For internal use only. :nodoc:
-     */
     init(
         dataStore: PreferenceDataStore,
         config: RuntimeConfig,

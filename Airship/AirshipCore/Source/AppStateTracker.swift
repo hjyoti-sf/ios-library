@@ -3,7 +3,7 @@
 public import Foundation
 import Combine
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AppStateTrackerProtocol: Sendable {
     /**
      * Current application state.
@@ -23,7 +23,7 @@ public protocol AppStateTrackerProtocol: Sendable {
     var stateUpdates: AsyncStream<ApplicationState> { get }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AppStateTracker: AppStateTrackerProtocol, Sendable {
 
 

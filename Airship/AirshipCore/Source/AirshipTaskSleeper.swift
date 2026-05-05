@@ -2,12 +2,12 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipTaskSleeper: Sendable {
     func sleep(timeInterval: TimeInterval) async throws
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class DefaultAirshipTaskSleeper: AirshipTaskSleeper {
     fileprivate static let shared: DefaultAirshipTaskSleeper = DefaultAirshipTaskSleeper()
     private static let maxDelayInterval: TimeInterval = 30
@@ -40,7 +40,7 @@ public final class DefaultAirshipTaskSleeper: AirshipTaskSleeper {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public extension AirshipTaskSleeper where Self == DefaultAirshipTaskSleeper {
     /// Default style
     static var shared: Self {

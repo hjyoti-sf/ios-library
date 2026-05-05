@@ -5,7 +5,6 @@ import Foundation
 /// Outcomes from Thomas layout resolution that must be handled outside this processor
 /// (dismissal, form submission, or running an Airship action).
 ///
-/// - Note: For internal use only. :nodoc:
 enum DelegatedOutcome {
     case dismiss(ThomasOutcome.DismissOutcome)
     case formAction(ThomasOutcome.FormOutcome)
@@ -13,8 +12,6 @@ enum DelegatedOutcome {
 }
 
 /// Resolves ``ThomasOutcome`` values from layout interactions into state updates and delegated work.
-///
-/// - Note: For internal use only. :nodoc:
 protocol ThomasOutcomeProcessor {
     /// Processes outcomes, yielding between steps when a ``ThomasOutcome`` requires it
     /// (e.g. after state actions) so the main actor can process UI updates before continuing.

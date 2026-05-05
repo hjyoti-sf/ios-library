@@ -2,18 +2,18 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipCancellable: Sendable {
     func cancel()
 }
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipMainActorCancellable: Sendable {
     @MainActor
     func cancel()
 }
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipMainActorCancellableBlock: AirshipMainActorCancellable, Sendable {
     private let block: AirshipAtomicValue<(@Sendable @MainActor () -> Void)?> = AirshipAtomicValue<(@Sendable @MainActor () -> Void)?>(nil)
 

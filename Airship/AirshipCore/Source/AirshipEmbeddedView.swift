@@ -103,10 +103,7 @@ private class EmbeddedViewModel: ObservableObject {
     }
 }
 
-/**
- * Internal only
- * :nodoc:
- */
+/// - Note: For internal use only. :nodoc:
 public struct AirshipEmbeddedContentView : View, Identifiable  {
     public let embeddedInfo: AirshipEmbeddedInfo
 

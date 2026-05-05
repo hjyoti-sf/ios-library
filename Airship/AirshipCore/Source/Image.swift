@@ -15,7 +15,7 @@ public typealias AirshipNativeImage = NSImage
 import ImageIO
 
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipImageData: Sendable {
     // Image frame
     struct Frame {

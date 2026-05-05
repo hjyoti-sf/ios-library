@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutDisplayEvent: ThomasLayoutEvent {
     public let name: EventType = EventType.inAppDisplay
     public let data: (any Sendable & Encodable)? = nil

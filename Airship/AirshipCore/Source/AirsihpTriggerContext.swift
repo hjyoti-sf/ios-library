@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipTriggerContext: Codable, Sendable, Equatable {
     let type: String
     let goal: Double

@@ -3,10 +3,7 @@
 import Foundation
 import Combine
 
-/**
- * Contact channels provider protocol for receiving contact updates.
- * @note For internal use only. :nodoc:
- */
+/// Contact channels provider protocol for receiving contact updates.
 protocol ContactChannelsProviderProtocol: Sendable {
     func contactChannels(stableContactIDUpdates: AsyncStream<String>) -> AsyncStream<ContactChannelsResult>
     func refresh() async

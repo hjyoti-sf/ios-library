@@ -1,8 +1,8 @@
+/* Copyright Airship and Contributors */
 
 import Foundation
 
-
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum RemoteDataSource: Int, Sendable, Codable, Equatable, Hashable, CaseIterable {
     case app
     case contact

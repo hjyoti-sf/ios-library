@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasFormResult: Sendable, Hashable, Equatable {
     public var identifier: String
     public var formData: AirshipJSON

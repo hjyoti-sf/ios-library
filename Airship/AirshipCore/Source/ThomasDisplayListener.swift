@@ -1,6 +1,6 @@
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ThomasLayoutMessageAnalyticsProtocol: AnyObject, Sendable {
     @MainActor
     func recordEvent(
@@ -9,10 +9,11 @@ public protocol ThomasLayoutMessageAnalyticsProtocol: AnyObject, Sendable {
     )
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 @MainActor
 public final class ThomasDisplayListener: ThomasDelegate {
-    /// NOTE: For internal use only. :nodoc:
+    
+    /// - Note: For internal use only. :nodoc:
     public enum DisplayResult: Sendable, Equatable {
         case cancel
         case finished

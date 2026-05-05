@@ -2,15 +2,14 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum AirshipWorkRequestConflictPolicy: Sendable {
     case append
     case replace
     case keepIfNotStarted
 }
 
-
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipWorkRequest: Equatable, Sendable, Hashable {
     public let workID: String
     public let extras: [String: String]?

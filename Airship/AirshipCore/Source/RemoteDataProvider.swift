@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 actor RemoteDataProvider: RemoteDataProviderProtocol {
 
 

@@ -6,7 +6,7 @@ import Foundation
 import AirshipCore
 #endif
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct DeferredAutomationData: Sendable, Codable, Equatable {
     enum DeferredType: String, Codable, Sendable {
         case inAppMessage = "in_app_message"

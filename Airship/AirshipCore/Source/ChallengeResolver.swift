@@ -2,10 +2,8 @@
 
 public import Foundation
 
-/**
- * Authentication challenge resolver class
- * @note For internal use only. :nodoc:
- */
+/// Authentication challenge resolver class
+/// - Note: For internal use only. :nodoc:
 public final class ChallengeResolver: NSObject, Sendable  {
     
     public static let shared: ChallengeResolver = ChallengeResolver()

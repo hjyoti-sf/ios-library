@@ -2,14 +2,14 @@
 
 import Foundation
 
-/// - Note: For Internal use only :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum AirshipEventPriority: Sendable {
     case normal
     case high
 }
 
 
-/// - Note: For Internal use only :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipEvent: Sendable {
     public var priority: AirshipEventPriority
     public var eventType: EventType

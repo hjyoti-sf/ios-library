@@ -14,8 +14,6 @@ protocol ScheduleConditionsChangedNotifierProtocol: Sendable {
     func wait() async
 }
 
-
-/// NOTE: For internal use only. :nodoc:
 @MainActor
 final class ScheduleConditionsChangedNotifier: Sendable, ScheduleConditionsChangedNotifierProtocol {
     private var waiting: [CheckedContinuation<Void, Never>] = []

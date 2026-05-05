@@ -3,10 +3,7 @@
 import Foundation
 import Combine
 
-/**
- * Subscription list provider protocol for receiving contact updates.
- * @note For internal use only. :nodoc:
- */
+/// Subscription list provider protocol for receiving contact updates.
 protocol ChannelSubscriptionListProviderProtocol: Sendable {
     func fetch(channelID: String) async throws -> [String]
 }

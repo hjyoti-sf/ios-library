@@ -11,7 +11,7 @@ public class DebugSDKModule: NSObject, AirshipSDKModule {
 
     public let components: [any AirshipComponent]
 
-    public static func load(_ args: AirshiopModuleLoaderArgs) -> (any AirshipSDKModule)? {
+    public static func load(_ args: AirshipModuleLoaderArgs) -> (any AirshipSDKModule)? {
         let debugManager = DefaultAirshipDebugManager(
             config: args.config,
             analytics: args.analytics,

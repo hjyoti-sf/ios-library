@@ -3,7 +3,6 @@
 import Combine
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 final class RemoteConfigManager: @unchecked Sendable {
 
     private var subscription: AnyCancellable?

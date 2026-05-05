@@ -6,7 +6,7 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum AirshipDeferredResult<T : Sendable&Equatable>: Sendable, Equatable {
     case success(T)
     case timedOut
@@ -15,7 +15,7 @@ public enum AirshipDeferredResult<T : Sendable&Equatable>: Sendable, Equatable {
     case retriableError(retryAfter: TimeInterval? = nil, statusCode: Int? = nil)
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct DeferredRequest: Sendable, Equatable {
     public var url: URL
     public var channelID: String
@@ -47,7 +47,7 @@ public struct DeferredRequest: Sendable, Equatable {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipDeferredResolverProtocol : Sendable {
     func resolve<T: Sendable>(
         request: DeferredRequest,

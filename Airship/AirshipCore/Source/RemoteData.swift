@@ -10,7 +10,6 @@ import UIKit
 
 import UserNotifications
 
-/// NOTE: For internal use only. :nodoc:
 final class RemoteData: AirshipComponent, RemoteDataProtocol {
     fileprivate enum RefreshStatus: Sendable {
         case none

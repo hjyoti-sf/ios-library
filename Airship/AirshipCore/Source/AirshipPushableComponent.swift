@@ -72,7 +72,7 @@ public enum UABackgroundFetchResult : Sendable {
 #endif
 }
 /// Internal protocol to fan out push handling to UAComponents.
-///  - Note: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipPushableComponent: Sendable {
     /**
      * Called when a remote notification is received.

@@ -7,7 +7,7 @@ public import AirshipCore
 public import Foundation
 
 /// AirshipMessageCenter module loader.
-/// @note For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 @objc(UAMessageCenterSDKModule)
 public class MessageCenterSDKModule: NSObject, AirshipSDKModule {
 
@@ -18,7 +18,7 @@ public class MessageCenterSDKModule: NSObject, AirshipSDKModule {
         self.components = [MessageCenterComponent(messageCenter: messageCenter)]
     }
 
-    public static func load(_ args: AirshiopModuleLoaderArgs) -> (any AirshipSDKModule)? {
+    public static func load(_ args: AirshipModuleLoaderArgs) -> (any AirshipSDKModule)? {
         let messageCenter = DefaultMessageCenter(
             dataStore: args.dataStore,
             config: args.config,

@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutContext: Encodable, Equatable, Sendable {
     public struct Pager: Encodable, Equatable, Sendable {
         public var identifier: String

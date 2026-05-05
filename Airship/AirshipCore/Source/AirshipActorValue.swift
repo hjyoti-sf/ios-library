@@ -5,7 +5,7 @@ import Foundation
 @preconcurrency
 import Combine
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public actor AirshipActorValue<T: Sendable> {
 
     private let subject: PassthroughSubject<T, Never> = PassthroughSubject()
@@ -51,7 +51,7 @@ public actor AirshipActorValue<T: Sendable> {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipMainActorValue<T: Sendable>: @unchecked Sendable {
 
     private let subject: PassthroughSubject<T, Never> = PassthroughSubject()

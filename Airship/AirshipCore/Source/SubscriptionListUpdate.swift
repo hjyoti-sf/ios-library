@@ -1,12 +1,10 @@
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 enum SubscriptionListUpdateType: Int, Codable, Equatable, Sendable {
     case subscribe
     case unsubscribe
 }
 
-/// NOTE: For internal use only. :nodoc:
 struct SubscriptionListUpdate: Codable, Equatable, Sendable {
     let listId: String
     let type: SubscriptionListUpdateType
@@ -30,7 +28,6 @@ extension SubscriptionListUpdate {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
 // Used by ChannelBulkAPIClient and DeferredAPIClient
 struct SubscriptionListOperation: Encodable {
     enum SubscriptionAction: String, Encodable {

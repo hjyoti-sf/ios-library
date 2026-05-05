@@ -1,21 +1,20 @@
 /* Copyright Airship and Contributors */
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 public import Foundation
 
 /// AirshipFeatureFlags module loader.
-/// @note For internal use only. :nodoc:
-
+/// - Note: For internal use only. :nodoc:
 @objc(UAFeatureFlagsSDKModule)
 public class AirshipFeatureFlagsSDKModule: NSObject, AirshipSDKModule {
     public let actionsManifest: (any ActionsManifest)? = nil
 
     public let components: [any AirshipComponent]
 
-    public static func load(_ args: AirshiopModuleLoaderArgs) -> (any AirshipSDKModule)? {
+    public static func load(_ args: AirshipModuleLoaderArgs) -> (any AirshipSDKModule)? {
         let manager = DefaultFeatureFlagManager(
             dataStore: args.dataStore,
             remoteDataAccess: FeatureFlagRemoteDataAccess(remoteData: args.remoteData),

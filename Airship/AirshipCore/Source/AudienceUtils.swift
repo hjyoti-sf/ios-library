@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 final class AudienceUtils {
 
     class func collapse(

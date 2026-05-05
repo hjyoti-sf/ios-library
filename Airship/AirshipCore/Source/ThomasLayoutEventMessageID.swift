@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum ThomasLayoutEventMessageID: Encodable, Equatable, Sendable {
     case legacy(identifier: String)
     case airship(identifier: String, campaigns: AirshipJSON?)

@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipIvyVersionMatcher: Sendable {
 
     private static let exactVersionPattern: String = "^([0-9]+)(\\.([0-9]+)((\\.([0-9]+))?(.*)))?$"

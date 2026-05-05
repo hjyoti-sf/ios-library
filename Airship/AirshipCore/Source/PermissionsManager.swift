@@ -92,13 +92,13 @@ public protocol AirshipPermissionsManager: Sendable {
         fallback: PromptPermissionFallback
     ) async -> AirshipPermissionResult
     
-    /// - Note: for internal use only.  :nodoc:
+    /// - Note: For internal use only. :nodoc:
     func addRequestExtender(
         permission: AirshipPermission,
         extender: @escaping @Sendable (AirshipPermissionStatus) async -> Void
     )
     
-    /// - Note: for internal use only.  :nodoc:
+    /// - Note: For internal use only. :nodoc:
     func addAirshipEnabler(
         permission: AirshipPermission,
         onEnable: @escaping @Sendable () async -> Void

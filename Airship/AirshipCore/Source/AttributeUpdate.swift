@@ -6,13 +6,11 @@ import Foundation
 @_spi(AirshipInternal) import AirshipBasement
 #endif
 
-/// NOTE: For internal use only. :nodoc:
 enum AttributeUpdateType: Int, Codable, Sendable, Equatable {
     case remove
     case set
 }
 
-/// NOTE: For internal use only. :nodoc:
 struct AttributeUpdate: Codable, Sendable, Equatable {
     let attribute: String
     let type: AttributeUpdateType
@@ -108,9 +106,7 @@ extension AttributeUpdate {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
 // Used by ChannelBulkUpdateAPIClient, DeferredAPIClient, and ContactAPIClient
-
 struct AttributeOperation: Encodable {
     enum AttributeAction: String, Encodable {
         case set

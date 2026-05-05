@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 protocol ChannelBulkUpdateAPIClientProtocol: Sendable {
     func update(
         _ update: AudienceUpdate,
@@ -10,7 +9,6 @@ protocol ChannelBulkUpdateAPIClientProtocol: Sendable {
     ) async throws -> AirshipHTTPResponse<Void>
 }
 
-/// NOTE: For internal use only. :nodoc:
 final class ChannelBulkUpdateAPIClient: ChannelBulkUpdateAPIClientProtocol {
     private static let path: String = "/api/channels/sdk/batch/"
 

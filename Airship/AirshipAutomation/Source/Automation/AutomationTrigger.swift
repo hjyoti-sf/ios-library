@@ -271,7 +271,7 @@ public struct EventAutomationTrigger: Sendable, Codable, Equatable {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct CompoundAutomationTrigger: Sendable, Codable, Equatable {
     /// The ID
     var id: String
@@ -297,7 +297,7 @@ public struct CompoundAutomationTrigger: Sendable, Codable, Equatable {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public extension AutomationTrigger {
     static func activeSession(count: UInt) -> AutomationTrigger {
         return .event(EventAutomationTrigger(type: .activeSession, goal: Double(count)))

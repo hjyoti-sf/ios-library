@@ -3,7 +3,7 @@
 import Foundation
 
 /// Url Info
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum URLInfo: Sendable, Equatable {
     case web(url: String, requireNetwork: Bool = true)
     case video(url: String, requireNetwork: Bool = true)

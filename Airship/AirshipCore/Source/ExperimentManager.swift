@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 final class ExperimentManager: ExperimentDataProvider {
     private static let payloadType: String = "experiments"
     

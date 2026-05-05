@@ -81,7 +81,6 @@ struct ChannelAuthTokenResponse: Decodable, Sendable {
     }
 }
 
-/// - Note: For internal use only. :nodoc:
 protocol ChannelAuthTokenAPIClientProtocol: Sendable {
     func fetchToken(
         channelID: String

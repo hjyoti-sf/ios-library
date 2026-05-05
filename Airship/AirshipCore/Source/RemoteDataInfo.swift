@@ -1,6 +1,6 @@
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct RemoteDataInfo: Sendable, Codable, Equatable, Hashable {
     public let url: URL
     public let lastModifiedTime: String?

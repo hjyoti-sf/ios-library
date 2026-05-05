@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public class AirshipWeakValueHolder<T: AnyObject> {
     public weak var value: T?
 

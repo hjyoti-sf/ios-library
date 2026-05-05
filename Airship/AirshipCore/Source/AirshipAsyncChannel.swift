@@ -4,7 +4,7 @@ import Foundation
 public import Combine
 
 /// Simple implementation of a `channel` that allows multiple AsyncStreams of the same data.
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public actor AirshipAsyncChannel<T: Sendable> {
     public enum BufferPolicy: Sendable {
         case unbounded
@@ -196,7 +196,7 @@ public extension AirshipAsyncChannel {
 public extension AsyncStream where Element : Sendable {
 
     /// Creates a combine publisher from an AsyncStream.
-    /// - Note: for internal use only.  :nodoc:
+    /// - Note: For internal use only. :nodoc:
     @MainActor
     var airshipPublisher: AnyPublisher<Element?, Never>{
         let subject = CurrentValueSubject<Element?, Never>(nil)

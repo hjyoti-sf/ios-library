@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ThomasLayoutEvent: Sendable {
     var name: EventType { get }
     var data: (any Sendable&Encodable)? { get }

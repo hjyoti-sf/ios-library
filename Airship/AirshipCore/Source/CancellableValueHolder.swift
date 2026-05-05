@@ -3,7 +3,7 @@
 /// Utility class that holds a value in a thread safe way. Once cancelled, setting a value
 /// on the holder will cause it to immediately be cancelled with the block and the value to be
 /// cleared.
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class CancellableValueHolder<T: Sendable>: AirshipCancellable, @unchecked Sendable {
     private let lock: AirshipLock = AirshipLock()
     private let onCancel: (T) -> Void

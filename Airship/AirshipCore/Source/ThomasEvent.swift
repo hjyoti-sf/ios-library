@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum ThomasReportingEvent: Sendable {
     case buttonTap(ButtonTapEvent, ThomasLayoutContext)
     case formDisplay(FormDisplayEvent, ThomasLayoutContext)

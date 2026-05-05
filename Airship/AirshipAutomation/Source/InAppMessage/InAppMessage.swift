@@ -291,7 +291,7 @@ fileprivate struct DisplayContentWrapper: Equatable {
 /// These are just for view testing purposes
 extension InAppMessage {
     /// We return a window since we are implementing display
-    /// - Note: for internal use only.  :nodoc:
+    /// - Note: For internal use only. :nodoc:
     @MainActor
     public func _display() async throws {
         let adapter = try AirshipLayoutDisplayAdapter(message: self, priority: 0, assets: EmptyAirshipCachedAssets())

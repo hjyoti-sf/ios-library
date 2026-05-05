@@ -10,7 +10,7 @@ import Foundation
  * <or>             := { "or": [<tag_selector>, <tag_selector>, ...] }
  */
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public indirect enum DeviceTagSelector: Codable, Sendable, Equatable {
     case or([DeviceTagSelector])
     case not(DeviceTagSelector)

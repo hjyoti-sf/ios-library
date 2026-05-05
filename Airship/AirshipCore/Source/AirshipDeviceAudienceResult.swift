@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipDeviceAudienceResult: Sendable, Codable, Equatable {
     public var isMatch: Bool
     public var reportingMetadata: [AirshipJSON]?
