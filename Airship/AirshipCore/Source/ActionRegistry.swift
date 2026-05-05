@@ -44,6 +44,9 @@ public class DefaultAirshipActionRegistry: AirshipActionRegistry {
     ) {
         let entryHolder = EntryHolder(entryBlock: entry)
         names.forEach { name in
+            if entries[name] != nil {
+                AirshipLogger.warn("Action name collision: \"\(name)\" is already registered and will be overwritten.")
+            }
             entries[name] = entryHolder
         }
     }
@@ -54,6 +57,9 @@ public class DefaultAirshipActionRegistry: AirshipActionRegistry {
     ) {
         let entryHolder = EntryHolder(entryBlock: { entry })
         names.forEach { name in
+            if entries[name] != nil {
+                AirshipLogger.warn("Action name collision: \"\(name)\" is already registered and will be overwritten.")
+            }
             entries[name] = entryHolder
         }
     }
