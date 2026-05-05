@@ -2,10 +2,11 @@
 
 import Foundation
 
+#if !os(tvOS)
+
 @preconcurrency
 public import UserNotifications
 
-#if !os(tvOS)
 @objc
 open class UANotificationServiceExtension: UNNotificationServiceExtension {
     open var airshipConfig: AirshipExtensionConfig { .init() }
