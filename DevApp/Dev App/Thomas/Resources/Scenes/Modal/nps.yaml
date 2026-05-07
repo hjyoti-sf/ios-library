@@ -274,7 +274,7 @@
                                                       spacing: 2
                                                       wrapping:
                                                         line_spacing: 10
-                                                        max_items_per_line: 6a
+                                                        max_items_per_line: 6
                                                       bindings:
                                                         selected:
                                                           shapes:

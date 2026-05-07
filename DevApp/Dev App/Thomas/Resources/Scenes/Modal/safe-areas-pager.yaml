@@ -60,7 +60,7 @@ view:
                       hex: "#FFFFFF"
                       alpha: 1
                   radius: 5
-        - idenfier: "page-2"
+        - identifier: "page-2"
           view:
             type: container
             background_color:

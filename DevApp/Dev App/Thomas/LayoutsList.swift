@@ -26,12 +26,37 @@ struct LayoutsList: View {
                 }
             }
         }
-        .alert(isPresented: $showError) {
-            Alert(
-                title: Text("Error"),
-                message: Text(self.errorMessage ?? "error"),
-                dismissButton: .default(Text("OK"))
-            )
+        .sheet(isPresented: $showError) {
+            NavigationStack {
+                ScrollView {
+                    Text(self.errorMessage ?? "error")
+                        .font(.system(.footnote, design: .monospaced))
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                }
+                .navigationTitle("Error")
+#if !os(macOS)
+                .navigationBarTitleDisplayMode(.inline)
+#endif
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Copy") {
+#if os(macOS)
+                            let pasteboard = NSPasteboard.general
+                            pasteboard.declareTypes([.string], owner: nil)
+                            pasteboard.setString(self.errorMessage ?? "", forType: .string)
+#else
+                            UIPasteboard.general.string = self.errorMessage
+#endif
+                        }
+                        .disabled(self.errorMessage == nil)
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { self.showError = false }
+                    }
+                }
+            }
         }
     }
     
