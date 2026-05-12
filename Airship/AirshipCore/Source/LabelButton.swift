@@ -29,7 +29,7 @@ struct LabelButton : View {
     private var labelContent: some View {
         Label(
             info: self.info.properties.label,
-            constraints: ViewConstraints()
+            constraints: constraints
         )
         .airshipApplyIf(self.constraints.height == nil) { view in
             view.padding([.bottom, .top], 12)
@@ -37,7 +37,6 @@ struct LabelButton : View {
         .airshipApplyIf(self.constraints.width == nil) { view in
             view.padding([.leading, .trailing], 12)
         }
-        .constraints(constraints)
         .thomasCommon(info, scope: [.background])
         .accessible(
             self.info.accessible,
