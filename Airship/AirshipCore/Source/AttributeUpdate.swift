@@ -86,7 +86,7 @@ struct AttributeUpdate: Codable, Sendable, Equatable {
 
 extension AttributeUpdate {
     var operation: AttributeOperation {
-        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
+        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds)
         switch self.type {
         case .set:
             return AttributeOperation(

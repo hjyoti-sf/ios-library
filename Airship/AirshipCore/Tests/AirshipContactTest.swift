@@ -67,7 +67,7 @@ class AirshipContactTest: XCTestCase {
     func testMigrateNamedUser() async throws {
         await self.verifyOperations([])
 
-        let attributeDate = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601)
+        let attributeDate = AirshipDateFormatter.string(fromDate: self.date.now, format: .iso8601WithMilliseconds)
 
         let attributePayload = [
             "action": "remove",
