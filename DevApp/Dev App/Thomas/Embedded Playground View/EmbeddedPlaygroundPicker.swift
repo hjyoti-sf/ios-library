@@ -27,5 +27,5 @@ struct EmbeddedPlaygroundPicker: View {
 }
 
 #Preview {
-    EmbeddedPlaygroundPicker(selectedID:Binding.constant("home_rating"), embeddedIds: ["home_rating", "home_special_offer"])
+    EmbeddedPlaygroundPicker(selectedID:Binding.constant("home-rating"), embeddedIds: ["home-rating", "home-special-offer"])
 }

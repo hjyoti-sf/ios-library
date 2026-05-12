@@ -48,9 +48,10 @@ struct BannerView: View {
         self.layout = layout
         self.thomasEnvironment = thomasEnvironment
         self.bannerConstraints = bannerConstraints
+        let durationMs = presentation.duration ?? Int(INT_MAX)
         self._timer = StateObject(
             wrappedValue: AirshipObservableTimer(
-                duration: TimeInterval(presentation.duration ?? Int(INT_MAX))
+                duration: TimeInterval(durationMs) / 1000.0
             )
         )
         self.onDismiss = onDismiss

@@ -56,11 +56,11 @@ view:
                     style:
                       type: switch
                       toggle_colors:
-                        on:
+                        "on":
                           default:
                             hex: "#00FF00"
                             alpha: 1
-                        off:
+                        "off":
                           default:
                             hex: "#FF0000"
                             alpha: 1
@@ -644,11 +644,11 @@ view:
                             style:
                               type: switch
                               toggle_colors:
-                                on:
+                                "on":
                                   default:
                                     hex: "#00FF00"
                                     alpha: 1
-                                off:
+                                "off":
                                   default:
                                     hex: "#FF0000"
                                     alpha: 1
