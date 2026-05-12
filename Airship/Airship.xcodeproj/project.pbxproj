@@ -533,6 +533,7 @@
 		6E55A4D72E1DB4F700B07DF8 /* ThomasAssociatedLabelResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E55A4D62E1DB4CB00B07DF8 /* ThomasAssociatedLabelResolver.swift */; };
 		6E57CE3228DB8BDA00287601 /* LiveActivityUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E57CE3128DB8BDA00287601 /* LiveActivityUpdate.swift */; };
 		6E57CE3728DBBD9A00287601 /* LiveActivityRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E57CE3628DBBD9A00287601 /* LiveActivityRegistry.swift */; };
+		6E581C212FB3AE3300CED5C8 /* TestTaskSleeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E581C1D2FB3AE3300CED5C8 /* TestTaskSleeper.swift */; };
 		6E590E6E29A94CA90036DFAB /* AppStateTrackerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E590E6D29A94CA90036DFAB /* AppStateTrackerTest.swift */; };
 		6E5A64C42AAB7D5C00574085 /* AirshipMeteredUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5A64C32AAB7D5C00574085 /* AirshipMeteredUsage.swift */; };
 		6E5A64C82AABBE7100574085 /* MeteredUsageAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5A64C72AABBE7100574085 /* MeteredUsageAPIClient.swift */; };
@@ -1892,6 +1893,7 @@
 		6E55A4D62E1DB4CB00B07DF8 /* ThomasAssociatedLabelResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThomasAssociatedLabelResolver.swift; sourceTree = "<group>"; };
 		6E57CE3128DB8BDA00287601 /* LiveActivityUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityUpdate.swift; sourceTree = "<group>"; };
 		6E57CE3628DBBD9A00287601 /* LiveActivityRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityRegistry.swift; sourceTree = "<group>"; };
+		6E581C1D2FB3AE3300CED5C8 /* TestTaskSleeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTaskSleeper.swift; sourceTree = "<group>"; };
 		6E590E6D29A94CA90036DFAB /* AppStateTrackerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTrackerTest.swift; sourceTree = "<group>"; };
 		6E5A64C32AAB7D5C00574085 /* AirshipMeteredUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipMeteredUsage.swift; sourceTree = "<group>"; };
 		6E5A64C72AABBE7100574085 /* MeteredUsageAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeteredUsageAPIClient.swift; sourceTree = "<group>"; };
@@ -2517,7 +2519,6 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6E128BA02D305F2E00733024 /* Source */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Source; sourceTree = "<group>"; };
-		6E2016A62F7DCDF8005B2F94 /* AirshipBasementTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AirshipBasementTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2969,7 +2970,6 @@
 				0A550D587E2599A4BD33CDF4 /* Pods */,
 				A620586A2A5841330041FBF9 /* AirshipFeatureFlags */,
 				A641E1482BDBBDB400DE6FAA /* AirshipObjectiveC */,
-				6E2016A62F7DCDF8005B2F94 /* AirshipBasementTests */,
 				E3E85E514DBE69D4C8BF51CE /* Frameworks */,
 				1B8DCF452507B9380006E595 /* Recovered References */,
 			);
@@ -4889,6 +4889,7 @@
 		CC04F2001DCAB28300B4842D /* TestUtils */ = {
 			isa = PBXGroup;
 			children = (
+				6E581C1D2FB3AE3300CED5C8 /* TestTaskSleeper.swift */,
 				6ED7BE5F2D13D9E300B6A124 /* TestCache.swift */,
 				6E9C2BCF2D023216000089A9 /* RuntimeConfig.swift */,
 				6E4A467F28EF4FAF00A25617 /* TestAirshipRequestSession.swift */,
@@ -5355,9 +5356,6 @@
 			);
 			dependencies = (
 				6E2016AB2F7DCDF8005B2F94 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				6E2016A62F7DCDF8005B2F94 /* AirshipBasementTests */,
 			);
 			name = AirshipBasementTests;
 			packageProductDependencies = (
@@ -6844,6 +6842,7 @@
 				60A5CC0E2B29B1B80017EDB2 /* CircularRegionTest.swift in Sources */,
 				6E8CE762284137D600CF4B11 /* AirshipPushTest.swift in Sources */,
 				6E07688C29F9F0830014E2A9 /* AirshipLocaleManagerTest.swift in Sources */,
+				6E581C212FB3AE3300CED5C8 /* TestTaskSleeper.swift in Sources */,
 				6E382C21276D3E990091A351 /* ThomasValidationTests.swift in Sources */,
 				6EF1401F2A268CE6009A125D /* TestKeychainAccess.swift in Sources */,
 				6E96ED1029416E8F0053CC91 /* EventAPIClientTest.swift in Sources */,

@@ -11,7 +11,7 @@ actor RemoteDataProvider: RemoteDataProviderProtocol {
     private static let lastRefreshTimeKey: String = "remotedata.LAST_REFRESH_TIME"
     private static let lastRefreshAppVersionKey: String = "remotedata.LAST_REFRESH_APP_VERSION"
 
-    private static let maxStaleTime: TimeInterval = 3 * 24 * 60.0 // 3 days
+    private static let maxStaleTime: TimeInterval = 3 * 24 * 60 * 60 // 3 days
 
     private let dataStore: PreferenceDataStore
     private let delegate: any RemoteDataProviderDelegate

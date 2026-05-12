@@ -12,11 +12,19 @@ public struct RemoteConfig: Codable, Equatable, Sendable {
     let disabledFeatures: AirshipFeature?
     public let iaaConfig: IAAConfig?
 
+    /// Minimum interval between foreground-triggered refreshes (debounce).
     var remoteDataRefreshInterval: TimeInterval? {
         return remoteDataRefreshIntervalMilliseconds?.timeInterval
     }
 
     let remoteDataRefreshIntervalMilliseconds: Int64?
+
+    /// Interval at which the SDK polls for fresh remote data while the app is in the foreground.
+    var foregroundPollingInterval: TimeInterval? {
+        return foregroundPollingIntervalMilliseconds?.timeInterval
+    }
+
+    let foregroundPollingIntervalMilliseconds: Int64?
 
     init(
         airshipConfig: AirshipConfig? = nil,
@@ -25,6 +33,7 @@ public struct RemoteConfig: Codable, Equatable, Sendable {
         contactConfig: ContactConfig? = nil,
         disabledFeatures: AirshipFeature? = nil,
         remoteDataRefreshIntervalMilliseconds: Int64? = nil,
+        foregroundPollingIntervalMilliseconds: Int64? = nil,
         iaaConfig: IAAConfig? = nil
     ) {
         self.airshipConfig = airshipConfig
@@ -33,6 +42,7 @@ public struct RemoteConfig: Codable, Equatable, Sendable {
         self.contactConfig = contactConfig
         self.disabledFeatures = disabledFeatures
         self.remoteDataRefreshIntervalMilliseconds = remoteDataRefreshIntervalMilliseconds
+        self.foregroundPollingIntervalMilliseconds = foregroundPollingIntervalMilliseconds
         self.iaaConfig = iaaConfig
     }
 
@@ -43,6 +53,7 @@ public struct RemoteConfig: Codable, Equatable, Sendable {
         case contactConfig = "contact_config"
         case disabledFeatures = "disabled_features"
         case remoteDataRefreshIntervalMilliseconds = "remote_data_refresh_interval"
+        case foregroundPollingIntervalMilliseconds = "remote_data_foreground_polling_interval"
         case iaaConfig = "in_app_config"
     }
 

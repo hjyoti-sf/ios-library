@@ -20,6 +20,7 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
 
     static let refreshTaskID: String = "RemoteData.refresh"
     static let defaultRefreshInterval: TimeInterval = 10
+    static let defaultForegroundPollingInterval: TimeInterval = 10 * 60
     static let refreshRemoteDataPushPayloadKey: String = "com.urbanairship.remote-data.update"
 
     // Datastore keys
@@ -33,6 +34,8 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
     private let localeManager: any AirshipLocaleManager
     private let workManager: any AirshipWorkManagerProtocol
     private let privacyManager: any InternalAirshipPrivacyManager
+    private let appStateTracker: any AppStateTrackerProtocol
+    private let taskSleeper: any AirshipTaskSleeper
     private let appVersion: String
     private let statusUpdates: AirshipAsyncChannel<[RemoteDataSource: RemoteDataSourceStatus]> = AirshipAsyncChannel()
     private let currentSourceStatus: AirshipAtomicValue<[RemoteDataSource: RemoteDataSourceStatus]> = .init([:])
@@ -44,6 +47,9 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
     private let changeTokenLock: AirshipLock = AirshipLock()
     private let contactSubscription: AirshipUnsafeSendableWrapper<AnyCancellable?> = AirshipUnsafeSendableWrapper(nil)
     let serialQueue: AirshipAsyncSerialQueue = AirshipAsyncSerialQueue()
+
+    @MainActor
+    private var foregroundPollingTask: Task<Void, Never>?
 
     private var randomValue: Int {
         if let value = self.dataStore.object(forKey: RemoteData.randomValueKey) as? Int {
@@ -106,6 +112,8 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
         workManager: any AirshipWorkManagerProtocol = AirshipWorkManager.shared,
         date: any AirshipDateProtocol = AirshipDate.shared,
         notificationCenter: AirshipNotificationCenter = AirshipNotificationCenter.shared,
+        appStateTracker: any AppStateTrackerProtocol = AppStateTracker.shared,
+        taskSleeper: any AirshipTaskSleeper = .shared,
         appVersion: String = AirshipUtils.bundleShortVersionString() ?? ""
 
     ) {
@@ -116,6 +124,8 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
         self.providers = providers
         self.workManager = workManager
         self.date = date
+        self.appStateTracker = appStateTracker
+        self.taskSleeper = taskSleeper
         self.appVersion = appVersion
 
         self.refreshStatusSubjectMap = self.providers.reduce(
@@ -142,6 +152,13 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
             self,
             selector: #selector(applicationDidForeground),
             name: AppStateTracker.didTransitionToForeground,
+            object: nil
+        )
+
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationDidBackground),
+            name: AppStateTracker.didTransitionToBackground,
             object: nil
         )
 
@@ -279,10 +296,15 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
     @MainActor
     public func airshipReady() {
         self.enqueueRefreshTask()
+        self.startForegroundPollingIfNeeded()
     }
 
     var refreshInterval: TimeInterval {
         return self.config.remoteConfig.remoteDataRefreshInterval ?? Self.defaultRefreshInterval
+    }
+
+    var foregroundPollingInterval: TimeInterval {
+        return self.config.remoteConfig.foregroundPollingInterval ?? Self.defaultForegroundPollingInterval
     }
 
     @objc
@@ -290,8 +312,8 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
     private func applicationDidForeground() {
         let now = self.date.now
 
-        let nextUpdate = self.lastActiveRefreshDate.value.advanced(by: 
-            self.refreshInterval
+        let nextUpdate = self.lastActiveRefreshDate.value.advanced(
+            by: self.refreshInterval
         )
 
         if now >= nextUpdate {
@@ -299,6 +321,38 @@ final class RemoteData: AirshipComponent, RemoteDataProtocol {
             self.enqueueRefreshTask()
             self.lastActiveRefreshDate.set(now)
         }
+
+        self.startForegroundPollingIfNeeded()
+    }
+
+    @objc
+    @MainActor
+    private func applicationDidBackground() {
+        self.stopForegroundPolling()
+    }
+
+    @MainActor
+    private func startForegroundPollingIfNeeded() {
+        guard self.foregroundPollingTask == nil,
+              self.appStateTracker.state == .active else {
+            return
+        }
+
+        let interval = self.foregroundPollingInterval
+        let sleeper = self.taskSleeper
+        self.foregroundPollingTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await sleeper.sleep(timeInterval: interval)
+                guard !Task.isCancelled, let self else { return }
+                self.enqueueRefreshTask()
+            }
+        }
+    }
+
+    @MainActor
+    private func stopForegroundPolling() {
+        self.foregroundPollingTask?.cancel()
+        self.foregroundPollingTask = nil
     }
 
     @objc

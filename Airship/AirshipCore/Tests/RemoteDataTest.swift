@@ -20,6 +20,8 @@ final class RemoteDataTest: AirshipBaseTest {
     private let testContact: TestContact = TestContact()
     private let testLocaleManager: TestLocaleManager = TestLocaleManager()
     private let testWorkManager: TestWorkManager = TestWorkManager()
+    private let testAppStateTracker: TestAppStateTracker = TestAppStateTracker()
+    private let testTaskSleeper: TestTaskSleeper = TestTaskSleeper()
     private var remoteData: RemoteData!
     private var privacyManager: TestPrivacyManager!
 
@@ -42,6 +44,8 @@ final class RemoteDataTest: AirshipBaseTest {
             workManager: self.testWorkManager,
             date: self.testDate,
             notificationCenter: self.notificationCenter,
+            appStateTracker: self.testAppStateTracker,
+            taskSleeper: self.testTaskSleeper,
             appVersion: "SomeAppVersion"
         )
         
@@ -104,6 +108,87 @@ final class RemoteDataTest: AirshipBaseTest {
         XCTAssertEqual(0, testWorkManager.workRequests.count)
         await self.remoteData.airshipReady()
         XCTAssertEqual(1, testWorkManager.workRequests.count)
+    }
+
+    @MainActor
+    func testForegroundStartsPolling() async {
+        await self.testTaskSleeper.pause()
+        self.testAppStateTracker.currentState = .active
+
+        notificationCenter.post(name: AppStateTracker.didTransitionToForeground)
+        XCTAssertEqual(1, testWorkManager.workRequests.count)
+
+        // Polling task started → requests a sleep at the configured interval.
+        await self.testTaskSleeper.waitForSleep(self.remoteData.foregroundPollingInterval)
+
+        await self.cancelPolling()
+    }
+
+    @MainActor
+    func testAirshipReadyStartsPollingWhenForegrounded() async {
+        await self.testTaskSleeper.pause()
+        self.testAppStateTracker.currentState = .active
+
+        await self.remoteData.airshipReady()
+        XCTAssertEqual(1, testWorkManager.workRequests.count)
+
+        await self.testTaskSleeper.waitForSleep(self.remoteData.foregroundPollingInterval)
+
+        await self.cancelPolling()
+    }
+
+    @MainActor
+    func testAirshipReadyDoesNotStartPollingWhenBackgrounded() async {
+        self.testAppStateTracker.currentState = .background
+
+        await self.remoteData.airshipReady()
+        XCTAssertEqual(1, testWorkManager.workRequests.count)
+
+        for _ in 0..<5 { await Task.yield() }
+        let sleeps = await self.testTaskSleeper.sleeps
+        XCTAssertTrue(sleeps.isEmpty)
+    }
+
+    @MainActor
+    func testBackgroundStopsPolling() async {
+        await self.testTaskSleeper.pause()
+        self.testAppStateTracker.currentState = .active
+
+        notificationCenter.post(name: AppStateTracker.didTransitionToForeground)
+        await self.testTaskSleeper.waitForSleep(self.remoteData.foregroundPollingInterval)
+        let sleepsBefore = await self.testTaskSleeper.sleeps.count
+
+        self.testAppStateTracker.currentState = .background
+        notificationCenter.post(name: AppStateTracker.didTransitionToBackground)
+        await self.testTaskSleeper.resume()
+        for _ in 0..<10 { await Task.yield() }
+
+        let sleepsAfter = await self.testTaskSleeper.sleeps.count
+        XCTAssertEqual(sleepsBefore, sleepsAfter, "no additional sleep after polling is cancelled")
+        XCTAssertEqual(1, testWorkManager.workRequests.count)
+    }
+
+    @MainActor
+    func testForegroundPollingUsesRemoteConfigInterval() async {
+        await self.config.updateRemoteConfig(
+            RemoteConfig(foregroundPollingIntervalMilliseconds: 30_000)
+        )
+        await self.remoteData.serialQueue.waitForCurrentOperations()
+
+        await self.testTaskSleeper.pause()
+        self.testAppStateTracker.currentState = .active
+        notificationCenter.post(name: AppStateTracker.didTransitionToForeground)
+
+        await self.testTaskSleeper.waitForSleep(30)
+
+        await self.cancelPolling()
+    }
+
+    /// Cancel the polling task and release the parked sleep so the loop exits cleanly.
+    @MainActor
+    private func cancelPolling() async {
+        notificationCenter.post(name: AppStateTracker.didTransitionToBackground)
+        await self.testTaskSleeper.resume()
     }
 
     func testNotifyOutdatedContact() async {
@@ -584,3 +669,5 @@ fileprivate actor TestRemoteDataProvider: RemoteDataProviderProtocol {
         return true
     }
 }
+
+
