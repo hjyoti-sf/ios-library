@@ -38,4 +38,19 @@ public extension View {
             }
         )
     }
+
+    /// Adds a geometry reader to the background to fetch the size without causing the view to grow.
+    /// Use when you want to react to size changes without storing them in @State.
+    /// -  Parameter onChange: Closure called with the latest size on every layout pass.
+    @ViewBuilder
+    func airshipMeasureView(onChange: @escaping (CGSize) -> Void) -> some View  {
+        self.background(
+            GeometryReader { geo -> Color in
+                DispatchQueue.main.async {
+                    onChange(geo.size)
+                }
+                return Color.clear
+            }
+        )
+    }
 }

@@ -48,6 +48,7 @@ struct Pager: View {
     @GestureState private var translation: CGFloat = 0
     @State private var size: CGSize?
     @State private var scrollPosition: String?
+    @State private var pageHeights: [String: CGFloat] = [:]
     private let timer: Publishers.Autoconnect<Timer.TimerPublisher>
 
     private var isLegacyPageSwipeEnabled: Bool {
@@ -70,7 +71,7 @@ struct Pager: View {
 
     private var shouldAddA11ySwipeActions: Bool {
         if isVoiceOverRunning {
-                    return false
+            return false
         }
         if self.info.isDefaultSwipeEnabled { return true }
         if self.info.containsGestures([.swipe]) { return true }
@@ -95,31 +96,72 @@ struct Pager: View {
     func makePager() -> some View {
         if (pagerState.pageItems.count == 1) {
             self.makeSinglePagePager()
+        } else if constraints.height == nil {
+            self.makeAutoHeightPager()
         } else {
-            GeometryReader { metrics in
-                let childConstraints = ViewConstraints(
-                    width: metrics.size.width.safeValue,
-                    height: metrics.size.height.safeValue,
-                    isHorizontalFixedSize: self.constraints.isHorizontalFixedSize,
-                    isVerticalFixedSize: self.constraints.isVerticalFixedSize,
-                    safeAreaInsets: self.constraints.safeAreaInsets
-                )
-
-                if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *) {
-                    if (Self.forceLegacyPager) {
-                        makeLegacyPager(childConstraints: childConstraints, metrics: metrics)
-                    } else {
-                        makeScrollViewPager(childConstraints: childConstraints, metrics: metrics)
-                    }
-                } else {
-                    makeLegacyPager(childConstraints: childConstraints, metrics: metrics)
-                }
-            }
+            self.makeMultiPagePager()
         }
     }
 
     @ViewBuilder
-    func makeSinglePagePager() -> some View {
+    private func makeAutoHeightPager() -> some View {
+        let currentPageHeight = pageHeights[pagerState.currentPageId ?? ""]
+        let childConstraints = ViewConstraints(
+            width: constraints.width,
+            height: nil,
+            isHorizontalFixedSize: self.constraints.isHorizontalFixedSize,
+            isVerticalFixedSize: self.constraints.isVerticalFixedSize,
+            safeAreaInsets: self.constraints.safeAreaInsets
+        )
+
+        if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *),
+           !Self.forceLegacyPager {
+            makeScrollViewPager(
+                childConstraints: childConstraints,
+                width: constraints.width,
+                height: currentPageHeight
+            )
+            .fixedSize(horizontal: false, vertical: true)
+            .airshipMeasureView(self.$size)
+        } else {
+            makeLegacyPager(
+                childConstraints: childConstraints,
+                width: constraints.width,
+                height: currentPageHeight
+            )
+            .fixedSize(horizontal: false, vertical: true)
+            .airshipMeasureView(self.$size)
+        }
+    }
+
+    @ViewBuilder
+    private func makeMultiPagePager() -> some View {
+        GeometryReader { metrics in
+            let width = metrics.size.width.safeValue
+            let height = metrics.size.height.safeValue
+            let childConstraints = ViewConstraints(
+                width: width,
+                height: height,
+                isHorizontalFixedSize: self.constraints.isHorizontalFixedSize,
+                isVerticalFixedSize: self.constraints.isVerticalFixedSize,
+                safeAreaInsets: self.constraints.safeAreaInsets
+            )
+
+            if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *) {
+                if (Self.forceLegacyPager) {
+                    makeLegacyPager(childConstraints: childConstraints, width: width, height: height)
+                } else {
+                    makeScrollViewPager(childConstraints: childConstraints, width: width, height: height)
+                }
+            } else {
+                makeLegacyPager(childConstraints: childConstraints, width: width, height: height)
+            }
+        }
+        .airshipMeasureView(self.$size)
+    }
+
+    @ViewBuilder
+    private func makeSinglePagePager() -> some View {
         ViewFactory.createView(
             pagerState.pageItems[0].view,
             constraints: constraints
@@ -134,41 +176,37 @@ struct Pager: View {
     }
 
     @ViewBuilder
-    func makeLegacyPager(childConstraints: ViewConstraints, metrics: GeometryProxy) -> some View {
+    private func makeLegacyPager(childConstraints: ViewConstraints, width: CGFloat?, height: CGFloat?) -> some View {
         VStack {
             HStack(spacing: 0) {
                 makePageViews(
                     childConstraints: childConstraints,
-                    metrics: metrics,
+                    width: width,
+                    height: height,
                     isLegacyPager: true
                 )
             }
-            .offset(x: -((metrics.size.width.safeValue ?? 0) * CGFloat(pagerState.pageIndex)))
+            .offset(x: -((width ?? 0) * CGFloat(pagerState.pageIndex)))
             .offset(x: calcDragOffset(index: pagerState.pageIndex))
             .animation(.interactiveSpring(duration: Pager.animationSpeed), value: pagerState.pageIndex)
         }
         .frame(
-            width: metrics.size.width.safeValue,
-            height: metrics.size.height.safeValue,
+            width: width,
+            height: height,
             alignment: .leading
         )
         .clipped()
-        .onAppear {
-            size = metrics.size
-        }
-        .airshipOnChangeOf(metrics.size) { newSize in
-            size = newSize
-        }
     }
 
     @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
     @ViewBuilder
-    func makeScrollViewPager(childConstraints: ViewConstraints, metrics: GeometryProxy) -> some View {
+    private func makeScrollViewPager(childConstraints: ViewConstraints, width: CGFloat?, height: CGFloat?) -> some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 0) {
                 makePageViews(
                     childConstraints: childConstraints,
-                    metrics: metrics,
+                    width: width,
+                    height: height,
                     isLegacyPager: false
                 )
             }
@@ -191,23 +229,18 @@ struct Pager: View {
             }
         }
         .frame(
-            width: metrics.size.width.safeValue,
-            height: metrics.size.height.safeValue,
+            width: width,
+            height: height,
             alignment: .leading
         )
-        .onAppear {
-            size = metrics.size
-        }
-        .airshipOnChangeOf(metrics.size) { newSize in
-            size = newSize
-        }
     }
 
     @ViewBuilder
     private func makePageView(
         for index: Int,
         childConstraints: ViewConstraints,
-        metrics: GeometryProxy,
+        width: CGFloat?,
+        height: CGFloat?,
         isLegacyPager: Bool
     ) -> some View {
         let pageItem = pagerState.pageItems[index]
@@ -228,9 +261,17 @@ struct Pager: View {
             }
             .accessibilityHidden(!isCurrentPage)
         }
+        .airshipApplyIf(self.constraints.height == nil) { view in
+            view.airshipMeasureView { newSize in
+                if pageHeights[pageItem.identifier] != newSize.height {
+                    pageHeights[pageItem.identifier] = newSize.height
+                }
+            }
+        }
         .frame(
-            width: metrics.size.width.safeValue,
-            height: metrics.size.height.safeValue
+            width: width,
+            height: height,
+            alignment: .top
         )
         .environment(
             \.isButtonActionsEnabled,
@@ -243,14 +284,16 @@ struct Pager: View {
     @ViewBuilder
     private func makePageViews(
         childConstraints: ViewConstraints,
-        metrics: GeometryProxy,
+        width: CGFloat?,
+        height: CGFloat?,
         isLegacyPager: Bool
     ) -> some View {
         ForEach(0..<pagerState.pageItems.count, id: \.self) { index in
             makePageView(
                 for: index,
                 childConstraints: childConstraints,
-                metrics: metrics,
+                width: width,
+                height: height,
                 isLegacyPager: isLegacyPager
             ).onAppear {
                 if pagerState.pageItems[index].identifier == pagerState.currentPageId {
