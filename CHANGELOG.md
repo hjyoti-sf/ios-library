@@ -4,6 +4,14 @@
 [Migration Guides](https://github.com/urbanairship/ios-library/tree/main/Documentation/Migration)
 [All Releases](https://github.com/urbanairship/ios-library/releases)
 
+## Version 20.7.1 - May 13, 2026
+Patch release with fixes for In-App Automation, Scenes, and tvOS builds.
+
+### Changes
+- Fixed an issue where apps left in the foreground for long periods could stop receiving updated In-App Automation and Scene content.
+- Fixed banner in-app message duration to be correctly interpreted in milliseconds.
+- Fixed a tvOS build failure in `AirshipNotificationServiceExtension`.
+
 ## Version 20.7.0 - April 30, 2026
 Minor release that adds support for Native Message Center and fixes Firebase coexistence for reliable push handling.
 
