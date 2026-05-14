@@ -23,7 +23,9 @@ public actor AirshipImageLoader {
         }
         
         // Check Cache/Provider first
-        if let cachedData = imageProvider?.get(url: url) {
+        if let provider = imageProvider,
+            let cachedData = await provider.get(url: url)
+        {
             return cachedData
         }
         

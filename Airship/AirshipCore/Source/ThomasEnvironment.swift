@@ -44,6 +44,7 @@ class ThomasEnvironment: ObservableObject {
 
     private var onDismiss: (() -> Void)?
     private var dismissHandle: ThomasDismissHandle?
+    private var dismissCleanupHandlers: [ObjectIdentifier: () -> Void] = [:]
     private var subscriptions: Set<AnyCancellable> = Set()
 
     @Published private(set) var keyboardState: KeyboardState = .hidden
@@ -77,6 +78,11 @@ class ThomasEnvironment: ObservableObject {
         dismissHandle?.addOnDismiss { [weak self] cancel in
             self?.dismiss(cancel: cancel)
         }
+    }
+
+    @MainActor
+    func registerDismissCleanup(for owner: AnyObject, _ handler: @escaping () -> Void) {
+        dismissCleanupHandlers[ObjectIdentifier(owner)] = handler
     }
 
     @MainActor
@@ -357,7 +363,10 @@ class ThomasEnvironment: ObservableObject {
     }
 
     @MainActor
-    private func tryDismiss(layoutState: LayoutState? = nil, callback: (TimeInterval) -> Void) {
+    private func tryDismiss(
+        layoutState: LayoutState? = nil,
+        callback: (TimeInterval) -> Void
+    ) {
         if !self.isDismissed {
             self.isDismissed = true
 
@@ -367,6 +376,11 @@ class ThomasEnvironment: ObservableObject {
             emitPagerSummaryEvents(layoutState: layoutState)
 
             stateStorage?.flush()
+            
+            let cleanups = dismissCleanupHandlers.values
+            dismissCleanupHandlers.removeAll()
+            cleanups.forEach { $0() }
+
             callback(timer.time)
             onDismiss?()
             self.onDismiss = nil

@@ -1,7 +1,7 @@
 /* Copyright Airship and Contributors */
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 public import Foundation

@@ -3,7 +3,7 @@
 import Foundation
 import SwiftUI
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 final class AirshipLayoutDisplayAdapter: DisplayAdapter {
@@ -13,6 +13,7 @@ final class AirshipLayoutDisplayAdapter: DisplayAdapter {
     private let assets: any AirshipCachedAssetsProtocol
     private let actionRunner: (any InternalInAppActionRunner)?
     private let networkChecker: any AirshipNetworkCheckerProtocol
+    private let provider: @Sendable (URL) -> AirshipImageData?
 
     @MainActor
     var themeManager: InAppAutomationThemeManager {
@@ -34,6 +35,18 @@ final class AirshipLayoutDisplayAdapter: DisplayAdapter {
 
         if case .custom(_) = message.displayContent {
             throw AirshipErrors.error("Invalid adapter for layout type")
+        }
+
+        self.provider = { [assets] url in
+            guard
+                let url = assets.cachedURL(remoteURL: url),
+                let data = FileManager.default.contents(atPath: url.path),
+                let imageData = try? AirshipImageData(data: data)
+            else {
+                return nil
+            }
+
+            return imageData
         }
     }
 
@@ -118,18 +131,19 @@ final class AirshipLayoutDisplayAdapter: DisplayAdapter {
         }
     }
 
+    @MainActor
     private func makeInAppExtensions() -> InAppMessageExtensions {
 #if !os(tvOS)
         InAppMessageExtensions(
             nativeBridgeExtension: InAppMessageNativeBridgeExtension(
                 message: message
             ),
-            imageProvider: AssetCacheImageProvider(assets: assets),
+            imageProvider: ExtendableAssetCacheImageProvider(parent: self.provider),
             actionRunner: actionRunner
         )
 #else
         InAppMessageExtensions(
-            imageProvider: AssetCacheImageProvider(assets: assets),
+            imageProvider: ExtendableAssetCacheImageProvider(parent: self.provider),
             actionRunner: actionRunner
         )
 #endif
@@ -339,13 +353,13 @@ final class AirshipLayoutDisplayAdapter: DisplayAdapter {
                 nativeBridgeExtension: InAppMessageNativeBridgeExtension(
                     message: message
                 ),
-                imageProvider: AssetCacheImageProvider(assets: assets),
+                imageProvider: ExtendableAssetCacheImageProvider(parent: self.provider),
                 actionRunner: actionRunner
             )
 
 #else
             let extensions = ThomasExtensions(
-                imageProvider: AssetCacheImageProvider(assets: assets),
+                imageProvider: ExtendableAssetCacheImageProvider(parent: self.provider),
                 actionRunner: actionRunner
             )
 #endif
@@ -362,25 +376,6 @@ final class AirshipLayoutDisplayAdapter: DisplayAdapter {
                 continuation.resume(throwing: error)
             }
         }
-    }
-}
-
-fileprivate final class AssetCacheImageProvider : AirshipImageProvider {
-    let assets: any AirshipCachedAssetsProtocol
-    init(assets: any AirshipCachedAssetsProtocol) {
-        self.assets = assets
-    }
-    
-    func get(url: URL) -> AirshipImageData? {
-        guard 
-            let url = assets.cachedURL(remoteURL: url),
-            let data = FileManager.default.contents(atPath: url.path),
-            let imageData = try? AirshipImageData(data: data)
-        else {
-            return nil
-        }
-        
-        return imageData
     }
 }
 

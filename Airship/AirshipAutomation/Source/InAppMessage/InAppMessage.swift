@@ -4,7 +4,7 @@ import Foundation
 import SwiftUI
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 enum InAppMessageSource: String, Codable, Equatable, Sendable {
@@ -294,7 +294,11 @@ extension InAppMessage {
     /// - Note: For internal use only. :nodoc:
     @MainActor
     public func _display() async throws {
-        let adapter = try AirshipLayoutDisplayAdapter(message: self, priority: 0, assets: EmptyAirshipCachedAssets())
+        let adapter = try AirshipLayoutDisplayAdapter(
+            message: self,
+            priority: 0,
+            assets: EmptyAirshipCachedAssets()
+        )
 #if os(macOS)
         let displayTarget = AirshipDisplayTarget()
 #else

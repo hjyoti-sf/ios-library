@@ -9,7 +9,8 @@ struct AsyncViewController: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.thomasAssociatedLabelResolver) var associatedLabelResolver
     @EnvironmentObject var thomasState: ThomasState
-
+    @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    
     let info: ThomasViewInfo.AsyncViewController
     let constraints: ViewConstraints
 
@@ -29,7 +30,9 @@ struct AsyncViewController: View {
         self.info = info
         self.constraints = constraints
         self._state = StateObject(
-            wrappedValue: ThomasAsyncViewState(properties: info.properties)
+            wrappedValue: ThomasAsyncViewState(
+                properties: info.properties
+            )
         )
     }
 
@@ -42,7 +45,8 @@ struct AsyncViewController: View {
                 ViewFactory.createView(info.properties.placeholder, constraints: constraints)
                     .constraints(constraints)
                     .thomasCommon(info)
-                    .onAppear  {
+                    .onAppear {
+                        state.configure(thomasEnvironment: thomasEnvironment)
                         state.retry()
                     }
             }
