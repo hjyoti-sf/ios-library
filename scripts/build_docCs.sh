@@ -16,11 +16,12 @@ SCHEMES=(
   "AirshipAutomation"
   "AirshipFeatureFlags"
   "AirshipObjectiveC"
+  "AirshipDebug"
   "AirshipNotificationServiceExtension"
 )
 
 BUILD="build"
-DOCS_DIR="docs"
+DOCS_DIR="temp_docs"
 
 # 🔍 Detect repository context
 if [ -n "$GITHUB_REPOSITORY" ]; then
@@ -83,5 +84,8 @@ for SCHEME in "${SCHEMES[@]}"; do
     
     echo "✅ $SCHEME docs ready at $OUTPUT_PATH"
 done
+
+# Copy index.html to the current version directory
+cp -r docs/version/* $DOCS_DIR
 
 echo "🎉 Docs generated for $REPO_NAME"

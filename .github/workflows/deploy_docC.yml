@@ -41,25 +41,126 @@ jobs:
           echo "VERSION_DIR=v$MAJOR_VERSION" >> $GITHUB_ENV
 
       - name: Check Version
+        env:
+          VERSION: ${{ steps.extract_version.outputs.VERSION }}
         run: |
           set -euo pipefail
-          bash ./scripts/check_version.sh "${{ steps.extract_version.outputs.VERSION }}"
-
+          bash ./scripts/check_version.sh "$VERSION"
+    
+      - name: Verify this is the latest major version
+        id: verify_latest
+        env:
+          CURRENT_VERSION: ${{ steps.extract_version.outputs.VERSION }}
+          CURRENT_MAJOR: ${{ steps.extract_version.outputs.VERSION_DIR }}
+        run: |
+          set -euo pipefail    
+          echo "🔍 Verifying if major version ${CURRENT_MAJOR} is the latest..."
+          
+          # Fetch all tags to ensure we have the complete list
+          git fetch --tags --force
+          
+          # Get all semantic version tags (matching our pattern)
+          ALL_TAGS=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | sort -V)
+          
+          if [ -z "$ALL_TAGS" ]; then
+            echo "❌ No version tags found!"
+            exit 1
+          fi
+          
+          # Extract major versions from all tags and get unique values
+          MAJOR_VERSIONS=$(echo "$ALL_TAGS" | cut -d. -f1 | sort -n | uniq)
+          
+          # Get the highest major version
+          LATEST_MAJOR=$(echo "$MAJOR_VERSIONS" | tail -n 1)
+          
+          echo "🏷️  Current version: $CURRENT_VERSION"
+          echo "🚀 Latest major version: $LATEST_MAJOR"
+          
+          # Compare major versions
+          if [ "$CURRENT_MAJOR" = "$LATEST_MAJOR" ]; then
+            echo "✅ Current major version IS the latest!"
+            echo "IS_LATEST=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Current major version is NOT the latest"
+            echo "   Current major: $CURRENT_MAJOR"
+            echo "   Latest major:  $LATEST_MAJOR"
+            echo "IS_LATEST=false" >> $GITHUB_OUTPUT
+            
+            # For non-latest major versions, deploy to version-only
+            echo "🔄 This will deploy documentation for major version $CURRENT_MAJOR only"
+            echo "🚫 Latest directory will NOT be updated (only latest major version updates latest)"
+          fi
+        
+      # Build docC and place it in ./temp_docs directory
       - name: Build DocC
         env:
           VERSION_DIR: ${{ steps.extract_version.outputs.VERSION_DIR }}
         run: |
           set -euo pipefail
-          make build-docC version="$VERSION_DIR"
-
-      - name: Deploy to GitHub Pages
+          echo "🔨 Building DocC for version: $VERSION_DIR"
+          make build-docC version=$VERSION_DIR
+          
+      # Prepare complete deployment structure in temp_root
+      - name: Prepare deployment structure
         env:
           VERSION_DIR: ${{ steps.extract_version.outputs.VERSION_DIR }}
+          IS_LATEST: ${{ steps.verify_latest.outputs.IS_LATEST }}
+        run: |
+          set -euo pipefail
+          
+          echo "📦 Preparing deployment structure for version: $VERSION_DIR"
+          
+          # Verify that temp_docs directory exists
+          if [ ! -d "temp_docs" ]; then
+            echo "❌ Error: temp_docs directory not found!"
+            echo "   Expected location: $(pwd)/temp_docs/"
+            exit 1
+          fi
+          
+          # Create temp_root structure
+          mkdir -p temp_root
+          
+          # 1. Always deploy to versioned directory
+          echo "📁 Copying temp_docs to temp_root/$VERSION_DIR/"
+          cp -r temp_docs temp_root/$VERSION_DIR
+          
+          # 2. For latest version, also deploy to 'latest' and root index
+          if [ "$IS_LATEST" = "true" ]; then
+            echo "📁 Copying temp_docs to temp_root/latest/ (latest version)"
+            cp -r temp_docs temp_root/latest
+            
+            # Copy root index.html (should point to ./latest/) and substitute $VERSION_DIR
+            if [ -f "docs/index.html" ]; then
+              echo "📄 Copying root index.html (points to ./latest/)"
+              sed "s|\$VERSION_DIR|${VERSION_DIR}|g" docs/index.html > temp_root/index.html
+            else
+              echo "⚠️  Warning: docs/index.html not found for root deployment"
+            fi
+          else
+            echo "ℹ️  Skipping latest/ and root index.html (not the latest version)"
+          fi
+          
+          echo "✅ Deployment structure prepared:"
+          echo "   - temp_root/$VERSION_DIR/ ✅"
+          if [ "$IS_LATEST" = "true" ]; then
+            echo "   - temp_root/latest/ ✅"  
+            echo "   - temp_root/index.html ✅"
+          fi
+
+      # Deploy everything in one go
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./docs
-          destination_dir: $VERSION_DIR
+          publish_dir: ./temp_root
+          destination_dir: ./
           keep_files: true
           enable_jekyll: false
+          allow_empty_commit: true
+          
+      # Clean up temporary files
+      - name: Clean up temporary files
+        run: |
+          rm -rf temp_root || true
+          echo "✅ Cleaned up temporary files"
