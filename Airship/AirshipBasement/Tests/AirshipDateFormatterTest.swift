@@ -76,6 +76,24 @@ struct AirshipDateFormatterTest {
         #expect(abs(withMillis.timeIntervalSince(withoutMillis) - 0.123) < 0.0001)
     }
 
+    /// ISO 8601 treats the fractional part as a decimal of a second:
+    /// `.5` == `.50` == `.500` == 500 ms past the second.
+    @Test(arguments: [
+        ("2020-12-15T11:45:22.5",   0.5),
+        ("2020-12-15T11:45:22.50",  0.5),
+        ("2020-12-15T11:45:22.500", 0.5),
+        ("2020-12-15T11:45:22.12",  0.12),
+        ("2020-12-15T11:45:22.123", 0.123),
+        ("2020-12-15T11:45:22.5Z",  0.5),
+        ("2020-12-15T11:45:22.12Z", 0.12),
+    ])
+    func parseFractionalSecondsAsDecimal(string: String, expectedSubseconds: TimeInterval) throws {
+        let base = try #require(AirshipDateFormatter.date(from: "2020-12-15T11:45:22"))
+        let parsed = try #require(AirshipDateFormatter.date(from: string), "Failed to parse: \(string)")
+        let delta = parsed.timeIntervalSince(base)
+        #expect(abs(delta - expectedSubseconds) < 0.0001, "\(string): expected +\(expectedSubseconds)s, got +\(delta)s")
+    }
+
     // MARK: - Parsing: partial formats
 
     @Test(arguments: [

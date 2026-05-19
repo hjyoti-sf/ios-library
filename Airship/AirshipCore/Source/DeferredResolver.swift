@@ -193,7 +193,7 @@ actor AirshipDeferredResolver : AirshipDeferredResolverProtocol {
 
 extension AirshipHTTPResponse {
     var locationHeader: URL? {
-        guard let location = self.headers["Location"] else {
+        guard let location = header("Location") else {
             return nil
         }
 
@@ -201,14 +201,92 @@ extension AirshipHTTPResponse {
     }
 
     var retryAfter: TimeInterval? {
-        guard let retryAfter = self.headers["Retry-After"] else {
+        return retryAfter(now: Date())
+    }
+
+    /// Parses the `Retry-After` header into a non-negative wait duration in seconds,
+    /// or `nil` if the header is absent or unparseable.
+    ///
+    /// Accepts (per RFC 7231 §7.1.3, with a permissive extension for fractional seconds):
+    ///  - a non-negative integer or decimal number of seconds (e.g. `120`, `1.5`)
+    ///  - an RFC 7231 HTTP-date (IMF-fixdate, RFC 850, or asctime)
+    ///  - an ISO 8601 timestamp
+    ///
+    /// Past dates and small negative deltas are clamped to zero.
+    func retryAfter(now: Date) -> TimeInterval? {
+        guard let raw = header("Retry-After")?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+              !raw.isEmpty
+        else {
             return nil
         }
 
-        if let seconds = Double(retryAfter) {
-            return seconds
+        // RFC 7231 §7.1.3: delay-seconds = 1*DIGIT. Permissively accept a decimal
+        // fraction. Reject anything number-like but outside the grammar (negative,
+        // scientific, leading `+`) so the date parser doesn't mistake `"-5"` for a year.
+        if RetryAfterParser.isDelaySeconds(raw), let seconds = Double(raw) {
+            return max(0, seconds)
+        }
+        if Double(raw) != nil {
+            return nil
         }
 
-        return AirshipDateFormatter.date(from: retryAfter)?.timeIntervalSince1970
+        let parsed = AirshipDateFormatter.date(from: raw)
+            ?? RetryAfterParser.parseHttpDate(raw)
+        guard let parsed else { return nil }
+        return max(0, parsed.timeIntervalSince(now))
+    }
+
+    private func header(_ name: String) -> String? {
+        return self.headers.first {
+            $0.key.caseInsensitiveCompare(name) == .orderedSame
+        }?.value
+    }
+}
+
+fileprivate enum RetryAfterParser {
+    /// Returns true if `value` matches the RFC 7231 §7.1.3 delay-seconds grammar
+    /// (1*DIGIT), extended to allow a decimal fraction. Rejects negative,
+    /// scientific, and leading-`+` number-likes.
+    static func isDelaySeconds(_ value: String) -> Bool {
+        guard !value.isEmpty else { return false }
+        var seenDot = false
+        var digitsBefore = 0
+        var digitsAfter = 0
+        for scalar in value.unicodeScalars {
+            switch scalar.value {
+            case 0x30...0x39:
+                if seenDot { digitsAfter += 1 } else { digitsBefore += 1 }
+            case 0x2E:
+                if seenDot { return false }
+                seenDot = true
+            default:
+                return false
+            }
+        }
+        return digitsBefore > 0 && (!seenDot || digitsAfter > 0)
+    }
+
+    /// RFC 7231 §7.1.1.1 HTTP-date: IMF-fixdate (preferred) and the two obsolete
+    /// forms (RFC 850 and asctime). All anchored to GMT/UTC.
+    private static let httpDateFormatters: [DateFormatter] = [
+        "EEE, dd MMM yyyy HH:mm:ss 'GMT'",
+        "EEEE, dd-MMM-yy HH:mm:ss 'GMT'",
+        "EEE MMM d HH:mm:ss yyyy",
+    ].map { format in
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(secondsFromGMT: 0)
+        f.dateFormat = format
+        return f
+    }
+
+    static func parseHttpDate(_ value: String) -> Date? {
+        for formatter in httpDateFormatters {
+            if let date = formatter.date(from: value) {
+                return date
+            }
+        }
+        return nil
     }
 }
