@@ -3,7 +3,7 @@ public import Foundation
 public extension Bundle {
 
     /// Returns the bundle for the AirshipModule.
-    /// NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     static func airshipFindModule(
         moduleName: String,
         sourceBundle: Bundle

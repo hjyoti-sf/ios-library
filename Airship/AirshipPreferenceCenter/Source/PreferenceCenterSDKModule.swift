@@ -7,13 +7,13 @@ public import AirshipCore
 public import Foundation
 
 /// AirshipPreferenceCenter module loader.
-/// @note For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 @objc(UAPreferenceCenterSDKModule)
 public class PreferenceCenterSDKModule: NSObject, AirshipSDKModule {
     public let actionsManifest: (any ActionsManifest)? = nil
     public let components: [any AirshipComponent]
 
-    public static func load(_ args: AirshiopModuleLoaderArgs) -> (any AirshipSDKModule)? {
+    public static func load(_ args: AirshipModuleLoaderArgs) -> (any AirshipSDKModule)? {
         let preferenceCenter = DefaultPreferenceCenter(
             dataStore: args.dataStore,
             privacyManager: args.privacyManager,

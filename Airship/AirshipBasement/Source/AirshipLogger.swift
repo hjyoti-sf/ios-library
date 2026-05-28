@@ -3,9 +3,7 @@
 import Foundation
 import os
 
-///
 /// Airship logger.
-///
 /// - Note: For internal use only. :nodoc:
 public final class AirshipLogger: Sendable {
     // Configuration for the logger

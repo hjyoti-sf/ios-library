@@ -220,7 +220,7 @@ class ChannelAudienceManagerTest: XCTestCase {
         let attributePayload = [
             "action": "remove",
             "key": "some-attribute",
-            "timestamp": AirshipDateFormatter.string(fromDate: testDate.now, format: .iso8601)
+            "timestamp": AirshipDateFormatter.string(fromDate: testDate.now, format: .iso8601WithMilliseconds)
         ]
 
         let attributeMutation = AttributePendingMutations(mutationsPayload: [

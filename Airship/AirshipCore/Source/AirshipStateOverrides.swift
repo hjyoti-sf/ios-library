@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipStateOverrides: Encodable, Equatable, Sendable {
     let appVersion: String
     let sdkVersion: String

@@ -3,7 +3,7 @@
 public import Combine
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol RemoteDataProtocol: AnyObject, Sendable {
     /// Gets the update status for the given source
     /// - Parameter source: The source.

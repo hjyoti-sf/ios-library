@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutResolutionEvent: ThomasLayoutEvent {
 
     public let name: EventType = EventType.inAppResolution

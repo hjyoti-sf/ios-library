@@ -22,7 +22,7 @@ public struct AutomationSchedule: Sendable, Codable, Equatable {
         case inAppMessage(InAppMessage)
 
         /// Deferred
-        /// NOTE: For internal use only. :nodoc:
+        /// - Note: For internal use only. :nodoc:
         case deferred(DeferredAutomationData)
     }
 

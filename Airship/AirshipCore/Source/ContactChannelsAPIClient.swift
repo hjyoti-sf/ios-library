@@ -6,14 +6,13 @@ import Foundation
 @_spi(AirshipInternal) import AirshipBasement
 #endif
 
-// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ContactChannelsAPIClientProtocol: Sendable {
     func fetchAssociatedChannelsList(
         contactID: String
     ) async throws -> AirshipHTTPResponse<[ContactChannel]>
 }
 
-// NOTE: For internal use only. :nodoc:
 final class ContactChannelsAPIClient: ContactChannelsAPIClientProtocol {
     private let config: RuntimeConfig
     private let session: any AirshipRequestSession

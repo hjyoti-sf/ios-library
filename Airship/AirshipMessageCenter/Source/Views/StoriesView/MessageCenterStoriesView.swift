@@ -44,15 +44,16 @@ public struct MessageCenterStoriesView: View {
     ///   - filter: Optional predicate to show only messages that match. Omit for all messages.
     ///   - sort: Optional comparator to order messages. Omit for default inbox order.
     ///   - onMessageSelected: Closure invoked when the user taps a story circle; receives the selected message.
+    ///   - placeholder: View to show when there are no messages.
     public init(
         filter: (any MessageCenterPredicate)? = nil,
         sort: ComparePredicate? = nil,
         onMessageSelected: @escaping (MessageCenterMessage) -> Void,
-        noMessagesView: @escaping () -> some View = { EmptyView() }
+        placeholder: @escaping () -> any View = { EmptyView() }
     ) {
         self._viewModel = StateObject(wrappedValue: MessageCenterStoriesViewModel(filter: filter, sort: sort))
         self.onMessageSelected = onMessageSelected
-        self.emptyView = { AnyView(erasing: noMessagesView()) }
+        self.emptyView = { AnyView(erasing: placeholder()) }
     }
 
     init(

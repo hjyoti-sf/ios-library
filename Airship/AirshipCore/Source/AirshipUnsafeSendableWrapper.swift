@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipUnsafeSendableWrapper<T>: @unchecked Sendable {
     public var value: T
     public init(_ value: T) {

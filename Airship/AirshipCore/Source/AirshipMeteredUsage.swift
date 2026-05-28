@@ -3,12 +3,11 @@
 import Foundation
 import Combine
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipMeteredUsage: Sendable {
     func addEvent(_ event: AirshipMeteredUsageEvent) async throws
 }
 
-/// NOTE: For internal use only. :nodoc:
 final class DefaultAirshipMeteredUsage: AirshipMeteredUsage {
 
     private static let workID: String = "MeteredUsage.upload"

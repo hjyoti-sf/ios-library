@@ -3,7 +3,7 @@
 import Foundation
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 final class InAppMessageAutomationExecutor: AutomationExecutorDelegate {

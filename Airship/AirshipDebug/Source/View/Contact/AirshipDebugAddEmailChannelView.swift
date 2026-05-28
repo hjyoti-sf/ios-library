@@ -119,26 +119,24 @@ struct AirshipDebugAddEmailChannelView: View {
                 return
             }
 
-            var options: EmailRegistrationOptions!
             let date = Date()
-
-            switch self.registrationType {
+            let options: EmailRegistrationOptions = switch self.registrationType {
             case .commercial:
                 if doubleOptIn {
-                    options = EmailRegistrationOptions.options(
+                    EmailRegistrationOptions.options(
                         transactionalOptedIn: date,
                         properties: properties,
                         doubleOptIn: true
                     )
                 } else {
-                    options = EmailRegistrationOptions.commercialOptions(
+                    EmailRegistrationOptions.commercialOptions(
                         transactionalOptedIn: date,
                         commercialOptedIn: date,
                         properties: properties,
                     )
                 }
             case .transactional:
-                options = EmailRegistrationOptions.options(
+                EmailRegistrationOptions.options(
                     transactionalOptedIn: date,
                     properties: properties,
                     doubleOptIn: false

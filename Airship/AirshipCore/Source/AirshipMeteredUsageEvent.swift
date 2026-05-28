@@ -2,18 +2,12 @@
 
 public import Foundation
 
-/**
- * Internal only
- * :nodoc:
- */
+/// - Note: For internal use only. :nodoc:
 public enum AirshipMeteredUsageType: String, Codable, Sendable {
     case inAppExperienceImpression = "iax_impression"
 }
 
-/**
- * Internal only
- * :nodoc:
- */
+/// - Note: For internal use only. :nodoc:
 public struct AirshipMeteredUsageEvent: Codable, Sendable, Equatable {
     var eventID: String
     var entityID: String?

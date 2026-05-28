@@ -3,10 +3,6 @@
 import SwiftUI
 import Combine
 
-/**
- * Internal only
- * :nodoc:
- */
 struct CustomView: View {
     let info: ThomasViewInfo.CustomView
     let constraints: ViewConstraints

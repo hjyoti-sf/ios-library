@@ -28,7 +28,7 @@ public import SwiftUI
 ///
 
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 @MainActor
 public final class AirshipDisplayTarget {
 

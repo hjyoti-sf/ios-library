@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutEventData: Sendable {
     let event: any ThomasLayoutEvent
     let context: ThomasLayoutEventContext?
@@ -31,13 +31,13 @@ extension ThomasLayoutEventData: CustomStringConvertible {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ThomasLayoutEventRecorderProtocol: Sendable {
     func recordEvent(thomasLayoutEventData: ThomasLayoutEventData)
     func recordImpressionEvent(_ event: AirshipMeteredUsageEvent)
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasLayoutEventRecorder: ThomasLayoutEventRecorderProtocol {
     private let airshipAnalytics: any InternalAirshipAnalytics
     private let meteredUsage: any AirshipMeteredUsage

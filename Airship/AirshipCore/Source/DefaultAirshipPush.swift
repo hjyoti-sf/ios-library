@@ -1049,7 +1049,6 @@ final class DefaultAirshipPush: AirshipPush, @unchecked Sendable {
     }
 }
 
-/// - Note: For internal use only. :nodoc:
 extension DefaultAirshipPush: InternalAirshipPush {
 
     public func dispatchUpdateAuthorizedNotificationTypes() {
@@ -1247,7 +1246,6 @@ extension DefaultAirshipPush: InternalAirshipPush {
         return presentationOptions
     }
 
-    /// - NOTE: For internal use only. :nodoc:
     @MainActor
     func resetDeviceToken() {
         self.deviceToken = nil

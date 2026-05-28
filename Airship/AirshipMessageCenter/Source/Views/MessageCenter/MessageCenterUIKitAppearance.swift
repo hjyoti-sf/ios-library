@@ -4,7 +4,7 @@
 import SwiftUI
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 /// Detects and bridges UIKit navigation appearance to SwiftUI Message Center
@@ -187,9 +187,9 @@ internal struct MessageCenterApplyDetectedAppearance: ViewModifier {
                     view.accentColor(appearance.navigationBarTintColor)
                         .tint(appearance.navigationBarTintColor)
                 }
-                .airshipApplyIf(appearance.navigationBarBackgroundColor != nil) { view in
+                .airshipApplyIfPresent(appearance.navigationBarBackgroundColor) { view, navigationBarBackgroundColor in
                     // Apply navigation bar background color
-                    view.toolbarBackground(appearance.navigationBarBackgroundColor!, for: .navigationBar)
+                    view.toolbarBackground(navigationBarBackgroundColor, for: .navigationBar)
                         .toolbarBackground(.visible, for: .navigationBar)
                 }
 #if !os(tvOS)

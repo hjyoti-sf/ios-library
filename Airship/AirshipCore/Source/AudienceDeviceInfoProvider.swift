@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AudienceDeviceInfoProvider: AnyObject, Sendable {
     var isAirshipReady: Bool { get }
     var tags: Set<String> { get }
@@ -18,7 +18,7 @@ public protocol AudienceDeviceInfoProvider: AnyObject, Sendable {
     var isChannelCreated: Bool { get }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class CachingAudienceDeviceInfoProvider: AudienceDeviceInfoProvider, Sendable {
     private let deviceInfoProvider: any AudienceDeviceInfoProvider
 
@@ -132,10 +132,9 @@ public final class CachingAudienceDeviceInfoProvider: AudienceDeviceInfoProvider
 }
 
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class DefaultAudienceDeviceInfoProvider: AudienceDeviceInfoProvider {
     
-
     private let contactID: String?
     public init(contactID: String? = nil) {
         self.contactID = contactID

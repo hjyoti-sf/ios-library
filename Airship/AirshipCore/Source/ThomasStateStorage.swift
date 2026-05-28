@@ -22,7 +22,6 @@ public protocol LayoutDataStorage: Sendable {
     func clear()
 }
 
-/// - Note: for internal use only.  :nodoc:
 @MainActor
 protocol ThomasStateStorage: Sendable {
 
@@ -36,7 +35,6 @@ protocol ThomasStateStorage: Sendable {
     func flush()
 }
 
-/// - Note: for internal use only.  :nodoc:
 @MainActor
 final class DefaultThomasStateStorage: ThomasStateStorage {
 

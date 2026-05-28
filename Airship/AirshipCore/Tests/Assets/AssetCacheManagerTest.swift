@@ -2,10 +2,8 @@
 
 import XCTest
 
-import AirshipCore
-
 @testable
-import AirshipAutomation
+@_spi(AirshipInternal) import AirshipCore
 
 final class AssetCacheManagerTest: XCTestCase {
     class TestAssetDownloader: AssetDownloader, @unchecked Sendable {

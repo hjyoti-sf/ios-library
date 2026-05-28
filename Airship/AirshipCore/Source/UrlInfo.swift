@@ -3,16 +3,16 @@
 import Foundation
 
 /// Url Info
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public enum URLInfo: Sendable, Equatable {
     case web(url: String, requireNetwork: Bool = true)
     case video(url: String, requireNetwork: Bool = true)
     case image(url: String, prefetch: Bool = true)
 }
 
-extension AirshipLayout {
+extension ThomasViewInfo {
     public var urlInfos: [URLInfo] {
-        let urls: [[URLInfo]?] = extract { info in
+        let urls: [[URLInfo]?] = extractDescendants { info in
             switch info {
             case .media(let info):
                 return switch info.properties.mediaType {
@@ -68,8 +68,14 @@ extension AirshipLayout {
         }
 
         return urls.compactMap { $0 }.reduce(into: []) { result, urlArray in
-              result.append(contentsOf: urlArray)
-          }
+            result.append(contentsOf: urlArray)
+        }
+    }
+}
+
+extension AirshipLayout {
+    public var urlInfos: [URLInfo] {
+        view.urlInfos
     }
 }
 

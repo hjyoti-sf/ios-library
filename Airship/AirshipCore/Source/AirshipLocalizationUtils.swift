@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// - NOTE: Internal use only :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipLocalizationUtils {
 
     private static func sanitizedLocalizedString(

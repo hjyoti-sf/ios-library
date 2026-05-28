@@ -1,39 +1,38 @@
 /* Copyright Airship and Contributors */
 
-import Foundation
+public import Foundation
 
-#if canImport(AirshipCore)
-import AirshipCore
-#endif
-
+/// - NOTE: For internal use only. :nodoc:
 /// Data task wrapper used for testing the default asset downloader
-protocol AssetDownloaderSession: Sendable {
+@_spi(AirshipInternal)
+public protocol AssetDownloaderSession: Sendable {
     func autoResumingDataTask(with url: URL, completion: @Sendable @escaping (Data?, URLResponse?, (any Error)?) -> Void) -> any AirshipCancellable
 }
 
+/// - NOTE: For internal use only. :nodoc:
+@_spi(AirshipInternal)
 extension URLSession: AssetDownloaderSession {
-    func autoResumingDataTask(with url: URL, completion: @Sendable @escaping (Data?, URLResponse?, (any Error)?) -> Void) -> any AirshipCancellable {
-        
+    public func autoResumingDataTask(with url: URL, completion: @Sendable @escaping (Data?, URLResponse?, (any Error)?) -> Void) -> any AirshipCancellable {
         let task = self.dataTask(with: url, completionHandler: { data, response, error in
             completion(data, response, error)
         })
-
         task.resume()
-
         return CancellableValueHolder(value: task) { task in
             task.cancel()
         }
     }
 }
 
-struct DefaultAssetDownloader : AssetDownloader {
-    var session: any AssetDownloaderSession
+/// - NOTE: For internal use only. :nodoc:
+@_spi(AirshipInternal)
+public struct DefaultAssetDownloader: AssetDownloader, Sendable {
+    public var session: any AssetDownloaderSession
 
-    init(session: any AssetDownloaderSession = URLSession.airshipSecureSession) {
+    public init(session: any AssetDownloaderSession = URLSession.airshipSecureSession) {
         self.session = session
     }
 
-    func downloadAsset(remoteURL: URL) async throws -> URL {
+    public func downloadAsset(remoteURL: URL) async throws -> URL {
         let cancellable = CancellableValueHolder<any AirshipCancellable>() { cancellable in
             cancellable.cancel()
         }

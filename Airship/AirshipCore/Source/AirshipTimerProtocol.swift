@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipTimerProtocol: Sendable {
     @MainActor
     var time : TimeInterval { get }
@@ -14,7 +14,7 @@ public protocol AirshipTimerProtocol: Sendable {
     func stop()
 }
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 @MainActor
 final public class AirshipTimer: AirshipTimerProtocol {
     private var isStarted: Bool = false

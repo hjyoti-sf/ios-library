@@ -6,7 +6,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 protocol ContactsAPIClientProtocol: Sendable {
     func resolve(
         channelID: String,
@@ -70,7 +69,6 @@ protocol ContactsAPIClientProtocol: Sendable {
     ) async throws ->  AirshipHTTPResponse<Bool>
 }
 
-/// NOTE: For internal use only. :nodoc:
 final class ContactAPIClient: ContactsAPIClientProtocol {
 
     private let config: RuntimeConfig

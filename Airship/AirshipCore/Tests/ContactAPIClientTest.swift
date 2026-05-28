@@ -736,7 +736,7 @@ class ContactAPIClientTest: XCTestCase {
             options: []
         ) as! [String: Any]
 
-        let attributeFormattedDate = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
+        let attributeFormattedDate = AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds)
         let subscriptionFormattedDate = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
 
         let expectedBody = [

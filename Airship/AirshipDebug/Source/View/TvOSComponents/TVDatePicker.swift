@@ -84,7 +84,7 @@ struct TVDatePicker: View {
         selection: Binding<Date>,
         displayedComponents: TvDatePickerComponents = [.hourAndMinute, .date]
     ) where S : StringProtocol {
-        self.titleKey = titleKey as! String
+        self.titleKey = String(titleKey)
         self.displayedComponents = displayedComponents
         _selection = selection
     }

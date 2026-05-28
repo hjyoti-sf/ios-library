@@ -2,8 +2,8 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
-public struct AirshiopModuleLoaderArgs {
+/// - Note: For internal use only. :nodoc:
+public struct AirshipModuleLoaderArgs {
     public let config: RuntimeConfig
     public let dataStore: PreferenceDataStore
     public let channel: any InternalAirshipChannel
@@ -23,7 +23,6 @@ public struct AirshiopModuleLoaderArgs {
 
 }
 
-/// NOTE: For internal use only. :nodoc:
 enum SDKModuleNames: String, CaseIterable {
     case messageCenter = "UAMessageCenterSDKModule"
     case preferenceCenter = "UAPreferenceCenterSDKModule"
@@ -32,7 +31,6 @@ enum SDKModuleNames: String, CaseIterable {
     case automation = "UAAutomationSDKModule"
 }
 
-/// NOTE: For internal use only. :nodoc:
 class ModuleLoader {
 
     public let components: [any AirshipComponent]
@@ -59,7 +57,7 @@ class ModuleLoader {
         inputValidator: any AirshipInputValidation.Validator
     ) {
 
-        let args = AirshiopModuleLoaderArgs(
+        let args = AirshipModuleLoaderArgs(
             config: config,
             dataStore: dataStore,
             channel: channel,
@@ -84,7 +82,7 @@ class ModuleLoader {
     }
 
     @MainActor
-    private class func loadModules(_ args: AirshiopModuleLoaderArgs) -> [any AirshipSDKModule]
+    private class func loadModules(_ args: AirshipModuleLoaderArgs) -> [any AirshipSDKModule]
     {
         let sdkModules: [any AirshipSDKModule] = SDKModuleNames.allCases.compactMap {
             guard

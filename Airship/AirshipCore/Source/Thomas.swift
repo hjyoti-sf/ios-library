@@ -4,7 +4,7 @@ import Foundation
 import SwiftUI
 
 /// Airship rendering engine.
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class Thomas {
 
     #if !os(watchOS)
@@ -134,7 +134,7 @@ public final class Thomas {
 }
 
 /// Airship rendering engine extensions.
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct ThomasExtensions {
 
     #if !os(tvOS) && !os(watchOS)
@@ -167,7 +167,7 @@ public struct ThomasExtensions {
 }
 
 /// Thomas action runner
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol ThomasActionRunner: Sendable {
     @MainActor
     func runAsync(actions: AirshipJSON, layoutContext: ThomasLayoutContext)

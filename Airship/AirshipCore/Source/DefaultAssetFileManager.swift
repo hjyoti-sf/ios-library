@@ -1,43 +1,51 @@
 /* Copyright Airship and Contributors */
 
-import Foundation
-#if canImport(AirshipCore)
-import AirshipCore
-#endif
+public import Foundation
 
-struct DefaultAssetFileManager: AssetFileManager {
+/// - NOTE: For internal use only. :nodoc:
+@_spi(AirshipInternal)
+public struct DefaultAssetFileManager: AssetFileManager, Sendable {
+
+    public enum RootLocation: Sendable {
+        /// Persists until the app clears caches; default for long-lived asset caches.
+        case cachesDirectory
+        /// Under the process temp directory; suitable for short-lived caches the OS may reclaim.
+        case temporaryDirectory
+    }
+
     private let rootPathComponent: String
+    private let rootLocation: RootLocation
 
-    init(rootPathComponent: String = "com.urbanairship.iamassetcache") {
+    private var fileManager: FileManager { FileManager.default }
+
+    public init(
+        rootPathComponent: String = "com.urbanairship.iamassetcache",
+        rootLocation: RootLocation = .cachesDirectory
+    ) {
         self.rootPathComponent = rootPathComponent
+        self.rootLocation = rootLocation
     }
 
-    var rootDirectory: URL? {
-       try? ensureCacheRootDirectory(rootPathComponent: rootPathComponent)
+    public var rootDirectory: URL? {
+        try? ensureCacheRootDirectory(rootPathComponent: rootPathComponent)
     }
 
-    func ensureCacheDirectory(identifier: String) throws -> URL {
+    public func ensureCacheDirectory(identifier: String) throws -> URL {
         let url = try ensureCacheRootDirectory(rootPathComponent: rootPathComponent)
-
         let cacheDirectory = url.appendingPathComponent(identifier, isDirectory: true)
-
         return try ensureCacheDirectory(url: cacheDirectory)
     }
 
-    func assetItemExists(at cacheURL: URL) -> Bool {
-        return FileManager.default.fileExists(atPath: cacheURL.path)
+    public func assetItemExists(at cacheURL: URL) -> Bool {
+        fileManager.fileExists(atPath: cacheURL.path)
     }
 
-    func moveAsset(from tempURL: URL, to cacheURL: URL) throws {
-        let fileManager = FileManager.default
-
+    public func moveAsset(from tempURL: URL, to cacheURL: URL) throws {
         do {
-            // Ensure parent directory exists
             let parentDir = cacheURL.deletingLastPathComponent()
             try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true, attributes: nil)
 
             if fileManager.fileExists(atPath: cacheURL.path) {
-                // Use replaceItem for atomic replacement
                 _ = try fileManager.replaceItem(at: cacheURL,
                                                 withItemAt: tempURL,
                                                 backupItemName: nil,
@@ -58,30 +66,30 @@ struct DefaultAssetFileManager: AssetFileManager {
         }
     }
 
-    func clearAssets(cacheURL: URL) throws {
-        let fileManager = FileManager.default
+    public func clearAssets(cacheURL: URL) throws {
+        guard fileManager.fileExists(atPath: cacheURL.path) else { return }
         try fileManager.removeItem(at: cacheURL)
     }
 
     // MARK: Helpers
-
+    
     private func ensureCacheRootDirectory(rootPathComponent: String) throws -> URL {
-        let fileManager = FileManager.default
-
-        guard let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
-            throw AirshipErrors.error("Error creating asset cache root directory: user caches directory unavailable.")
+        let baseURL: URL
+        switch rootLocation {
+        case .cachesDirectory:
+            guard let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+                throw AirshipErrors.error("Error creating asset cache root directory: user caches directory unavailable.")
+            }
+            baseURL = cacheDirectory
+        case .temporaryDirectory:
+            baseURL = fileManager.temporaryDirectory
         }
 
-        fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-
-        let cacheRootDirectory = cacheDirectory.appendingPathComponent(rootPathComponent, isDirectory: true)
-
+        let cacheRootDirectory = baseURL.appendingPathComponent(rootPathComponent, isDirectory: true)
         return try ensureCacheDirectory(url: cacheRootDirectory)
     }
 
-    private func ensureCacheDirectory(url:URL) throws -> URL {
-        let fileManager = FileManager.default
-
+    private func ensureCacheDirectory(url: URL) throws -> URL {
         var isDirectory: ObjCBool = false
         let fileExists = fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory)
 

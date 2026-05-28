@@ -2,7 +2,9 @@
 
 import XCTest
 
-@testable import AirshipAutomation
+@testable
+@_spi(AirshipInternal) import AirshipCore
+
 final class DefaultAssetFileManagerTest: XCTestCase {
     func testEnsureCacheRootDirectory() {
         let rootPathComponent = "testCacheRoot"

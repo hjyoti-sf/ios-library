@@ -3,10 +3,8 @@
 import XCTest
 import Foundation
 
-#if canImport(AirshipCore)
-import AirshipCore
-#endif
-
+@testable
+@_spi(AirshipInternal) import AirshipCore
 
 final class TestAssetDownloaderSession: AssetDownloaderSession, @unchecked Sendable {
     var nextData: Data?
@@ -20,7 +18,6 @@ final class TestAssetDownloaderSession: AssetDownloaderSession, @unchecked Senda
     }
 }
 
-@testable import AirshipAutomation
 final class DefaultAssetDownloaderTest: XCTestCase {
     var downloader: DefaultAssetDownloader!
     var mockSession: TestAssetDownloaderSession!

@@ -3,7 +3,7 @@
 import SwiftUI
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipEmbeddedInfo: Equatable, Hashable, Sendable {
 
     /// A generated instance ID.

@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// - Note: For internal use only. :nodoc:
 final class ChannelAPIClient: ChannelAPIClientProtocol, Sendable {
     private let channelPath: String = "/api/channels/"
 
@@ -135,7 +134,6 @@ final class ChannelAPIClient: ChannelAPIClientProtocol, Sendable {
 
 }
 
-/// - Note: For internal use only. :nodoc:
 protocol ChannelAPIClientProtocol: Sendable {
     func makeChannelLocation(channelID: String) throws -> URL
 

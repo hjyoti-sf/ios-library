@@ -414,7 +414,6 @@ final class DefaultAirshipChannel: AirshipChannel, Sendable {
     }
 }
 
-/// - Note: for internal use only.  :nodoc:
 extension DefaultAirshipChannel: AirshipPushableComponent {
     func receivedRemoteNotification(_ notification: AirshipJSON) async -> UABackgroundFetchResult {
         if self.identifier == nil {

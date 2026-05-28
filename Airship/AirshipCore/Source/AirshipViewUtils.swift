@@ -4,20 +4,20 @@ import Foundation
 public import SwiftUI
 public import Combine
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public extension Color {
     static var airshipTappableClear: Color { Color.white.opacity(0.001) }
     static var airshipShadowColor: Color { Color.black.opacity(0.33) }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public extension View {
     /// Wrapper to prevent linter warnings for deprecated onChange method
     /// - Parameters:
     ///   - value: The value to observe for changes.
     ///   - initial: A Boolean value that determines whether the action should be fired initially.
     ///   - action: The action to perform when the value changes.
-    /// NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     @ViewBuilder
     func airshipOnChangeOf<Value: Equatable>(_ value: Value, initial: Bool = false, _ action: @escaping (Value) -> Void) -> some View {
         if #available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, *) {
@@ -106,7 +106,7 @@ public extension View {
 }
 
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 @MainActor
 public final class AirshipObservableTimer: ObservableObject {
     private static let tick: TimeInterval = 0.1

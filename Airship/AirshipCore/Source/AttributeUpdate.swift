@@ -6,13 +6,11 @@ import Foundation
 @_spi(AirshipInternal) import AirshipBasement
 #endif
 
-/// NOTE: For internal use only. :nodoc:
 enum AttributeUpdateType: Int, Codable, Sendable, Equatable {
     case remove
     case set
 }
 
-/// NOTE: For internal use only. :nodoc:
 struct AttributeUpdate: Codable, Sendable, Equatable {
     let attribute: String
     let type: AttributeUpdateType
@@ -88,7 +86,7 @@ struct AttributeUpdate: Codable, Sendable, Equatable {
 
 extension AttributeUpdate {
     var operation: AttributeOperation {
-        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .iso8601)
+        let timestamp = AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds)
         switch self.type {
         case .set:
             return AttributeOperation(
@@ -108,9 +106,7 @@ extension AttributeUpdate {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
 // Used by ChannelBulkUpdateAPIClient, DeferredAPIClient, and ContactAPIClient
-
 struct AttributeOperation: Encodable {
     enum AttributeAction: String, Encodable {
         case set

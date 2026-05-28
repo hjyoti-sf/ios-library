@@ -118,7 +118,7 @@ public final class Airship: Sendable {
         return shared.airshipInstance.inputValidator
     }
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public var components: [any AirshipComponent] { return airshipInstance.components }
 
     static let _sharedHolder: AirshipAtomicValue<Airship?> = AirshipAtomicValue<Airship?>(nil)
@@ -161,7 +161,7 @@ public final class Airship: Sendable {
         self._airshipInstanceHolder = AirshipAtomicValue(instance)
     }
 
-    /// Initializes Airship. If any errors are found with the config or if Airship is already intiialized it will throw with
+    /// Initializes Airship. If any errors are found with the config or if Airship is already initialized it will throw with
     /// the error.
     /// - Parameters:
     ///     - config: The Airship config. If nil, config will be loading from a plist.
@@ -173,7 +173,7 @@ public final class Airship: Sendable {
     }
 
 #if !os(macOS) && !os(watchOS)
-    /// Initializes Airship. If any errors are found with the config or if Airship is already intiialized it will throw with
+    /// Initializes Airship. If any errors are found with the config or if Airship is already initialized it will throw with
     /// the error.
     /// - Parameters:
     ///     - config: The Airship config. If nil, config will be loading from a plist.
@@ -299,24 +299,22 @@ public final class Airship: Sendable {
         }
     }
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public class func component<E>(ofType componentType: E.Type) -> E? {
         return shared.airshipInstance.component(ofType: componentType)
     }
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public class func requireComponent<E>(ofType componentType: E.Type) -> E {
-        let component = shared.airshipInstance.component(
+        guard let component = shared.airshipInstance.component(
             ofType: componentType
-        )
-
-        if component == nil {
-            assertionFailure("Missing required component: \(componentType)")
+        ) else {
+            preconditionFailure("Missing required component: \(componentType)")
         }
-        return component!
+        return component
     }
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public class func componentSupplier<E>() -> @Sendable () -> E {
         return {
             return requireComponent(ofType: E.self)
@@ -382,7 +380,6 @@ public final class Airship: Sendable {
     }
 
     /// Handle the Airship deep links for app_settings and app_store.
-    /// - Note: For internal use only. :nodoc:
     /// `uairship://app_settings` and `uairship://app_store?itunesID=<ITUNES_ID>` deep links will be handled internally. If no itunesID provided, use the one in Airship Config.
     /// - Parameters:
     ///     - deepLink: The deep link.
@@ -412,7 +409,6 @@ public final class Airship: Sendable {
     }
 
     /// Gets the iTunes ID.
-    /// - Note: For internal use only. :nodoc:
     /// - Parameters:
     ///     - deepLink: The deep link.
     /// - Returns: The iTunes ID or `nil` if it's not set.
@@ -438,15 +434,18 @@ public final class Airship: Sendable {
             return date
         }
 
-        var date: Date!
-
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last,
-           let attributes = try? FileManager.default.attributesOfItem(atPath: documentsURL.path),
-           let installDate = attributes[.creationDate] as? Date
+        let date: Date = if let documentsURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).last,
+            let attributes = try? FileManager.default.attributesOfItem(atPath: documentsURL.path),
+            let installDate = attributes[.creationDate] as? Date
         {
-            date = installDate
+            installDate
         } else {
-            date = self.airshipInstance.component(ofType: (any AirshipChannel).self)?.identifier != nil ? Date.distantPast : Date()
+            self.airshipInstance.component(ofType: (any AirshipChannel).self)?.identifier != nil
+                ? Date.distantPast
+                : Date()
         }
 
         self.airshipInstance.preferenceDataStore.setObject(date, forKey: Airship.newUserCutOffDateKey)

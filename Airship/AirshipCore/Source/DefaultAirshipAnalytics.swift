@@ -422,10 +422,8 @@ final class DefaultAirshipAnalytics: AirshipAnalytics, @unchecked Sendable {
     /// Associates identifiers with the device. This call will add a special event
     /// that will be batched and sent up with our other analytics events. Previous
     /// associated identifiers will be replaced.
-    ///
-    /// For internal use only. :nodoc:
-    ///
     /// - Parameter associatedIdentifiers: The associated identifiers.
+    /// - Note: For internal use only. :nodoc:
     public func associateDeviceIdentifiers(
         _ associatedIdentifiers: AssociatedIdentifiers
     ) {
@@ -517,11 +515,10 @@ final class DefaultAirshipAnalytics: AirshipAnalytics, @unchecked Sendable {
     }
 
     /// Registers an SDK extension with the analytics module.
-    /// For internal use only. :nodoc:
-    ///
     ///  - Parameters:
     ///   - ext: The SDK extension.
     ///   - version: The version.
+    /// - Note: For internal use only. :nodoc:
     public func registerSDKExtension(
         _ ext: AirshipSDKExtension,
         version: String
@@ -603,8 +600,8 @@ extension DefaultAirshipAnalytics: AirshipComponent, InternalAirshipAnalytics {
     }
 
     /// Called to notify analytics the app was launched from a push notification.
-    /// For internal use only. :nodoc:
     /// - Parameter notification: The push notification.
+    /// - Note: For internal use only. :nodoc:
     @MainActor
     public func launched(fromNotification notification: [AnyHashable: Any]) {
         if AirshipUtils.isAlertingPush(notification) {

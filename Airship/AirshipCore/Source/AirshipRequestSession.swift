@@ -53,7 +53,6 @@ public protocol AirshipRequestSession: Sendable {
 
 
 /// Airship request session.
-/// - Note: For internal use only. :nodoc:
 final class DefaultAirshipRequestSession: AirshipRequestSession, Sendable {
 
     private let session: any URLRequestSessionProtocol
@@ -503,11 +502,9 @@ extension URLSession: URLRequestSessionProtocol {
     }
 }
 
-/**
- * URLSession with configured optional challenge resolver
- * @note For internal use only. :nodoc:
- */
 public extension URLSession {
+    /// URLSession with configured optional challenge resolver
+    /// - Note: For internal use only. :nodoc:
     static let airshipSecureSession: URLSession = .init(
         configuration: .default,
         delegate: ChallengeResolver.shared,

@@ -112,18 +112,30 @@ final class DefaultAirshipURLAllowList: AirshipURLAllowList {
         "\\", ".", "[", "]", "{", "}", "(", ")", "^", "$", "?", "+", "|", "*",
     ]
 
-    private let schemePatternValidator: NSRegularExpression = try! NSRegularExpression(
-        pattern: schemeRegex,
-        options: .useUnicodeWordBoundaries
-    )
-    private let hostPatternValidator: NSRegularExpression = try! NSRegularExpression(
-        pattern: hostRegex,
-        options: .useUnicodeWordBoundaries
-    )
-    private let pathPatternValidator: NSRegularExpression = try! NSRegularExpression(
-        pattern: pathRegex,
-        options: .useUnicodeWordBoundaries
-    )
+    private static func makePatternValidator(pattern: String) -> NSRegularExpression {
+        guard
+            let regex = try? NSRegularExpression(
+                pattern: pattern,
+                options: .useUnicodeWordBoundaries
+            )
+        else {
+            preconditionFailure("Invalid built-in URL allow list regex pattern: \(pattern)")
+        }
+        return regex
+    }
+
+    private let schemePatternValidator: NSRegularExpression =
+        DefaultAirshipURLAllowList.makePatternValidator(
+            pattern: DefaultAirshipURLAllowList.schemeRegex
+        )
+    private let hostPatternValidator: NSRegularExpression =
+        DefaultAirshipURLAllowList.makePatternValidator(
+            pattern: DefaultAirshipURLAllowList.hostRegex
+        )
+    private let pathPatternValidator: NSRegularExpression =
+        DefaultAirshipURLAllowList.makePatternValidator(
+            pattern: DefaultAirshipURLAllowList.pathRegex
+        )
 
     @MainActor
     private var entries: Set<AllowListEntry> = []

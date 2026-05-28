@@ -3,7 +3,7 @@
 import SwiftUI
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 struct PreferenceCloseButton: View {
@@ -96,8 +96,8 @@ extension View {
                 dismissIconResource: dismissIconResource,
                 onTap: onUserDismissed
             )
-            .airshipApplyIf(contentDescription != nil) { view in
-                view.accessibilityLabel(contentDescription!)
+            .airshipApplyIfPresent(contentDescription) { view, contentDescription in
+                view.accessibilityLabel(contentDescription)
             }
             .zIndex(1)
         }

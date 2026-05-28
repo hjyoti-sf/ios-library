@@ -179,9 +179,6 @@ extension CustomEvent {
         self.interactionType = CustomEvent.interactionMCRAP
     }
 
-    /**
-     * - Note: For internal use only. :nodoc:
-     */
     func eventBody(sendID: String?, metadata: String?, formatValue: Bool) -> AirshipJSON {
         return AirshipJSON.makeObject { object in
             object.set(string: eventName, key: CustomEvent.eventNameKey)

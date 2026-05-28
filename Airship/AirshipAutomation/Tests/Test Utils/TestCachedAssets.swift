@@ -3,8 +3,11 @@
 import Foundation
 import Combine
 
-@testable import AirshipAutomation
-@testable import AirshipCore
+@testable
+import AirshipAutomation
+
+@testable
+@_spi(AirshipInternal) import AirshipCore
 
 final class TestCachedAssets: AirshipCachedAssetsProtocol, @unchecked Sendable {
 

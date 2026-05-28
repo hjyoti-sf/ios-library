@@ -85,7 +85,7 @@ public struct AirshipInputValidation {
     }
 
     /// Protocol for validators that perform validation of input requests.
-    /// NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public protocol Validator: AnyObject, Sendable {
         /// Validates the provided request and returns a result.
         /// - Parameter request: The request to be validated (either SMS or Email).
@@ -97,7 +97,6 @@ public struct AirshipInputValidation {
 
 extension AirshipInputValidation {
     /// A default implementation of the `Validator` protocol that uses a standard SMS validation API.
-    /// /// NOTE: For internal use only. :nodoc:
     final class DefaultValidator: Validator {
 
         // Regular expression for validating email addresses.

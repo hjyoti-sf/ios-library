@@ -4,7 +4,7 @@ import Foundation
 import SwiftUI
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 enum InAppMessageSource: String, Codable, Equatable, Sendable {
@@ -136,10 +136,10 @@ public struct InAppMessage: Codable, Equatable, Sendable {
 
         let displayType = try container.decode(DisplayType.self, forKey: .displayType)
 
-        var displayContent: InAppMessageDisplayContent!
         var displayContentJSON: AirshipJSON?
+        let displayContent: InAppMessageDisplayContent
 
-        switch (displayType) {
+        switch displayType {
         case .banner:
             let banner = try container.decode(InAppMessageDisplayContent.Banner.self, forKey: .display)
             displayContent = .banner(banner)
@@ -291,10 +291,14 @@ fileprivate struct DisplayContentWrapper: Equatable {
 /// These are just for view testing purposes
 extension InAppMessage {
     /// We return a window since we are implementing display
-    /// - Note: for internal use only.  :nodoc:
+    /// - Note: For internal use only. :nodoc:
     @MainActor
     public func _display() async throws {
-        let adapter = try AirshipLayoutDisplayAdapter(message: self, priority: 0, assets: EmptyAirshipCachedAssets())
+        let adapter = try AirshipLayoutDisplayAdapter(
+            message: self,
+            priority: 0,
+            assets: EmptyAirshipCachedAssets()
+        )
 #if os(macOS)
         let displayTarget = AirshipDisplayTarget()
 #else

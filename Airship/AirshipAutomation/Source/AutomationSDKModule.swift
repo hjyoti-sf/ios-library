@@ -1,12 +1,12 @@
 /* Copyright Airship and Contributors */
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 @objc(UAAutomationSDKModule)
 public class AutomationSDKModule: NSObject, AirshipSDKModule {
     public let components: [any AirshipComponent]
@@ -16,7 +16,7 @@ public class AutomationSDKModule: NSObject, AirshipSDKModule {
         self.components = components
     }
     
-    public static func load(_ args: AirshiopModuleLoaderArgs) -> (any AirshipSDKModule)? {
+    public static func load(_ args: AirshipModuleLoaderArgs) -> (any AirshipSDKModule)? {
         /// Utils
         let remoteDataAccess = AutomationRemoteDataAccess(remoteData: args.remoteData)
         let assetManager = AssetCacheManager()

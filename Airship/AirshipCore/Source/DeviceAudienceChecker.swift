@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol DeviceAudienceChecker: Sendable {
     func evaluate(
         audienceSelector: CompoundDeviceAudienceSelector?,
@@ -11,7 +11,6 @@ public protocol DeviceAudienceChecker: Sendable {
     ) async throws -> AirshipDeviceAudienceResult
 }
 
-/// NOTE: For internal use only. :nodoc:
 struct DefaultDeviceAudienceChecker: DeviceAudienceChecker {
     private let hashChecker: HashChecker
 
@@ -132,8 +131,6 @@ extension CompoundDeviceAudienceSelector {
     }
 }
 
-
-/// NOTE: For internal use only. :nodoc:
 extension DeviceAudienceSelector {
 
     func evaluate(

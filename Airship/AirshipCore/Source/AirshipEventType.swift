@@ -30,7 +30,7 @@ public enum EventType: CaseIterable, Sendable, Equatable, Hashable {
     case inAppPageView
     case inAppPageAction
 
-    /// NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public var reportingName: String {
         switch self {
         case .appInit:

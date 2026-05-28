@@ -2,7 +2,6 @@
 
 import Foundation
 
-/// NOTE: For internal use only. :nodoc:
 protocol ChannelRegistrarProtocol: AnyObject, Sendable {
     var channelID: String? { get }
     var registrationUpdates: AirshipAsyncChannel<ChannelRegistrationUpdate> { get }
@@ -19,7 +18,6 @@ enum ChannelRegistrationUpdate: Equatable, Sendable {
 }
 
 /// The ChannelRegistrar class is responsible for device registrations.
-/// - Note: For internal use only. :nodoc:
 final class ChannelRegistrar: ChannelRegistrarProtocol, Sendable {
     static let workID: String = "UAChannelRegistrar.registration"
     private static let payloadCadence: TimeInterval = 24 * 60 * 60

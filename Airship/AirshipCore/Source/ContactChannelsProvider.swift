@@ -3,10 +3,7 @@
 import Foundation
 import Combine
 
-/**
- * Contact channels provider protocol for receiving contact updates.
- * @note For internal use only. :nodoc:
- */
+/// Contact channels provider protocol for receiving contact updates.
 protocol ContactChannelsProviderProtocol: Sendable {
     func contactChannels(stableContactIDUpdates: AsyncStream<String>) -> AsyncStream<ContactChannelsResult>
     func refresh() async
@@ -80,8 +77,8 @@ fileprivate extension CachingRemoteDataError {
 }
 
 public enum ContactChannelsResult: Equatable, Sendable, Hashable, CachingRemoteDataProviderResult {
-    static func error(_ error: CachingRemoteDataError) -> any CachingRemoteDataProviderResult {
-        return ContactChannelsResult.error(error.toChannelError())
+    static func error(_ error: CachingRemoteDataError) -> ContactChannelsResult {
+        .error(error.toChannelError())
     }
     
     case success([ContactChannel])

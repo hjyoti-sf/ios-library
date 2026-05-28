@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipCoreDataPredicate: Sendable {
     private let format: String
     private let args: [any Sendable]?

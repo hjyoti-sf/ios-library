@@ -3,7 +3,7 @@
 import Foundation
 public import SwiftUI
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipAsyncImage<Placeholder: View, ImageView: View>: View {
 
     private let url: String

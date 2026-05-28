@@ -5,7 +5,7 @@ import Foundation
 public import SwiftUI
 
 #if canImport(AirshipCore)
-import AirshipCore
+@_spi(AirshipInternal) import AirshipCore
 #endif
 
 /// A view that displays a message as well as modifies the toolbars and navigation title.
@@ -153,14 +153,14 @@ public struct MessageCenterMessageViewWithNavigation: View {
                 }
             }
         }
-        .airshipApplyIf(containerColor != nil) { view in
+        .airshipApplyIfPresent(containerColor) { view, containerColor in
             let visibility: Visibility = if #available(iOS 26.0, *) {
                 .automatic
             } else {
                 .visible
             }
 #if !os(macOS)
-            view.toolbarBackground(containerColor!, for: .navigationBar)
+            view.toolbarBackground(containerColor, for: .navigationBar)
                 .toolbarBackground(visibility, for: .navigationBar)
 #endif
         }

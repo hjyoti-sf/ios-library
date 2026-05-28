@@ -42,12 +42,12 @@ public final class RuntimeConfig: Sendable {
     private let notificationCenter: NotificationCenter
     private let defaultURLs: DefaultURLs
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public var remoteConfig: RemoteConfig {
         return self.remoteConfigCache.remoteConfig
     }
 
-    /// - NOTE: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public var deviceAPIURL: String? {
         if let url = remoteConfig.airshipConfig?.deviceAPIURL {
             return url
@@ -60,7 +60,6 @@ public final class RuntimeConfig: Sendable {
         return defaultURLs.deviceURL
     }
 
-    /// - NOTE: For internal use only. :nodoc:
     var remoteDataAPIURL: String {
         if let url = remoteConfig.airshipConfig?.remoteDataURL {
             return url
@@ -76,7 +75,6 @@ public final class RuntimeConfig: Sendable {
         return defaultURLs.remoteDataURL
     }
 
-    /// - NOTE: For internal use only. :nodoc:
     var analyticsURL: String? {
         if let url = remoteConfig.airshipConfig?.analyticsURL {
             return url
@@ -89,7 +87,6 @@ public final class RuntimeConfig: Sendable {
         return defaultURLs.analyticsURL
     }
 
-    /// - NOTE: For internal use only. :nodoc:
     var meteredUsageURL: String? {
         return remoteConfigCache.remoteConfig.airshipConfig?.meteredUsageURL
     }

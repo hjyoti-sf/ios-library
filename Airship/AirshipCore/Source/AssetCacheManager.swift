@@ -1,19 +1,19 @@
 /* Copyright Airship and Contributors */
 
-import Foundation
+public import Foundation
 
-#if canImport(AirshipCore)
-import AirshipCore
-#endif
-
+/// - NOTE: For internal use only. :nodoc:
 /// Wrapper for the download tasks that is responsible for downloading assets
-protocol AssetDownloader: Sendable {
+@_spi(AirshipInternal)
+public protocol AssetDownloader: Sendable {
     /// Downloads the asset from a remote URL and returns its temporary local URL
     func downloadAsset(remoteURL: URL) async throws -> URL
 }
 
+/// - NOTE: For internal use only. :nodoc:
 /// Wrapper for the filesystem that is responsible for asset-caching related file and directory operations
-protocol AssetFileManager: Sendable {
+@_spi(AirshipInternal)
+public protocol AssetFileManager: Sendable {
     /// Gets or creates the root directory
     var rootDirectory: URL? { get }
 
@@ -30,7 +30,9 @@ protocol AssetFileManager: Sendable {
     func clearAssets(cacheURL: URL) throws
 }
 
-protocol AssetCacheManagerProtocol: Actor {
+/// - NOTE: For internal use only. :nodoc:
+@_spi(AirshipInternal)
+public protocol AssetCacheManagerProtocol: Actor {
     func cacheAssets(
         identifier: String,
         assets: [String]
@@ -39,25 +41,32 @@ protocol AssetCacheManagerProtocol: Actor {
     func clearCache(identifier: String) async
 }
 
+private final class CachedAssetsLoadTask: Sendable {
+    let task: Task<AirshipCachedAssets, any Error>
+    init(_ task: Task<AirshipCachedAssets, any Error>) {
+        self.task = task
+    }
+}
 
+/// - NOTE: For internal use only. :nodoc:
 /// Downloads and caches asset files in filesystem using cancelable thread-safe tasks.
-actor AssetCacheManager: AssetCacheManagerProtocol {
+@_spi(AirshipInternal)
+public actor AssetCacheManager: AssetCacheManagerProtocol {
     private let assetDownloader: any AssetDownloader
     private let assetFileManager: any AssetFileManager
 
     private var cacheRoot: URL?
-    private var taskMap: [String: Task<AirshipCachedAssets, any Error>] = [:]
+    private var taskMap: [String: CachedAssetsLoadTask] = [:]
 
     private let downloadSemaphore: AirshipAsyncSemaphore = AirshipAsyncSemaphore(value: 6)
 
-    internal init(
+    public init(
         assetDownloader: any AssetDownloader = DefaultAssetDownloader(),
         assetFileManager: any AssetFileManager = DefaultAssetFileManager()
     ) {
         self.assetDownloader = assetDownloader
         self.assetFileManager = assetFileManager
-
-        /// Set cache root for clearing operations
+        // Set cache root for clearing operations
         self.cacheRoot = assetFileManager.rootDirectory
     }
 
@@ -68,28 +77,28 @@ actor AssetCacheManager: AssetCacheManagerProtocol {
     ///   - identifier: Name of the directory within the root cache directory, usually an in-app message schedule ID
     ///   - assets: An array of remote URL paths for the assets assoicated with the provided identifer
     /// - Returns: AirshipCachesAssets instance
-    func cacheAssets(
+    public func cacheAssets(
         identifier: String,
         assets: [String]
     ) async throws -> any AirshipCachedAssetsProtocol {
-        
+
         if let running = taskMap[identifier] {
-            return try await running.result.get()
+            return try await running.task.result.get()
         }
-        
+
         let task: Task<AirshipCachedAssets, any Error> = Task {
             let startTime = Date()
 
             // Deduplicate URLs to prevent concurrent operations on the same asset
             let uniqueAssets = Array(Set(assets))
-            let assetURLs = uniqueAssets.compactMap({ URL(string:$0) })
+            let assetURLs = uniqueAssets.compactMap { URL(string: $0) }
 
             // Log if duplicate URLs were found
             if assets.count != uniqueAssets.count {
                 AirshipLogger.debug("Found duplicate asset URLs for identifier \(identifier): \(assets.count) URLs reduced to \(uniqueAssets.count) unique URLs")
             }
 
-            /// Create or get the directory for the assets corresponding to a specific identifier
+            // Create or get the directory for the assets corresponding to a specific identifier
             let cacheDirectory = try assetFileManager.ensureCacheDirectory(identifier: identifier)
 
             let cachedAssets = AirshipCachedAssets(directory: cacheDirectory, assetFileManager: assetFileManager)
@@ -124,22 +133,31 @@ actor AssetCacheManager: AssetCacheManagerProtocol {
 
             let duration = Date().timeIntervalSince(startTime)
 
-            AirshipLogger.debug("In-app message \(identifier): \(assets.count) assets prepared in \(duration) seconds")
+            AirshipLogger.debug("Assets cached for identifier \(identifier): \(assets.count) assets prepared in \(duration) seconds")
 
 
             return cachedAssets
         }
 
-        taskMap[identifier] = task
+        let box = CachedAssetsLoadTask(task)
+        taskMap[identifier] = box
 
-        return try await task.result.get()
+        do {
+            return try await task.result.get()
+        } catch {
+            // Allow a later prefetch retry; a failed Task's result never succeeds on reuse.
+            if taskMap[identifier] === box {
+                taskMap.removeValue(forKey: identifier)
+            }
+            throw error
+        }
     }
 
 
     /// Clears the cache directory associated with the identifier
     /// - Parameter identifier: Name of the directory within the root cache directory, usually an in-app message schedule ID
-    func clearCache(identifier: String) async {
-        taskMap[identifier]?.cancel()
+    public func clearCache(identifier: String) async {
+        taskMap[identifier]?.task.cancel()
         taskMap.removeValue(forKey: identifier)
 
         if let root = self.cacheRoot {
@@ -153,5 +171,3 @@ actor AssetCacheManager: AssetCacheManagerProtocol {
         }
     }
 }
-
-

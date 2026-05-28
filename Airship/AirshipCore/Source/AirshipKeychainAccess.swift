@@ -3,7 +3,7 @@
 import Foundation
 
 /// Keychain credentials
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct AirshipKeychainCredentials: Sendable {
 
     /// The username
@@ -23,7 +23,7 @@ public struct AirshipKeychainCredentials: Sendable {
 }
 
 /// Keychain access
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipKeychainAccessProtocol: Sendable {
     /// Writes credentials to the keychain for the given identifier.
     /// - Parameters:
@@ -62,7 +62,7 @@ public protocol AirshipKeychainAccessProtocol: Sendable {
 }
 
 /// Keychain access
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipKeychainAccess: AirshipKeychainAccessProtocol {
 
     public static let shared: AirshipKeychainAccess = AirshipKeychainAccess()

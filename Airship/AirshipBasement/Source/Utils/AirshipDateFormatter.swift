@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 @_spi(AirshipInternal)
 public struct AirshipDateFormatter: Sendable {
     private init() {}

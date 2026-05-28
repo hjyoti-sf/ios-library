@@ -92,7 +92,7 @@ class ChannelBulkUpdateAPIClientTest: XCTestCase {
                     [
                         "action": "set",
                         "key": "some-attribute",
-                        "timestamp": AirshipDateFormatter.string(fromDate: date, format: .iso8601),
+                        "timestamp": AirshipDateFormatter.string(fromDate: date, format: .iso8601WithMilliseconds),
                         "value": "hello",
                     ]
                 ],

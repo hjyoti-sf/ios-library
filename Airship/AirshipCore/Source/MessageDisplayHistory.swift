@@ -2,7 +2,7 @@
 
 public import Foundation
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct MessageDisplayHistory: Codable, Equatable, Sendable {
     public var lastImpression: LastImpression?
     public var lastDisplay: LastDisplay?
@@ -31,7 +31,7 @@ public struct MessageDisplayHistory: Codable, Equatable, Sendable {
     }
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol MessageDisplayHistoryStoreProtocol: Sendable {
     func set(
         _ history: MessageDisplayHistory,
@@ -43,7 +43,7 @@ public protocol MessageDisplayHistoryStoreProtocol: Sendable {
     ) async -> MessageDisplayHistory
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class MessageDisplayHistoryStore: MessageDisplayHistoryStoreProtocol {
 
     private let storageGetter: @Sendable (String) async throws -> Data?

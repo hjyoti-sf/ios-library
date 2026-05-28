@@ -57,7 +57,7 @@ enum ContactUpdate: Equatable, Sendable {
     case conflict(ContactConflictEvent)
 }
 
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct StableContactInfo: Sendable, Equatable {
     public let contactID: String
     public let namedUserID: String?

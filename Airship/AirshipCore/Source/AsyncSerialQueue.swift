@@ -1,7 +1,7 @@
 /* Copyright Airship and Contributors */
 
 /// A class that will run blocks in a FIFO order
-/// NOTE: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipAsyncSerialQueue : Sendable {
     private let continuation: AsyncStream<@Sendable () async -> Void>.Continuation
     private let stream: AsyncStream<@Sendable () async -> Void>

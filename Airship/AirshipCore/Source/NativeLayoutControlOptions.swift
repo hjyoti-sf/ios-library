@@ -3,15 +3,15 @@
 import Foundation
 
 /// Layout-level options for native layouts (e.g. state restoration across displays).
-/// /// - Note: For internal use only. :nodoc:
+/// - Note: For internal use only. :nodoc:
 public struct NativeLayoutControlOptions {
 
     /// When set, controls restoring state across displays.
-    /// /// - Note: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public let stateRestoration: StateRestoration?
 
     /// Controls restoring state across displays.
-    /// /// - Note: For internal use only. :nodoc:
+    /// - Note: For internal use only. :nodoc:
     public struct StateRestoration: ThomasSerializable {
 
         /// How state is scoped when restoring.

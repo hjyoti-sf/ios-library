@@ -5,7 +5,7 @@ import Foundation
 public import UIKit
 #endif
 
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public protocol AirshipSceneManagerProtocol: Sendable {
 #if !os(watchOS) && !os(macOS)
     @MainActor
@@ -18,7 +18,7 @@ public protocol AirshipSceneManagerProtocol: Sendable {
  *  Scene manager
  *  Monitors scene connection and disconnection notifications and associated scenes to allow retrieving the latest scene.
  */
-/// - Note: for internal use only.  :nodoc:
+/// - Note: For internal use only. :nodoc:
 public final class AirshipSceneManager: AirshipSceneManagerProtocol, Sendable {
     public static let shared: AirshipSceneManager = AirshipSceneManager()
 

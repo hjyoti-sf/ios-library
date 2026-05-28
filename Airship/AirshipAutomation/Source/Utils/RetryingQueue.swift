@@ -19,7 +19,6 @@ import AirshipCore
 /// by `maxConcurrentOperations`, and backpressure is applied via `maxPendingResults`
 /// to prevent too many completed operations from awaiting their turn to return.
 ///
-/// NOTE: For internal use only. :nodoc:
 actor RetryingQueue<T: Sendable> {
 
     /// Work state that persists across retries for a single operation.

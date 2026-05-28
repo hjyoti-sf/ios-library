@@ -139,10 +139,6 @@ public final class DefaultAirshipContact: AirshipContact, @unchecked Sendable {
         return age ?? Self.defaultVerifiedContactIDAge
     }
 
-    /**
-     * Internal only
-     * :nodoc:
-     */
     @MainActor
     init(
         dataStore: PreferenceDataStore,
@@ -298,10 +294,6 @@ public final class DefaultAirshipContact: AirshipContact, @unchecked Sendable {
         }
     }
 
-    /**
-     * Internal only
-     * :nodoc:
-     */
     @MainActor
     convenience init(
         dataStore: PreferenceDataStore,

@@ -3,10 +3,7 @@
 import Foundation
 import Combine
 
-/**
- * Subscription list provider protocol for receiving contact updates.
- * @note For internal use only. :nodoc:
- */
+/// Subscription list provider protocol for receiving contact updates.
 protocol ChannelSubscriptionListProviderProtocol: Sendable {
     func fetch(channelID: String) async throws -> [String]
 }
@@ -81,8 +78,8 @@ final class ChannelSubscriptionListProvider: ChannelSubscriptionListProviderProt
 }
 
 enum ChannelSubscriptionListResult: Equatable, Sendable, Hashable, CachingRemoteDataProviderResult {
-    static func error(_ error: CachingRemoteDataError) -> any CachingRemoteDataProviderResult {
-        return ChannelSubscriptionListResult.fail(error)
+    static func error(_ error: CachingRemoteDataError) -> ChannelSubscriptionListResult {
+        ChannelSubscriptionListResult.fail(error)
     }
     
     case success([String])
