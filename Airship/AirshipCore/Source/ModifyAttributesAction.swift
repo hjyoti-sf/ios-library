@@ -4,19 +4,33 @@ import Foundation
 
 /// Modifies attributes.
 ///
-/// An example JSON payload:
+/// Accepts two argument formats:
 ///
+/// **Dictionary format**
+/// ```json
 /// {
 ///     "channel": {
-///         set: {"key": value, ... },
-///         remove: ["attribute", ....]
+///         "set": { "key": "value" },
+///         "remove": ["attribute"]
 ///     },
 ///     "named_user": {
-///         set: {"key": value, ... },
-///         remove: ["attribute", ....]
+///         "set": { "key": "value" },
+///         "remove": ["attribute"]
 ///     }
 /// }
+/// ```
 ///
+/// **Array format** — each element describes a single operation:
+/// ```json
+/// [
+///     { "action": "set",    "type": "channel",    "name": "color",    "value": "blue" },
+///     { "action": "remove", "type": "channel",    "name": "color" },
+///     { "action": "set",    "type": "named_user", "name": "score",    "value": 42 },
+///     { "action": "set",    "type": "channel",    "name": "attr#id",  "value": { "key": "val", "exp": 1779840000 } }
+/// ]
+/// ```
+/// For JSON object values, `name` must be `"attributeName#instanceId"` with both parts non-empty.
+/// The optional `"exp"` key inside the object is a Unix timestamp (seconds) for the expiration date.
 ///
 /// Valid situations: `ActionSituation.foregroundPush`, `ActionSituation.launchedFromPush`
 /// `ActionSituation.webViewInvocation`, `ActionSituation.foregroundInteractiveButton`,
@@ -208,15 +222,20 @@ public final class ModifyAttributesAction: AirshipAction {
         
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            
+
             let type = try container.decode(ActionType.self, forKey: .actionType)
-            
+
             let editor = try container.decode(TargetEditor.self, forKey: .target)
             let name = try container.decode(String.self, forKey: .name)
-            
+
             switch(type) {
             case .set:
-                self = .set(editor, name, try container.decode(Value.self, forKey: .value))
+                let rawValue = try container.decode(AirshipJSON.self, forKey: .value)
+                if case .object = rawValue {
+                    self = .set(editor, name, .json(try JsonValue(name: name, valueJson: rawValue)))
+                } else {
+                    self = .set(editor, name, try container.decode(Value.self, forKey: .value))
+                }
             case .remove:
                 self = .remove(editor, name)
             }
@@ -297,30 +316,22 @@ public final class ModifyAttributesAction: AirshipAction {
         
         struct JsonValue: Codable, Sendable, Hashable {
             private static let keyExpiration: String = "exp"
-            
+
             let name: String
             let instanceId: String
             let expiration: Date?
             let value: [String: AirshipJSON]
-            
-            init(from decoder: any Decoder) throws {
-                let json = try AirshipJSON(from: decoder)
-                
-                guard
-                    case .object(let dict) = json,
-                    dict.count == 1,
-                    let keyInstanceId = dict.first?.key, keyInstanceId.contains("#"),
-                    let contentJson = dict.first?.value,
-                    case .object(var content) = contentJson
-                else {
-                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected JSON object but found \(json)"))
+
+            init(name: String, valueJson: AirshipJSON) throws {
+                let components = name.split(separator: "#", omittingEmptySubsequences: false)
+                guard components.count == 2, !components[0].isEmpty, !components[1].isEmpty else {
+                    throw AirshipErrors.error(
+                        "Instance attribute name must be 'attributeName#instanceId' with non-empty parts: \(name)"
+                    )
                 }
-                
-                let components = keyInstanceId.split(separator: "#")
-                guard components.count == 2 else {
-                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid instance ID format: \(keyInstanceId)"))
+                guard case .object(var content) = valueJson else {
+                    throw AirshipErrors.error("Expected JSON object value for instance attribute")
                 }
-                
                 self.name = String(components[0])
                 self.instanceId = String(components[1])
                 self.expiration = Self.convertToDate(content.removeValue(forKey: Self.keyExpiration))

@@ -62,8 +62,95 @@ final class ModifyAttributesActionTest: XCTestCase {
         }
     }
     
+    func testJsonValueNewFormat() async throws {
+        // name carries "attributeName#instanceId", value is the plain JSON object
+        let value = [
+            [
+                "action": "set",
+                "type": "channel",
+                "name": "myAttributeName#myInstanceID",
+                "value": [
+                    "some_custom_key": "custom_value",
+                    "exp": 1779840000
+                ] as [String: Any]
+            ]
+        ]
+
+        let expectedAttributes = [
+            AttributeUpdate(
+                attribute: "myAttributeName#myInstanceID",
+                type: .set,
+                jsonValue: try AirshipJSON.wrap(["some_custom_key": "custom_value", "exp": 1779840000]),
+                date: self.date.now
+            )
+        ]
+
+        let attributesSet = self.expectation(description: "attributes")
+
+        self.contact.attributeEditor = AttributesEditor(date: self.date) { _ in
+            XCTFail("shouldn't be called")
+        }
+
+        self.channel.attributeEditor = AttributesEditor(date: self.date) { attributes in
+            XCTAssertEqual(expectedAttributes, attributes)
+            attributesSet.fulfill()
+        }
+
+        let _ = try await self.action.perform(arguments:
+            ActionArguments(
+                value: try AirshipJSON.wrap(value),
+                situation: .manualInvocation
+            )
+        )
+
+        await fulfillment(of: [attributesSet])
+    }
+
+    func testJsonValueNewFormatNoExpiration() async throws {
+        let value = [
+            [
+                "action": "set",
+                "type": "channel",
+                "name": "myAttributeName#myInstanceID",
+                "value": [
+                    "some_custom_key": "custom_value"
+                ] as [String: Any]
+            ]
+        ]
+
+        let expectedAttributes = [
+            AttributeUpdate(
+                attribute: "myAttributeName#myInstanceID",
+                type: .set,
+                jsonValue: try AirshipJSON.wrap(["some_custom_key": "custom_value"]),
+                date: self.date.now
+            )
+        ]
+
+        let attributesSet = self.expectation(description: "attributes")
+
+        self.contact.attributeEditor = AttributesEditor(date: self.date) { _ in
+            XCTFail("shouldn't be called")
+        }
+
+        self.channel.attributeEditor = AttributesEditor(date: self.date) { attributes in
+            XCTAssertEqual(expectedAttributes, attributes)
+            attributesSet.fulfill()
+        }
+
+        let _ = try await self.action.perform(arguments:
+            ActionArguments(
+                value: try AirshipJSON.wrap(value),
+                situation: .manualInvocation
+            )
+        )
+
+        await fulfillment(of: [attributesSet])
+    }
+
     func testAcceptReturnsFalseForInvalidJsonValue() async throws {
-        let jsons = [
+        let jsons: [[[String: Any]]] = [
+            // value key has no "#" → not a valid instance attribute
             [[
                 "action": "set",
                 "type": "channel",
@@ -75,6 +162,7 @@ final class ModifyAttributesActionTest: XCTestCase {
                     ]
                 ]
             ]],
+            // value key has too many "#" → invalid
             [[
                 "action": "set",
                 "type": "channel",
@@ -86,6 +174,7 @@ final class ModifyAttributesActionTest: XCTestCase {
                     ]
                 ]
             ]],
+            // value key ends with "#" (empty instanceId) → invalid
             [[
                 "action": "set",
                 "type": "channel",
@@ -95,6 +184,24 @@ final class ModifyAttributesActionTest: XCTestCase {
                         "exp": 1012,
                         "nested": [ "foo": "bar" ]
                     ]
+                ]
+            ]],
+            // name has too many "#" → invalid
+            [[
+                "action": "set",
+                "type": "channel",
+                "name": "my#attr#id",
+                "value": [
+                    "some_key": "value"
+                ]
+            ]],
+            // name ends with "#" (empty instanceId) → invalid
+            [[
+                "action": "set",
+                "type": "channel",
+                "name": "myAttr#",
+                "value": [
+                    "some_key": "value"
                 ]
             ]]
         ]
@@ -179,20 +286,19 @@ final class ModifyAttributesActionTest: XCTestCase {
     }
     
     func testJsonValue() async throws {
+        // name carries "attributeName#instanceId", value is the plain JSON object
         let value = [
             [
                 "action": "set",
                 "type": "channel",
-                "name": "another name",
+                "name": "json#test",
                 "value": [
-                    "json#test": [
-                        "exp": 1234567890,
-                        "nested": ["foo": "bar"]
-                    ]
-                ]
+                    "exp": 1234567890,
+                    "nested": ["foo": "bar"]
+                ] as [String: Any]
             ]
         ]
-        
+
         let expectedAttributes = [
             AttributeUpdate(
                 attribute: "json#test",
@@ -228,19 +334,18 @@ final class ModifyAttributesActionTest: XCTestCase {
     }
     
     func testJsonValueNoExpiration() async throws {
+        // name carries "attributeName#instanceId", value is the plain JSON object
         let value = [
             [
                 "action": "set",
                 "type": "channel",
-                "name": "another name",
+                "name": "json#test",
                 "value": [
-                    "json#test": [
-                        "nested": ["foo": "bar"]
-                    ]
-                ]
+                    "nested": ["foo": "bar"]
+                ] as [String: Any]
             ]
         ]
-        
+
         let expectedAttributes = [
             AttributeUpdate(
                 attribute: "json#test",
