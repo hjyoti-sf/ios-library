@@ -86,7 +86,10 @@ final class DefaultInAppDisplayImpressionRuleProviderTest: XCTestCase {
           "presentation":{
              "type":"banner",
              "default_placement":{
-                "position": "top",
+                "position": {
+                  "horizontal": "center",
+                  "vertical": "bottom"
+                },
                 "size":{
                    "width":"50%",
                    "height":"50%"

@@ -67,7 +67,7 @@ struct ViewConstraints: Equatable {
     ) -> ViewConstraints {
 
         let verticalMargins: CGFloat = margin?.verticalMargins ?? 0.0
-        let horizontalMargins: CGFloat = margin?.horiztonalMargins ?? 0.0
+        let horizontalMargins: CGFloat = margin?.horizontalMargins ?? 0.0
 
         let parentWidth: CGFloat? = self.width?.subtract(horizontalMargins)
         let parentHeight: CGFloat? = self.height?.subtract(verticalMargins)
@@ -151,7 +151,7 @@ struct ViewConstraints: Equatable {
         let parentWidth: CGFloat? = self.width?.subtract(padding * 2)
         let parentHeight: CGFloat? = self.height?.subtract(padding * 2)
 
-        var horizontalMargins: CGFloat = margin?.horiztonalMargins ?? 0.0
+        var horizontalMargins: CGFloat = margin?.horizontalMargins ?? 0.0
         var verticalMargins: CGFloat = margin?.verticalMargins ?? 0.0
 
         var safeAreaInsets: EdgeInsets = self.safeAreaInsets
@@ -258,7 +258,7 @@ extension ThomasMargin {
         return (self.bottom ?? 0.0) + (self.top ?? 0.0)
     }
 
-    var horiztonalMargins: CGFloat {
+    var horizontalMargins: CGFloat {
         return (self.start ?? 0.0) + (self.end ?? 0.0)
     }
 }

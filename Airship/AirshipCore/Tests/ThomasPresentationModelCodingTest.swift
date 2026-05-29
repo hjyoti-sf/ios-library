@@ -38,13 +38,16 @@ final class ThomasPresentationModelCodingTest: XCTestCase {
             {
               "orientation": "landscape",
               "placement": {
-                "position": "top",
                 "size": {
                   "width": "50%",
                   "height": 500
                 },
                 "border": {
                   "radius": 20
+                },
+                "position": {
+                  "horizontal": "center",
+                  "vertical": "bottom"
                 }
               }
             }
@@ -54,7 +57,10 @@ final class ThomasPresentationModelCodingTest: XCTestCase {
               "width": "100%",
               "height": 500
             },
-            "position": "top"
+            "position": {
+              "horizontal": "center",
+              "vertical": "bottom"
+            }
           }
         }
         """
@@ -72,6 +78,15 @@ final class ThomasPresentationModelCodingTest: XCTestCase {
               "height": "100%",
               "width": "100%",
               "max_width": "100%"
+            },
+            "animation":{
+              "type": "slide",
+              "animate_in_seconds": 0.3,
+              "animate_out_seconds": 0.3,
+              "origin":{
+                "horizontal": "center",
+                "vertical": "bottom"
+              }
             },
             "device": {
               "lock_orientation": "portrait"

@@ -73,20 +73,16 @@ enum ThomasPresentationInfo: ThomasSerializable {
             case type
         }
 
-        enum Position: String, ThomasSerializable {
-            case top
-            case bottom
-        }
-
         struct Placement: ThomasSerializable {
             var margin: ThomasMargin?
             var size: ThomasConstrainedSize
-            var position: Position
+            var position: ThomasEdgePosition
             var ignoreSafeArea: Bool?
             var border: ThomasBorder?
             var backgroundColor: ThomasColor?
             var nubInfo: ThomasViewInfo.NubInfo?
             var cornerRadius: ThomasViewInfo.CornerRadiusInfo?
+            var animation: Animation?
 
             private enum CodingKeys: String, CodingKey {
                 case margin
@@ -97,6 +93,62 @@ enum ThomasPresentationInfo: ThomasSerializable {
                 case backgroundColor = "background_color"  
                 case nubInfo = "nub"
                 case cornerRadius = "corner_radius"
+                case animation
+            }
+        }
+        
+        enum Animation: ThomasSerializable {
+            case fade(FadeAnimation)
+            case slide(SlideAnimation)
+            
+            private enum CodingKeys: String, CodingKey {
+                case type = "type"
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let type = try container.decode(AnimationType.self, forKey: .type)
+
+                self = switch type {
+                case .fade: .fade(try FadeAnimation(from: decoder))
+                case .slide: .slide(try SlideAnimation(from: decoder))
+                }
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                switch self {
+                case .fade(let info): try info.encode(to: encoder)
+                case .slide(let info): try info.encode(to: encoder)
+                }
+            }
+        }
+        
+        enum AnimationType: String, ThomasSerializable {
+            case fade
+            case slide
+        }
+        
+        struct FadeAnimation: ThomasSerializable {
+            var type: AnimationType = .fade
+            var animateInSeconds: Double?
+            var animateOutSeconds: Double?
+            
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case animateInSeconds = "animate_in_seconds"
+                case animateOutSeconds = "animate_out_seconds"
+            }
+        }
+        
+        struct SlideAnimation: ThomasSerializable {
+            var type: AnimationType = .slide
+            var animateInSeconds: Double?
+            var animateOutSeconds: Double?
+            
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case animateInSeconds = "animate_in_seconds"
+                case animateOutSeconds = "animate_out_seconds"
             }
         }
     }
@@ -128,6 +180,7 @@ enum ThomasPresentationInfo: ThomasSerializable {
             var border: ThomasBorder?
             var backgroundColor: ThomasColor?
             var shadow: ThomasShadow?
+            var animation: Animation?
 
             private enum CodingKeys: String, CodingKey {
                 case margin
@@ -139,6 +192,84 @@ enum ThomasPresentationInfo: ThomasSerializable {
                 case border
                 case backgroundColor = "background_color"
                 case shadow
+                case animation
+            }
+        }
+        
+        enum Animation: ThomasSerializable {
+            case fade(FadeAnimation)
+            case slide(SlideAnimation)
+            case explode(ExplodeAnimation)
+            
+            private enum CodingKeys: String, CodingKey {
+                case type = "type"
+            }
+
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let type = try container.decode(AnimationType.self, forKey: .type)
+
+                self = switch type {
+                case .fade: .fade(try FadeAnimation(from: decoder))
+                case .slide: .slide(try SlideAnimation(from: decoder))
+                case .explode: .explode(try ExplodeAnimation(from: decoder))
+                }
+            }
+
+            func encode(to encoder: any Encoder) throws {
+                switch self {
+                case .fade(let info): try info.encode(to: encoder)
+                case .slide(let info): try info.encode(to: encoder)
+                case .explode(let info): try info.encode(to: encoder)
+                }
+            }
+        }
+        
+        enum AnimationType: String, ThomasSerializable {
+            case fade
+            case slide
+            case explode
+        }
+        
+        struct FadeAnimation: ThomasSerializable {
+            var type: AnimationType = .fade
+            var animateInSeconds: Double?
+            var animateOutSeconds: Double?
+            
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case animateInSeconds = "animate_in_seconds"
+                case animateOutSeconds = "animate_out_seconds"
+            }
+        }
+        
+        struct SlideAnimation: ThomasSerializable {
+            var type: AnimationType = .slide
+            var animateInSeconds: Double?
+            var animateOutSeconds: Double?
+            var origin: ThomasEdgePosition
+            
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case animateInSeconds = "animate_in_seconds"
+                case animateOutSeconds = "animate_out_seconds"
+                case origin
+            }
+        }
+        
+        struct ExplodeAnimation: ThomasSerializable {
+            var type: AnimationType = .explode
+            var animateInSeconds: Double?
+            var animateOutSeconds: Double?
+            var enter: ThomasCornerPosition
+            var exit: ThomasCornerPosition
+            
+            private enum CodingKeys: String, CodingKey {
+                case type
+                case animateInSeconds = "animate_in_seconds"
+                case animateOutSeconds = "animate_out_seconds"
+                case enter
+                case exit
             }
         }
     }

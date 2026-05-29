@@ -99,7 +99,7 @@ public final class Thomas {
         extensions: ThomasExtensions?,
         delegate: any ThomasDelegate
     ) throws -> any AirshipMainActorCancellable {
-        let displayable = displayTarget.prepareDisplay(for: .modal)
+        let displayable = displayTarget.prepareDisplay(for: .modal, windowAnimated: false)
 
         let options = ThomasViewControllerOptions()
         options.orientation = presentation.defaultPlacement.device?.orientationLock
@@ -107,16 +107,16 @@ public final class Thomas {
         let environment = ThomasEnvironment(
             delegate: delegate,
             extensions: extensions
-        ) {
-            displayable.dismiss()
-        }
+        )
 
         let rootView = ModalView(
             presentation: presentation,
             layout: layout,
             thomasEnvironment: environment,
             viewControllerOptions: options
-        )
+        ) {
+            displayable.dismiss()
+        }
 
         try displayable.display { window in
             return ThomasModalViewController(

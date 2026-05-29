@@ -15,8 +15,15 @@ struct ModalView: View {
     let viewControllerOptions: ThomasViewControllerOptions
     #endif
 
-    @State private var contentSize: CGSize? = nil
+    let onDismiss: () -> Void
 
+    @State private var contentSize: CGSize? = nil
+    @State private var isShowing: Bool = false
+    @State private var isDismissing: Bool = false
+    
+    static let animateInDuration = 0.2
+    static let animateOutDuration = 0.3
+    
     var body: some View {
         GeometryReader { metrics in
             RootView(
@@ -27,17 +34,78 @@ struct ModalView: View {
                     orientation: orientation,
                     windowSize: windowSize
                 )
-                createModal(placement: placement, metrics: metrics)
+                ZStack {
+                    if isShowing {
+                        switch placement.animation {
+                        case .slide, .explode:
+                            modalBackground(placement)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .transition(.opacity)
+                            
+                            createModalContent(placement: placement, metrics: metrics)
+                                .airshipApplyModalTransition(animation: placement.animation)
+                        case .fade, _:
+                            createModalContent(placement: placement, metrics: metrics)
+                                .background(
+                                    modalBackground(placement)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                )
+                                .airshipApplyModalTransition(animation: placement.animation)
+                        }
+                    }
+                }
+                .onAppear {
+                    setShowing(animation: placement.animation, state: true)
+                }
+                .airshipOnChangeOf(thomasEnvironment.isDismissed) { _ in
+                    isDismissing = true
+                    setShowing(animation: placement.animation, state: false) {
+                        onDismiss()
+                    }
+                }
             }
         }
+        .allowsHitTesting(!isDismissing)
         .ignoresSafeArea(ignoreKeyboardSafeArea ? [.keyboard] : [])
+    }
+
+    private func setShowing(
+        animation: ThomasPresentationInfo.Modal.Animation?,
+        state: Bool,
+        completion: (() -> Void)? = nil)
+    {
+        let duration = if (state) {
+            switch animation {
+            case .fade(let fadeAnimation): fadeAnimation.animateInSeconds ?? Self.animateInDuration
+            case .slide(let slideAnimation): slideAnimation.animateInSeconds ?? Self.animateInDuration
+            case .explode(let explodeAnimation): explodeAnimation.animateInSeconds ?? Self.animateInDuration
+            default: Self.animateInDuration
+            }
+        } else {
+            switch animation {
+            case .fade(let fadeAnimation): fadeAnimation.animateOutSeconds ?? Self.animateOutDuration
+            case .slide(let slideAnimation): slideAnimation.animateOutSeconds ?? Self.animateOutDuration
+            case .explode(let explodeAnimation): explodeAnimation.animateOutSeconds ?? Self.animateOutDuration
+            default: Self.animateOutDuration
+            }
+        }
+        let animation: Animation = state ? .easeIn(duration: duration) : .easeOut(duration: duration)
+        withAnimation(animation) {
+            isShowing = state
+        }
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + duration
+        ) {
+            completion?()
+        }
     }
 
     private var ignoreKeyboardSafeArea: Bool {
         presentation.ios?.keyboardAvoidance == .overTheTop
     }
 
-    private func createModal(
+    private func createModalContent(
         placement: ThomasPresentationInfo.Modal.Placement,
         metrics: GeometryProxy
     ) -> some View {
@@ -89,10 +157,6 @@ struct ModalView: View {
             .margin(placement.margin)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
-        .background(
-            modalBackground(placement)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        )
         .ignoresSafeArea(safeAreasToIgnore)
         .opacity(self.contentSize == nil ? 0 : 1)
         .animation(nil, value: self.contentSize)
@@ -127,7 +191,6 @@ struct ModalView: View {
             .ignoresSafeArea(.all)
         }
     }
-
 
     private func resolvePlacement(
         orientation: ThomasOrientation,
@@ -197,7 +260,7 @@ struct ModalView: View {
 
 extension ThomasPresentationInfo.Modal.Placement {
     fileprivate var isFullscreen: Bool {
-        if let horiztonalMargins = self.margin?.horiztonalMargins, horiztonalMargins > 0 {
+        if let horizontalMargins = self.margin?.horizontalMargins, horizontalMargins > 0 {
             return false
         }
 
@@ -211,5 +274,61 @@ extension ThomasPresentationInfo.Modal.Placement {
             return true
         }
         return false
+    }
+}
+
+private extension View {
+    
+    @ViewBuilder
+    func airshipApplyModalTransition(
+        animation: ThomasPresentationInfo.Modal.Animation?
+    ) -> some View {
+        switch animation {
+        case .slide(let slideAnimation):
+            self.transition(.move(edge: slideAnimation.origin))
+        case .explode(let explodeAnimation):
+            self.transition(
+                .explode(enterCorner: explodeAnimation.enter, exitCorner: explodeAnimation.exit)
+            )
+        case .fade, _:
+            self.transition(.opacity)
+        }
+    }
+}
+
+private extension AnyTransition {
+    
+    static func move(edge: ThomasEdgePosition) -> AnyTransition {
+        if (edge.horizontal == .center) {
+            switch edge.vertical {
+            case .top: return .move(edge: .top)
+            case .bottom: return .move(edge: .bottom)
+            case .center: break
+            }
+        }
+        
+        if (edge.vertical == .center) {
+            switch edge.horizontal {
+            case .start: return .move(edge: .leading)
+            case .end: return .move(edge: .trailing)
+            case .center: break
+            }
+        }
+        
+        return .opacity
+    }
+    
+    static func explode(enterCorner: ThomasCornerPosition, exitCorner: ThomasCornerPosition) -> AnyTransition {
+        let insertionVerticalEdge: Edge = (enterCorner.vertical == .top) ? .top : .bottom
+        let insertionHorizontalEdge: Edge = (enterCorner.horizontal == .start) ? .leading : .trailing
+        let insertionTransition: AnyTransition = .move(edge: insertionVerticalEdge)
+            .combined(with: .move(edge: insertionHorizontalEdge))
+        
+        let removalVerticalEdge: Edge = (exitCorner.vertical == .top) ? .top : .bottom
+        let removalHorizontalEdge: Edge = (exitCorner.horizontal == .start) ? .leading : .trailing
+        let removalTransition: AnyTransition = .move(edge: removalVerticalEdge)
+            .combined(with: .move(edge: removalHorizontalEdge))
+        
+        return .asymmetric(insertion: insertionTransition, removal: removalTransition)
     }
 }

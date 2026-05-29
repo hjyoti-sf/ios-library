@@ -13,7 +13,7 @@ struct BannerView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     static let animationInOutDuration = 0.2
-
+    
     private let viewControllerOptions: ThomasViewControllerOptions
     private let presentation: ThomasPresentationInfo.Banner
     private let layout: AirshipLayout
@@ -80,28 +80,30 @@ struct BannerView: View {
                             banner.opacity(0)
                         }
                     }
-                    .airshipApplyTransition(
-                        isTopPlacement: placement.position == .top
+                    .airshipApplyBannerTransition(
+                        isTopPlacement: placement.position.vertical == .top,
+                        animation: placement.animation
                     )
-                }
-                .airshipOnChangeOf(thomasEnvironment.isDismissed) { _ in
-                    setShowing(state: false) {
-                        self.swipeOffset = 0
-                        onDismiss()
+                    .airshipOnChangeOf(thomasEnvironment.isDismissed) { _ in
+                        setShowing(state: false, animation: placement.animation) {
+                            self.swipeOffset = 0
+                            onDismiss()
+                        }
+                        timer.onDisappear()
                     }
-                    timer.onDisappear()
-                }
-                .onAppear {
-                    timer.onAppear()
-                    if contentSize != nil {
-                        setShowing(state: true)
+                    .onAppear {
+                        timer.onAppear()
+                        if contentSize != nil {
+                            setShowing(state: true, animation: placement.animation)
+                        }
+                    }
+                    .airshipOnChangeOf(contentSize) { size in
+                        if size != nil && !isShowing {
+                            setShowing(state: true, animation: placement.animation)
+                        }
                     }
                 }
-                .airshipOnChangeOf(contentSize) { size in
-                    if size != nil && !isShowing {
-                        setShowing(state: true)
-                    }
-                }
+                
                 .airshipOnChangeOf(swipeOffset) { value in
                     self.isButtonTapsDisabled = value != 0
                     self.timer.isPaused = value != 0
@@ -148,7 +150,7 @@ struct BannerView: View {
     ) -> some View {
         let alignment = Alignment(
             horizontal: .center,
-            vertical: placement.position == .top ? .top : .bottom
+            vertical: placement.position.vertical == .top ? .top : .bottom
         )
 
         let constraints = ViewConstraints(
@@ -174,7 +176,7 @@ struct BannerView: View {
                 constraints: contentConstraints
             )
             .airshipAddNub(
-                isTopPlacement: placement.position == .top,
+                isTopPlacement: placement.position.vertical == .top,
                 nub: AnyView(nub(placement: placement)),
                 itemSpacing: 16
             )
@@ -238,13 +240,27 @@ struct BannerView: View {
         return placement
     }
 
-    private func setShowing(state: Bool, completion: (() -> Void)? = nil) {
-        withAnimation(.easeInOut(duration: BannerView.animationInOutDuration)) {
+    private func setShowing(state: Bool, animation: ThomasPresentationInfo.Banner.Animation? , completion: (() -> Void)? = nil) {
+        let duration = if (state) {
+            switch animation {
+            case .fade(let fadeAnimation): fadeAnimation.animateInSeconds ?? BannerView.animationInOutDuration
+            case .slide(let slideAnimation): slideAnimation.animateInSeconds ?? BannerView.animationInOutDuration
+            default: BannerView.animationInOutDuration
+            }
+        } else {
+            switch animation {
+            case .fade(let fadeAnimation): fadeAnimation.animateOutSeconds ?? BannerView.animationInOutDuration
+            case .slide(let slideAnimation): slideAnimation.animateOutSeconds ?? BannerView.animationInOutDuration
+            default: BannerView.animationInOutDuration
+            }
+        }
+        let animation: Animation = state ? .easeIn(duration: duration) : .easeOut(duration: duration)
+        withAnimation(animation) {
             self.isShowing = state
         }
 
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + BannerView.animationInOutDuration
+            deadline: .now() + duration
         ) {
             completion?()
         }
@@ -262,8 +278,8 @@ struct BannerView: View {
             .onChanged { gesture in
                 withAnimation(.interpolatingSpring(stiffness: 300, damping: 20)) {
                     let offset = gesture.translation.height
-                    let upwardSwipeTopPlacement = (placement.position == .top && offset < 0)
-                    let downwardSwipeBottomPlacement = (placement.position == .bottom && offset > 0)
+                    let upwardSwipeTopPlacement = (placement.position.vertical == .top && offset < 0)
+                    let downwardSwipeBottomPlacement = (placement.position.vertical == .bottom && offset > 0)
 
                     if upwardSwipeTopPlacement || downwardSwipeBottomPlacement {
                         self.swipeOffset = offset
@@ -275,8 +291,8 @@ struct BannerView: View {
                     let offset = gesture.translation.height
                     swipeOffset = offset
 
-                    let upwardSwipeTopPlacement = (placement.position == .top && offset < -minSwipeDistance)
-                    let downwardSwipeBottomPlacement = (placement.position == .bottom && offset > minSwipeDistance)
+                    let upwardSwipeTopPlacement = (placement.position.vertical == .top && offset < -minSwipeDistance)
+                    let downwardSwipeBottomPlacement = (placement.position.vertical == .bottom && offset > minSwipeDistance)
 
                     if upwardSwipeTopPlacement || downwardSwipeBottomPlacement {
                         thomasEnvironment.dismiss()
@@ -288,4 +304,20 @@ struct BannerView: View {
             }
     }
 #endif
+}
+
+private extension View {
+    
+    @ViewBuilder
+    func airshipApplyBannerTransition(
+        isTopPlacement: Bool,
+        animation: ThomasPresentationInfo.Banner.Animation?
+    ) -> some View {
+        switch animation {
+        case .slide:
+            airshipApplyTransition(isTopPlacement: isTopPlacement)
+        case .fade, _:
+            self.transition(.opacity)
+        }
+    }
 }

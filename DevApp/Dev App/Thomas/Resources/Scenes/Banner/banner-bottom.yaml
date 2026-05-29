@@ -2,7 +2,13 @@ version: 1
 presentation:
   type: banner
   default_placement:
-    position: bottom
+    position:
+      horizontal: center
+      vertical: bottom
+    animation:
+      type: slide
+      animate_in_seconds: 0.3
+      animate_out_seconds: 0.3
     ignore_safe_area: true  # Allow banner to extend beyond safe areas
     size:
       width: 100%

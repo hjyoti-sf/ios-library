@@ -102,7 +102,7 @@ public final class AirshipDisplayTarget {
     ///
     /// - Parameter displayType: The type of display to prepare (`.banner` or `.modal`).
     /// - Returns: A `Displayable` instance configured for the specified display type.
-    public func prepareDisplay(for displayType: DisplayType) -> any Displayable {
+    public func prepareDisplay(for displayType: DisplayType, windowAnimated: Bool = true) -> any Displayable {
         return switch(displayType) {
         case .banner:
             BannerDisplayable()
@@ -138,12 +138,12 @@ public final class AirshipDisplayTarget {
     ///
     /// - Parameter displayType: The type of display to prepare (`.banner` or `.modal`).
     /// - Returns: A `Displayable` instance configured for the specified display type.
-    public func prepareDisplay(for displayType: DisplayType) -> any Displayable {
+    public func prepareDisplay(for displayType: DisplayType, windowAnimated: Bool = true) -> any Displayable {
         return switch(displayType) {
         case .banner:
             BannerDisplayable(sceneProvider: sceneProvider)
         case .modal:
-            ModalDisplayable(sceneProvider: sceneProvider)
+            ModalDisplayable(sceneProvider: sceneProvider, windowAnimated: windowAnimated)
         }
     }
 
@@ -433,10 +433,12 @@ extension NSWindow {
 class ModalDisplayable: AirshipDisplayTarget.Displayable {
 
     private let sceneProvider: @MainActor () throws -> UIWindowScene
+    private let windowAnimated: Bool
     private var window: UIWindow?
 
-    init(sceneProvider: @escaping @MainActor () throws -> UIWindowScene) {
+    init(sceneProvider: @escaping @MainActor () throws -> UIWindowScene, windowAnimated: Bool = true) {
         self.sceneProvider = sceneProvider
+        self.windowAnimated = windowAnimated
     }
 
     func display(viewControllerProvider: @MainActor (AirshipDisplayTarget.WindowInfo) -> UIViewController) throws {
@@ -447,11 +449,24 @@ class ModalDisplayable: AirshipDisplayTarget.Displayable {
 
         let viewController = viewControllerProvider(window.airshipInfo)
         window.rootViewController = viewController
-        window.airshipAnimateIn()
+
+        if windowAnimated {
+            window.airshipAnimateIn()
+        } else {
+            window.alpha = 1
+            window.makeKeyAndVisible()
+            window.isUserInteractionEnabled = true
+        }
     }
 
     func dismiss() {
-        window?.airshipAnimateOut()
+        if windowAnimated {
+            window?.airshipAnimateOut()
+        } else {
+            window?.isHidden = true
+            window?.isUserInteractionEnabled = false
+            window?.removeFromSuperview()
+        }
         window = nil
     }
 }

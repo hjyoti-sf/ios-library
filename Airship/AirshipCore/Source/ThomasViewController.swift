@@ -86,13 +86,13 @@ class ThomasBannerViewController: ThomasViewController<BannerView> {
 
     private let thomasBannerConstraints: ThomasBannerConstraints
 
-    private let position: ThomasPresentationInfo.Banner.Position?
+    private let position: ThomasEdgePosition?
 
     private var subscription: AnyCancellable?
 
     init(
         rootView: BannerView,
-        position: ThomasPresentationInfo.Banner.Position,
+        position: ThomasEdgePosition,
         options: ThomasViewControllerOptions,
         constraints: ThomasBannerConstraints
     ) {
@@ -204,7 +204,7 @@ class ThomasBannerViewController: ThomasViewController<BannerView> {
             }
         }
 
-        switch self.position {
+        switch self.position?.vertical {
         case .top:
             self.topConstraint?.isActive = true
             self.bottomConstraint?.isActive = false
@@ -268,12 +268,12 @@ class ThomasBannerViewController: ThomasViewController<BannerView> {
 
     private let thomasBannerConstraints: ThomasBannerConstraints
 
-    private let position: ThomasPresentationInfo.Banner.Position?
+    private let position: ThomasEdgePosition?
 
     private var subscription: AnyCancellable?
 
     init(rootView: BannerView,
-        position: ThomasPresentationInfo.Banner.Position,
+        position: ThomasEdgePosition,
         options: ThomasViewControllerOptions,
         constraints: ThomasBannerConstraints
     ) {
@@ -331,7 +331,7 @@ class ThomasBannerViewController: ThomasViewController<BannerView> {
         self.widthConstraint?.isActive = true
         self.widthConstraint?.constant = size.width
 
-        switch self.position {
+        switch self.position?.vertical {
         case .top:
             self.topConstraint?.isActive = true
             self.bottomConstraint?.isActive = false
@@ -402,7 +402,7 @@ class ThomasBannerConstraints: ObservableObject {
         )
 
         let contentPlacement = ContentPlacement(
-            isTop: placement.position == .top,
+            isTop: placement.position.vertical == .top,
             additionalEdgeInsets: additionalEdgeInsets,
             width: width,
             height: height,
