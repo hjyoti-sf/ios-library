@@ -500,11 +500,12 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         var commonOverrides: CommonViewOverrides?
         var properties: Properties
         var accessible: ThomasAccessibleInfo
+        var overrides: Overrides?
 
         func encode(to encoder: any Encoder) throws {
             try encoder.encode(
                 properties: commonProperties, properties, accessible,
-                overrides: commonOverrides
+                overrides: commonOverrides, overrides
             )
         }
 
@@ -513,6 +514,17 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             self.properties = try decoder.decodeProperties()
             self.accessible = try decoder.decodeProperties()
             self.commonOverrides = try decoder.decodeOverrides()
+            self.overrides = try decoder.decodeOverrides()
+        }
+
+        struct Overrides: ThomasSerializable {
+            var url: [ThomasPropertyOverride<String>]?
+            var urlSelectors: [ThomasPropertyOverride<[ThomasMediaUrlSelector]>]?
+
+            private enum CodingKeys: String, CodingKey {
+                case url
+                case urlSelectors = "url_selectors"
+            }
         }
 
         enum MediaType: String, ThomasSerializable {
@@ -543,6 +555,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         struct Properties: ThomasSerializable {
             let type: ViewType = .media
             var url: String
+            var urlSelectors: [ThomasMediaUrlSelector]?
             var mediaType: MediaType
             var mediaFit: ThomasMediaFit
             var video: Video?
@@ -552,6 +565,7 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             private enum CodingKeys: String, CodingKey {
                 case mediaType = "media_type"
                 case url
+                case urlSelectors = "url_selectors"
                 case mediaFit = "media_fit"
                 case video
                 case cropPosition = "position"
@@ -778,11 +792,13 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             struct ImageURLItem: ThomasSerializable {
                 let type: ItemType = .imageURL
                 var url: String
+                var urlSelectors: [ThomasMediaUrlSelector]?
                 var mediaFit: ThomasMediaFit
                 var cropPosition: ThomasPosition?
 
                 enum CodingKeys: String, CodingKey {
                     case url
+                    case urlSelectors = "url_selectors"
                     case type
                     case cropPosition = "position"
                     case mediaFit = "media_fit"
@@ -816,11 +832,12 @@ indirect enum ThomasViewInfo: ThomasSerializable {
         var commonOverrides: CommonViewOverrides?
         var properties: Properties
         var accessible: ThomasAccessibleInfo
+        var overrides: Overrides?
 
         func encode(to encoder: any Encoder) throws {
             try encoder.encode(
                 properties: commonProperties, properties, accessible,
-                overrides: commonOverrides
+                overrides: commonOverrides, overrides
             )
         }
 
@@ -829,6 +846,15 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             self.properties = try decoder.decodeProperties()
             self.accessible = try decoder.decodeProperties()
             self.commonOverrides = try decoder.decodeOverrides()
+            self.overrides = try decoder.decodeOverrides()
+        }
+
+        struct Overrides: ThomasSerializable {
+            var image: [ThomasPropertyOverride<ButtonImage>]?
+
+            private enum CodingKeys: String, CodingKey {
+                case image
+            }
         }
 
         struct Properties: ThomasSerializable {
@@ -887,11 +913,13 @@ indirect enum ThomasViewInfo: ThomasSerializable {
             struct ImageURL: ThomasSerializable {
                 let type: ButtonImageType = .url
                 var url: String
+                var urlSelectors: [ThomasMediaUrlSelector]?
                 var mediaFit: ThomasMediaFit?
                 var cropPosition: ThomasPosition?
 
                 enum CodingKeys: String, CodingKey {
                     case url
+                    case urlSelectors = "url_selectors"
                     case type
                     case cropPosition = "position"
                     case mediaFit = "media_fit"

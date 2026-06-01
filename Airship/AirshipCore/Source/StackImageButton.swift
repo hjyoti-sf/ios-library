@@ -116,7 +116,7 @@ struct StackImageButton : View {
                     Icons.icon(info: item.icon, colorScheme: colorScheme)
                 case .imageURL(let info):
                     ThomasAsyncImage(
-                        url: info.url,
+                        url: info.urlSelectors?.resolve(colorScheme: colorScheme) ?? info.url,
                         imageLoader: thomasEnvironment.imageLoader,
                         image: { image, imageSize in
                             image.fitMedia(

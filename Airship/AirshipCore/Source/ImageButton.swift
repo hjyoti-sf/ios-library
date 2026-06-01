@@ -62,12 +62,20 @@ struct ImageButton : View {
         .accessibilityHidden(info.accessible.accessibilityHidden ?? false)
     }
     
+    private var resolvedImage: ThomasViewInfo.ImageButton.ButtonImage {
+        ThomasPropertyOverride.resolveRequired(
+            state: thomasState,
+            overrides: info.overrides?.image,
+            defaultValue: info.properties.image
+        )
+    }
+
     @ViewBuilder
     private func makeInnerButton() -> some View {
-        switch(self.info.properties.image) {
+        switch resolvedImage {
         case .url(let info):
             ThomasAsyncImage(
-                url: info.url,
+                url: info.urlSelectors?.resolve(colorScheme: colorScheme) ?? info.url,
                 imageLoader: thomasEnvironment.imageLoader,
                 image: { image, imageSize in
                     image.fitMedia(

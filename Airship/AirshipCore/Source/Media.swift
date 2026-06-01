@@ -8,6 +8,7 @@ import AVFoundation
 
 struct Media: View {
     @EnvironmentObject private var thomasEnvironment: ThomasEnvironment
+    @EnvironmentObject private var thomasState: ThomasState
 
     private let info: ThomasViewInfo.Media
     private let constraints: ViewConstraints
@@ -16,6 +17,23 @@ struct Media: View {
     private let defaultAspectRatio: Double = 16.0 / 9.0
     @EnvironmentObject private var pagerState: PagerState
     @Environment(\.pageIdentifier) private var pageIdentifier
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var resolvedURL: String {
+        ThomasPropertyOverride.resolveRequired(
+            state: thomasState,
+            overrides: info.overrides?.url,
+            defaultValue: info.properties.url
+        )
+    }
+
+    private var resolvedURLSelectors: [ThomasMediaUrlSelector]? {
+        ThomasPropertyOverride.resolveOptional(
+            state: thomasState,
+            overrides: info.overrides?.urlSelectors,
+            defaultValue: info.properties.urlSelectors
+        )
+    }
 
     init(info: ThomasViewInfo.Media, constraints: ViewConstraints) {
         self.info = info
@@ -30,7 +48,7 @@ struct Media: View {
         switch self.info.properties.mediaType {
         case .image:
             ThomasAsyncImage(
-                url: self.info.properties.url,
+                url: resolvedURLSelectors?.resolve(colorScheme: colorScheme) ?? resolvedURL,
                 imageLoader: thomasEnvironment.imageLoader
             ) { image, imageSize in
                 image.fitMedia(

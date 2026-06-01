@@ -15,33 +15,50 @@ extension ThomasViewInfo {
         let urls: [[URLInfo]?] = extractDescendants { info in
             switch info {
             case .media(let info):
-                return switch info.properties.mediaType {
+                switch info.properties.mediaType {
                 case .image:
-                    [.image(url: info.properties.url)]
+                    var images: [URLInfo] = [.image(url: info.properties.url)]
+                    images.append(contentsOf: info.properties.urlSelectors.imageURLInfos)
+                    for override in info.overrides?.url ?? [] {
+                        if let url = override.value { images.append(.image(url: url)) }
+                    }
+                    for override in info.overrides?.urlSelectors ?? [] {
+                        images.append(contentsOf: override.value.imageURLInfos)
+                    }
+                    return images
                 case .youtube:
-                    [.video(url: info.properties.url)]
+                    return [.video(url: info.properties.url)]
                 case .vimeo:
-                    [.video(url: info.properties.url)]
+                    return [.video(url: info.properties.url)]
                 case .video:
-                    [.video(url: info.properties.url)]
+                    return [.video(url: info.properties.url)]
                 }
             #if !os(tvOS) && !os(watchOS)
             case .webView(let info):
                 return [.web(url: info.properties.url)]
             #endif
             case .imageButton(let info):
-                return switch info.properties.image {
+                var images: [URLInfo] = []
+                switch info.properties.image {
                 case .url(let imageModel):
-                    [.image(url: imageModel.url)]
+                    images.append(.image(url: imageModel.url))
+                    images.append(contentsOf: imageModel.urlSelectors.imageURLInfos)
                 case .icon:
-                    nil
+                    break
                 }
+                for override in info.overrides?.image ?? [] {
+                    guard case .url(let imageModel) = override.value else { continue }
+                    images.append(.image(url: imageModel.url))
+                    images.append(contentsOf: imageModel.urlSelectors.imageURLInfos)
+                }
+                return images.isEmpty ? nil : images
             case .stackImageButton(let info):
                 var images: [URLInfo] = []
                 for item in info.properties.items {
                     switch item {
                     case .imageURL(let info):
                         images.append(.image(url: info.url))
+                        images.append(contentsOf: info.urlSelectors.imageURLInfos)
                     case .icon, .shape:
                         break
                     }
@@ -54,6 +71,7 @@ extension ThomasViewInfo {
                             switch value {
                             case .imageURL(let info):
                                 images.append(.image(url: info.url))
+                                images.append(contentsOf: info.urlSelectors.imageURLInfos)
                             case .icon, .shape:
                                 break
                             }
@@ -69,6 +87,19 @@ extension ThomasViewInfo {
 
         return urls.compactMap { $0 }.reduce(into: []) { result, urlArray in
             result.append(contentsOf: urlArray)
+        }
+    }
+}
+
+private extension Optional where Wrapped == [ThomasMediaUrlSelector] {
+    /// Returns `.image` URLInfos for all selectors that can possibly match on iOS.
+    /// Platform-specific selectors for other platforms are excluded since they can never match,
+    /// but all dark_mode variants are included because the user can switch modes at runtime.
+    var imageURLInfos: [URLInfo] {
+        guard let selectors = self else { return [] }
+        return selectors.compactMap { selector in
+            if let platform = selector.platform, platform != .ios { return nil }
+            return .image(url: selector.url)
         }
     }
 }
