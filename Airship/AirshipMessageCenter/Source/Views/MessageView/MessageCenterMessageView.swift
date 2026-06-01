@@ -260,12 +260,14 @@ private struct MessageCenterMessageContentView: View {
                         )
                         .font(.headline)
                         .foregroundColor(.primary)
+                        .padding()
                     }
                 } else {
                     VStack {
                         Text("ua_mc_failed_to_load".messageCenterLocalizedString)
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .padding()
 
                         Button("ua_retry_button".messageCenterLocalizedString) {
                             self.messageLoadingPhase = .loading
