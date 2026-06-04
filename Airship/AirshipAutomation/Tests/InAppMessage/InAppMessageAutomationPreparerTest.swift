@@ -68,7 +68,9 @@ final class InAppMessageAutomationPreparerTest: XCTestCase {
             return displayAdapter
         }
 
-        let results = try await self.preparer.prepare(data: message, preparedScheduleInfo: preparedScheduleInfo)
+        guard case .prepared(let results) = try await self.preparer.prepare(data: message, preparedScheduleInfo: preparedScheduleInfo) else {
+            return XCTFail("Expected .prepared result")
+        }
 
         XCTAssertEqual(self.message, results.message)
         XCTAssertTrue(displayCoordinator === results.displayCoordinator)

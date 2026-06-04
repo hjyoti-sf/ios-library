@@ -73,7 +73,7 @@ final class SceneAction: AirshipAction {
 
         let message = InAppMessage(
             name: "Scene Landing Page \(messageID ?? "")",
-            displayContent: .airshipLayoutJSON(AirshipLayoutIntermediate(layoutJSON: layoutJSON)),
+            displayContent: .airshipLayoutIntermediate(AirshipLayoutIntermediate(layoutJSON: layoutJSON)),
             isReportingEnabled: messageID != nil,
             displayBehavior: .immediate
         )

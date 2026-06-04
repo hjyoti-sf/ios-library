@@ -51,7 +51,7 @@ public enum InAppMessageDisplayContent: Sendable, Equatable {
 
     /// Airship layout (Thomas) with isEmbedded/validate available without a full decode.
     /// The full view tree is decoded at prepare time via AirshipLayoutIntermediate.resolve().
-    case airshipLayoutJSON(AirshipLayoutIntermediate)
+    case airshipLayoutIntermediate(AirshipLayoutIntermediate)
 
     public func validate() -> Bool {
         switch self {
@@ -68,7 +68,7 @@ public enum InAppMessageDisplayContent: Sendable, Equatable {
             return true
         case .airshipLayout(let layout):
             return layout.validate()
-        case .airshipLayoutJSON(let intermediate):
+        case .airshipLayoutIntermediate(let intermediate):
             return intermediate.validate()
         }
     }

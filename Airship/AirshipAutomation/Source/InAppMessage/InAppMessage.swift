@@ -145,7 +145,7 @@ public struct InAppMessage: Codable, Equatable, Sendable {
             let layoutJSON = try container.decode(AirshipJSON.self, forKey: .display)
             // Store as intermediate — ThomasViewInfo is decoded at prepare time to avoid
             // exhausting the 512KB CoreData queue stack via recursive Codable decode.
-            displayContent = .airshipLayoutJSON(AirshipLayoutIntermediate(layoutJSON: layoutJSON))
+            displayContent = .airshipLayoutIntermediate(AirshipLayoutIntermediate(layoutJSON: layoutJSON))
         }
 
         self.init(
@@ -190,7 +190,7 @@ public struct InAppMessage: Codable, Equatable, Sendable {
         case .airshipLayout(let layout):
             try container.encode(AirshipLayoutWrapper(layout: layout), forKey: .display)
             try container.encode(DisplayType.layout, forKey: .displayType)
-        case .airshipLayoutJSON(let intermediate):
+        case .airshipLayoutIntermediate(let intermediate):
             try container.encode(intermediate.layoutJSON, forKey: .display)
             try container.encode(DisplayType.layout, forKey: .displayType)
         }
@@ -221,7 +221,7 @@ extension InAppMessage {
             return []
         case .airshipLayout(let content):
             return content.urlInfos
-        case .airshipLayoutJSON:
+        case .airshipLayoutIntermediate:
             // Layout not decoded yet at this point; URL prefetching skipped.
             return []
         }
@@ -243,7 +243,7 @@ extension InAppMessage {
     var isEmbedded: Bool {
         switch self.displayContent {
         case .airshipLayout(let layout): return layout.isEmbedded
-        case .airshipLayoutJSON(let intermediate): return intermediate.isEmbedded
+        case .airshipLayoutIntermediate(let intermediate): return intermediate.isEmbedded
         default: return false
         }
     }
@@ -251,7 +251,7 @@ extension InAppMessage {
 
     var isAirshipLayout: Bool {
         switch self.displayContent {
-        case .airshipLayout, .airshipLayoutJSON: return true
+        case .airshipLayout, .airshipLayoutIntermediate: return true
         default: return false
         }
     }

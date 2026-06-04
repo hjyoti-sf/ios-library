@@ -84,8 +84,8 @@ struct SceneActionTests {
                     #expect(message.isReportingEnabled == false)
                     #expect(message.displayBehavior == .immediate)
 
-                    guard case .airshipLayoutJSON = message.displayContent else {
-                        Issue.record("Expected airshipLayoutJSON display content")
+                    guard case .airshipLayoutIntermediate = message.displayContent else {
+                        Issue.record("Expected airshipLayoutIntermediate display content")
                         return
                     }
 
