@@ -52,38 +52,56 @@ final class InAppMessageAutomationPreparer: AutomationPreparerDelegate {
     func prepare(
         data: InAppMessage,
         preparedScheduleInfo: PreparedScheduleInfo
-    ) async throws -> PreparedInAppMessageData {
+    ) async throws -> DelegatePreparerResult<PreparedInAppMessageData> {
+        // Resolve intermediate layout at prepare time so urlInfos and display adapter
+        // always see a fully-decoded AirshipLayout.
+        let message: InAppMessage
+        if case .airshipLayoutJSON(let intermediate) = data.displayContent {
+            do {
+                var resolved = data
+                resolved.displayContent = .airshipLayout(try intermediate.resolve())
+                message = resolved
+            } catch {
+                AirshipLogger.error("Failed to resolve layout for \(data.name): \(error)")
+                // Non-remote-data schedules come from push payloads that won't change — cancel.
+                // Remote-data schedules go back to idle to retry on next trigger.
+                return data.source != .remoteData ? .cancel : .skip
+            }
+        } else {
+            message = data
+        }
+
         let assets = try await self.prepareAssets(
-            message: data,
+            message: message,
             scheduleID: preparedScheduleInfo.scheduleID,
             skip: preparedScheduleInfo.additionalAudienceCheckResult == false || preparedScheduleInfo.experimentResult?.isMatch == true
         )
 
-        let displayCoordinator = self.displayCoordinatorManager.displayCoordinator(message: data)
+        let displayCoordinator = self.displayCoordinatorManager.displayCoordinator(message: message)
 
         let analytics = await self.analyticsFactory.makeAnalytics(
             preparedScheduleInfo: preparedScheduleInfo,
-            message: data
+            message: message
         )
 
-        let actionRunner = self.actionRunnerFactory.makeRunner(message: data, analytics: analytics)
+        let actionRunner = self.actionRunnerFactory.makeRunner(message: message, analytics: analytics)
 
         let displayAdapter = try await self.displayAdapterFactory.makeAdapter(
             args: DisplayAdapterArgs(
-                message: data,
+                message: message,
                 assets: assets,
                 priority: preparedScheduleInfo.priority,
                 _actionRunner: actionRunner
             )
         )
 
-        return PreparedInAppMessageData(
-            message: data,
+        return .prepared(PreparedInAppMessageData(
+            message: message,
             displayAdapter: displayAdapter,
             displayCoordinator: displayCoordinator,
             analytics: analytics,
             actionRunner: actionRunner
-        )
+        ))
     }
 
     func cancelled(scheduleID: String) async {

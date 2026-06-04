@@ -6,6 +6,28 @@ public import Foundation
 public import AirshipCore
 #endif
 
+/// Partially-decoded Airship layout. isEmbedded and validate() are available
+/// without a full decode; the full view tree is decoded at prepare time.
+public struct AirshipLayoutIntermediate: Sendable, Equatable {
+    /// Raw display JSON (AirshipLayoutWrapper format). Internal — used by the preparer.
+    internal let layoutJSON: AirshipJSON
+
+    public var isEmbedded: Bool {
+        layoutJSON.object?["layout"]?.object?["presentation"]?.object?["type"]?.string == "embedded"
+    }
+
+    public func validate() -> Bool {
+        guard let version = layoutJSON.object?["layout"]?.object?["version"]?.number.map(Int.init) else {
+            return false
+        }
+        return AirshipLayout.isValidVersion(version)
+    }
+
+    internal func resolve() throws -> AirshipLayout {
+        let data = try JSONEncoder().encode(layoutJSON)
+        return try JSONDecoder().decode(AirshipLayoutWrapper.self, from: data).layout
+    }
+}
 
 /// In-App message display content
 public enum InAppMessageDisplayContent: Sendable, Equatable {
@@ -27,6 +49,10 @@ public enum InAppMessageDisplayContent: Sendable, Equatable {
     /// Airship layout messages
     case airshipLayout(AirshipLayout)
 
+    /// Airship layout (Thomas) with isEmbedded/validate available without a full decode.
+    /// The full view tree is decoded at prepare time via AirshipLayoutIntermediate.resolve().
+    case airshipLayoutJSON(AirshipLayoutIntermediate)
+
     public func validate() -> Bool {
         switch self {
         case .banner(let layout):
@@ -42,6 +68,8 @@ public enum InAppMessageDisplayContent: Sendable, Equatable {
             return true
         case .airshipLayout(let layout):
             return layout.validate()
+        case .airshipLayoutJSON(let intermediate):
+            return intermediate.validate()
         }
     }
 
