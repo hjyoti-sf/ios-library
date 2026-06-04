@@ -7,26 +7,6 @@ import CoreData
 import AirshipCore
 #endif
 
-/// JSONDecoder extension to protect against cooperative pool thread stack exhaustion.
-/// Deeply nested layouts (e.g., Thomas layouts) can exceed the default 512KB stack
-/// limit imposed on Swift Concurrency background workers and CoreData queue threads.
-extension JSONDecoder {
-    /// Decodes asynchronously on a dedicated 8MB-stack thread, suspending the calling
-    /// Swift Concurrency task rather than blocking a system thread.
-    func airshipDecodeLargerStackAsync<T: Decodable & Sendable>(_ type: T.Type, from data: Data) async throws -> T {
-        return try await withCheckedThrowingContinuation { continuation in
-            let thread = Thread {
-                let result = Result { try self.decode(type, from: data) }
-                // Resume via Task so the continuation re-enters the Swift Concurrency
-                // runtime rather than running directly on the raw 8MB thread.
-                Task { continuation.resume(with: result) }
-            }
-            thread.stackSize = 8 * 1024 * 1024
-            thread.start()
-        }
-    }
-}
-
 protocol TriggerStoreProtocol: Sendable {
     func getTrigger(scheduleID: String, triggerID: String) async throws -> TriggerData?
     func upsertTriggers(_ triggers: [TriggerData]) async throws

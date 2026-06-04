@@ -3,7 +3,7 @@
 public import Foundation
 
 #if canImport(AirshipCore)
-public import AirshipCore
+@_spi(AirshipInternal) public import AirshipCore
 #endif
 
 /// Partially-decoded Airship layout. isEmbedded and validate() are available
@@ -24,8 +24,7 @@ public struct AirshipLayoutIntermediate: Sendable, Equatable {
     }
 
     internal func resolve() async throws -> AirshipLayout {
-        let data = try JSONEncoder().encode(layoutJSON)
-        return try await JSONDecoder().airshipDecodeLargerStackAsync(AirshipLayoutWrapper.self, from: data).layout
+        return try await layoutJSON.decodeLargerStack(AirshipLayoutWrapper.self).layout
     }
 }
 
