@@ -418,7 +418,7 @@ public extension AirshipJSON {
     func decodeLargerStack<T: Decodable & Sendable>(_ type: T.Type) async throws -> T {
         return try await withCheckedThrowingContinuation { continuation in
             let thread = Thread { [self] in
-                let result: Result<T, any Error & Sendable> = Result { try self.decode() }
+                let result: Result<T, any Error> = Result { try self.decode() }
                 Task { continuation.resume(with: result) }
             }
             thread.stackSize = 8 * 1024 * 1024
