@@ -67,10 +67,17 @@ final class InAppMessageAutomationPreparer: AutomationPreparerDelegate {
                 // was decoded from the remote-data payload). They now surface here at prepare
                 // time because decoding is deferred to avoid stack overflows on the CoreData queue.
                 //
+                // source should always be set for layout messages — app-defined via the public
+                // InAppMessage init, remote-data via the decode path. Nil indicates a corrupt or
+                // very old schedule; treat it the same as appDefined (cancel).
+                //
                 // For remote-data schedules, return .skip so the schedule goes back to idle and
                 // retries the next time it is triggered — hopefully after the server has pushed
-                // a corrected payload. For push-payload schedules (appDefined/legacyPush) the
-                // payload won't change, so cancel to avoid an infinite skip/retry loop.
+                // a corrected payload. For push-payload schedules (appDefined/legacyPush/nil)
+                // the payload won't change, so cancel to avoid an infinite skip/retry loop.
+                if data.source == nil {
+                    AirshipLogger.error("Unexpected nil source for layout message \(data.name) — treating as appDefined")
+                }
                 return data.source != .remoteData ? .cancel : .skip
             }
         } else {
