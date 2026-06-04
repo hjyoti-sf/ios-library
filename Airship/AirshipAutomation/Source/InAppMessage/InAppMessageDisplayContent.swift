@@ -23,9 +23,9 @@ public struct AirshipLayoutIntermediate: Sendable, Equatable {
         return AirshipLayout.isValidVersion(version)
     }
 
-    internal func resolve() throws -> AirshipLayout {
+    internal func resolve() async throws -> AirshipLayout {
         let data = try JSONEncoder().encode(layoutJSON)
-        return try JSONDecoder().decode(AirshipLayoutWrapper.self, from: data).layout
+        return try await JSONDecoder().airshipDecodeLargerStackAsync(AirshipLayoutWrapper.self, from: data).layout
     }
 }
 

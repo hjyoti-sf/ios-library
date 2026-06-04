@@ -59,7 +59,7 @@ final class InAppMessageAutomationPreparer: AutomationPreparerDelegate {
         if case .airshipLayoutIntermediate(let intermediate) = data.displayContent {
             do {
                 var resolved = data
-                resolved.displayContent = .airshipLayout(try intermediate.resolve())
+                resolved.displayContent = .airshipLayout(try await intermediate.resolve())
                 message = resolved
             } catch {
                 AirshipLogger.error("Failed to resolve layout for \(data.name): \(error)")
