@@ -164,7 +164,7 @@ struct SceneActionTests {
         }
     }
 
-@Test("perform throws when scene field is missing from action args")
+    @Test("perform throws when scene field is missing from action args")
     func performMissingSceneFieldReturnsError() async {
         let action = SceneAction(scheduler: { _ in Issue.record("scheduler must not run") })
         let args = ActionArguments(
