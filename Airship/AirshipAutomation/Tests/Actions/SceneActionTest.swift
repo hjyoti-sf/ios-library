@@ -121,7 +121,7 @@ struct SceneActionTests {
             )
 
             let args = ActionArguments(
-                value: try AirshipJSON.from(json: #"{"scene":"\#(compressedSceneBase64)"}"#),
+                value: try AirshipJSON.from(json: #"{"dsl":"\#(compressedSceneBase64)"}"#),
                 situation: .manualInvocation,
                 metadata: [ActionArguments.pushPayloadJSONMetadataKey: pushMetadata]
             )
@@ -173,8 +173,8 @@ struct SceneActionTests {
         }
     }
 
-    @Test("perform throws when scene field is missing from action args")
-    func performMissingSceneFieldReturnsError() async {
+    @Test("perform throws when dsl field is missing from action args")
+    func performMissingDslFieldReturnsError() async {
         let action = SceneAction(scheduler: { _ in Issue.record("scheduler must not run") })
         let args = ActionArguments(
             value: .object(["other": .string("x")]),
@@ -198,7 +198,7 @@ struct SceneActionTests {
 
     private func sceneArgs(_ sceneBase64: String) throws -> ActionArguments {
         ActionArguments(
-            value: try AirshipJSON.from(json: #"{"scene":"\#(sceneBase64)"}"#),
+            value: try AirshipJSON.from(json: #"{"dsl":"\#(sceneBase64)"}"#),
             situation: .manualInvocation
         )
     }

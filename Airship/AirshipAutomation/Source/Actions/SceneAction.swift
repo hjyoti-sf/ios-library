@@ -58,7 +58,7 @@ final class SceneAction: AirshipAction {
     }
 
     fileprivate struct ActionArgs: Decodable, Sendable {
-        var scene: String
+        var dsl: String
     }
 
     @MainActor
@@ -69,7 +69,7 @@ final class SceneAction: AirshipAction {
         // Decode the action arguments object
         let args: ActionArgs = try arguments.value.decode()
 
-        let layout = try SceneAction.decodeLayout(from: args.scene)
+        let layout = try SceneAction.decodeLayout(from: args.dsl)
 
         let message = InAppMessage(
             name: "Scene Landing Page \(messageID ?? "")",
