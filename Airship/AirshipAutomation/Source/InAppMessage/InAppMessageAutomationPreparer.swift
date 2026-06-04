@@ -63,8 +63,14 @@ final class InAppMessageAutomationPreparer: AutomationPreparerDelegate {
                 message = resolved
             } catch {
                 AirshipLogger.error("Failed to resolve layout for \(data.name): \(error)")
-                // Non-remote-data schedules come from push payloads that won't change — cancel.
-                // Remote-data schedules go back to idle to retry on next trigger.
+                // Layout parse errors previously surfaced at scheduling time (when the schedule
+                // was decoded from the remote-data payload). They now surface here at prepare
+                // time because decoding is deferred to avoid stack overflows on the CoreData queue.
+                //
+                // For remote-data schedules, return .skip so the schedule goes back to idle and
+                // retries the next time it is triggered — hopefully after the server has pushed
+                // a corrected payload. For push-payload schedules (appDefined/legacyPush) the
+                // payload won't change, so cancel to avoid an infinite skip/retry loop.
                 return data.source != .remoteData ? .cancel : .skip
             }
         } else {
