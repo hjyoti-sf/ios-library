@@ -159,11 +159,14 @@ struct ViewConstraints: Equatable {
             }
         }
 
+        let roundedWidth = childWidth?.rounded()
+        let roundedHeight = childHeight?.rounded()
+
         return ViewConstraints(
-            width: childWidth,
-            height: childHeight,
-            maxWidth: childWidth ?? parentWidth,
-            maxHeight: childHeight ?? parentHeight,
+            width: roundedWidth,
+            height: roundedHeight,
+            maxWidth: roundedWidth ?? parentWidth,
+            maxHeight: roundedHeight ?? parentHeight,
             isHorizontalFixedSize: isHorizontalFixedSize,
             isVerticalFixedSize: isVerticalFixedSize,
             isHorizontalAbsoluteSize: isHorizontalAbsoluteSize,
