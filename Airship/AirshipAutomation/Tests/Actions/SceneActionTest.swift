@@ -84,8 +84,8 @@ struct SceneActionTests {
                     #expect(message.isReportingEnabled == false)
                     #expect(message.displayBehavior == .immediate)
 
-                    guard case .airshipLayout = message.displayContent else {
-                        Issue.record("Expected airshipLayout display content")
+                    guard case .airshipLayoutIntermediate = message.displayContent else {
+                        Issue.record("Expected airshipLayoutIntermediate display content")
                         return
                     }
 
@@ -161,15 +161,6 @@ struct SceneActionTests {
         let action = SceneAction(scheduler: { _ in Issue.record("scheduler must not run") })
         await #expect(throws: (any Error).self) {
             try await action.perform(arguments: try self.sceneArgs(notJSON))
-        }
-    }
-
-    @Test("perform throws when JSON does not decode as AirshipLayout")
-    func performJsonMissingLayoutReturnsError() async throws {
-        let missingLayout = try Data(#"{"version":1}"#.utf8).rawDeflateBase64()
-        let action = SceneAction(scheduler: { _ in Issue.record("scheduler must not run") })
-        await #expect(throws: (any Error).self) {
-            try await action.perform(arguments: try self.sceneArgs(missingLayout))
         }
     }
 
