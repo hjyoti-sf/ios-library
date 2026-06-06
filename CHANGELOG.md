@@ -4,7 +4,7 @@
 [Migration Guides](https://github.com/urbanairship/ios-library/tree/main/Documentation/Migration)
 [All Releases](https://github.com/urbanairship/ios-library/releases)
 
-## Version 20.7.2 - June 5, 2026
+## Version 20.7.2 - June 8, 2026
 Patch release with bug fixes for In-App Automation and Scenes.
 
 ### Changes
