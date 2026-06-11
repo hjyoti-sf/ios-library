@@ -431,7 +431,7 @@ final class InAppMessageTest: XCTestCase {
           }
         """
 
-        let displayJSON = try! AirshipJSON.from(json: airshipLayout)
+        let displayJSON = try! AirshipJSON.from(json: #"{"layout": \#(airshipLayout)}"#)
         let expected = InAppMessage(
             name: "Airship layout",
             displayContent: .airshipLayoutIntermediate(

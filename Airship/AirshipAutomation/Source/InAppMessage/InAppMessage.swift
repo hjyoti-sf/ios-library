@@ -142,11 +142,7 @@ public struct InAppMessage: Codable, Equatable, Sendable {
             let html = try container.decode(InAppMessageDisplayContent.HTML.self, forKey: .display)
             displayContent = .html(html)
         case .layout:
-            let displayJSON = try container.decode(AirshipJSON.self, forKey: .display)
-            // Remote-data wraps the layout under a top-level "layout" key; the scene DSL
-            // (push-to-scene) is already unwrapped. Normalize here so the intermediate always
-            // holds the raw AirshipLayout JSON.
-            let layoutJSON = displayJSON.object?["layout"] ?? displayJSON
+            let layoutJSON = try container.decode(AirshipJSON.self, forKey: .display)
             // Store as intermediate — ThomasViewInfo is decoded at prepare time to avoid
             // exhausting the 512KB CoreData queue stack via recursive Codable decode.
             displayContent = .airshipLayoutIntermediate(
@@ -193,7 +189,7 @@ public struct InAppMessage: Codable, Equatable, Sendable {
             try container.encode(custom, forKey: .display)
             try container.encode(DisplayType.custom, forKey: .displayType)
         case .airshipLayout(let layout):
-            try container.encode(layout, forKey: .display)
+            try container.encode(AirshipLayoutWrapper(layout: layout), forKey: .display)
             try container.encode(DisplayType.layout, forKey: .displayType)
         case .airshipLayoutIntermediate(let intermediate):
             try container.encode(intermediate.layoutJSON, forKey: .display)
@@ -260,6 +256,10 @@ extension InAppMessage {
         default: return false
         }
     }
+}
+
+struct AirshipLayoutWrapper: Codable {
+    var layout: AirshipLayout
 }
 
 /// These are just for view testing purposes
