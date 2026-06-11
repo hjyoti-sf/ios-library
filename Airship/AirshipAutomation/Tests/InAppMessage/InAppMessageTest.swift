@@ -425,7 +425,7 @@ final class InAppMessageTest: XCTestCase {
         let json = """
           {
              "source": "remote-data",
-             "display" : \(airshipLayout),
+             "display" : { "layout": \(airshipLayout) },
              "display_type" : "layout",
              "name" : "Airship layout"
           }
