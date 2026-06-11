@@ -121,7 +121,7 @@ final class InAppMessageAutomationPreparerTest: XCTestCase {
     }
 
     func testPrepareIntermediateLayoutResolveFails_appDefined_cancels() async throws {
-        // A broken layout JSON (not a valid AirshipLayout) on an app-defined
+        // A broken layout JSON (not a valid AirshipLayoutWrapper) on an app-defined
         // schedule should return .cancel — the payload won't be updated by remote data.
         let badMessage = InAppMessage(
             name: "bad layout",
