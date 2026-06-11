@@ -9,22 +9,22 @@ public import Foundation
 /// Partially-decoded Airship layout. isEmbedded and validate() are available
 /// without a full decode; the full view tree is decoded at prepare time.
 public struct AirshipLayoutIntermediate: Sendable, Equatable {
-    /// Raw display JSON (AirshipLayoutWrapper format). Internal — used by the preparer.
+    /// Raw display JSON (AirshipLayou format). Internal — used by the preparer.
     internal let layoutJSON: AirshipJSON
 
     public var isEmbedded: Bool {
-        layoutJSON.object?["layout"]?.object?["presentation"]?.object?["type"]?.string == "embedded"
+        layoutJSON.object?["presentation"]?.object?["type"]?.string == "embedded"
     }
 
     public func validate() -> Bool {
-        guard let version = layoutJSON.object?["layout"]?.object?["version"]?.number.map(Int.init) else {
+        guard let version = layoutJSON.object?["version"]?.number.map(Int.init) else {
             return false
         }
         return AirshipLayout.isValidVersion(version)
     }
 
     internal func resolve() async throws -> AirshipLayout {
-        return try await layoutJSON.decodeLargerStack(AirshipLayoutWrapper.self).layout
+        return try await layoutJSON.decodeLargerStack(AirshipLayout.self)
     }
 }
 
