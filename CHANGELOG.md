@@ -5,10 +5,10 @@
 [All Releases](https://github.com/urbanairship/ios-library/releases)
 
 ## Version 20.8.0 - June 16, 2026
-Minor release that fixes Scene launching from push notifications and improves pager scroll behavior.
+Minor release that adds support for launching Scenes from push notifications using the new Scene action and improvements to pager scroll behavior.
 
 ### Changes
-- Fixed `SceneAction` to correctly display Scenes when launched from push notifications.
+- Added support for the new `SceneAction`, which allows launching Scenes from push notifications.
 - Fixed pager scroll behavior for certain layouts and improved scroll position sync on device orientation change.
 - Fixed line height rendering in Scenes on iOS versions prior to iOS 26.
 
